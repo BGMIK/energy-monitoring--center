@@ -280,11 +280,11 @@ async function loadWeather(place){
     card.querySelector(".weather-updated").textContent=(currentLanguage==="en"?"UPDATED ":"ОБНОВЕНО ")+weatherTime(cur.time,{hour:"2-digit",minute:"2-digit"});
     const now=new Date(cur.time).getTime();
     const hours=data.hourly.time.map((t,i)=>({t,v:data.hourly.temperature_2m[i],p:data.hourly.precipitation_probability[i],w:data.hourly.weather_code[i]})).filter(x=>new Date(x.t).getTime()>=now).slice(0,12);
-    card.querySelector(".weather-hourly").innerHTML='<h4>ПОЧАСОВО — СЛЕДВАЩИТЕ 12 ЧАСА</h4><div class="weather-hour-row">'+hours.map(x=>{const wi=weatherDescription(x.w);const wd=currentLanguage==="en"?(translations[wi[1]]||wi[1]):wi[1];return '<div><span>'+weatherTime(x.t,{hour:"2-digit",minute:"2-digit"})+'</span><b>'+wi[0]+' '+Math.round(x.v)+'°</b><small>'+Math.round(x.p||0)+'% '+(currentLanguage==="en"?"rain":"дъжд")+'</small></div>';}).join("")+'</div>';
-    card.querySelector(".weather-daily").innerHTML='<h4>ПРОГНОЗА — 7 ДНИ</h4><div class="weather-day-list">'+data.daily.time.map((t,i)=>{const wi=weatherDescription(data.daily.weather_code[i]);return '<div><span>'+weatherTime(t+"T12:00",{weekday:"short",day:"2-digit",month:"2-digit"})+'</span><b>'+wi[0]+' '+Math.round(data.daily.temperature_2m_max[i])+'° / '+Math.round(data.daily.temperature_2m_min[i])+'°</b><small>'+Math.round(data.daily.precipitation_probability_max[i]||0)+'% дъжд</small></div>';}).join("")+'</div>';
+    card.querySelector(".weather-hourly").innerHTML='<h4>'+(currentLanguage==="en"?"HOURLY — NEXT 12 HOURS":"ПОЧАСОВО — СЛЕДВАЩИТЕ 12 ЧАСА")+'</h4><div class="weather-hour-row">'+hours.map(x=>{const wi=weatherDescription(x.w);const wd=currentLanguage==="en"?(translations[wi[1]]||wi[1]):wi[1];return '<div><span>'+weatherTime(x.t,{hour:"2-digit",minute:"2-digit"})+'</span><b>'+wi[0]+' '+Math.round(x.v)+'°</b><small>'+Math.round(x.p||0)+'% '+(currentLanguage==="en"?"rain":"дъжд")+'</small></div>';}).join("")+'</div>';
+    card.querySelector(".weather-daily").innerHTML='<h4>'+(currentLanguage==="en"?"7-DAY FORECAST":"ПРОГНОЗА — 7 ДНИ")+'</h4><div class="weather-day-list">'+data.daily.time.map((t,i)=>{const wi=weatherDescription(data.daily.weather_code[i]);const wd=currentLanguage==="en"?(translations[wi[1]]||wi[1]):wi[1];return '<div><span>'+weatherTime(t+"T12:00",{weekday:"short",day:"2-digit",month:"2-digit"})+'</span><b>'+wi[0]+' '+Math.round(data.daily.temperature_2m_max[i])+'° / '+Math.round(data.daily.temperature_2m_min[i])+'°</b><small>'+Math.round(data.daily.precipitation_probability_max[i]||0)+'% '+(currentLanguage==="en"?"rain":"дъжд")+'</small></div>';}).join("")+'</div>';
   }catch(error){
-    card.querySelector(".weather-updated").textContent="НЯМА ВРЪЗКА";
-    card.querySelector(".weather-description").textContent="Прогнозата не може да бъде заредена.";
+    card.querySelector(".weather-updated").textContent=currentLanguage==="en"?"NO CONNECTION":"НЯМА ВРЪЗКА";
+    card.querySelector(".weather-description").textContent=currentLanguage==="en"?"Forecast could not be loaded.":"Прогнозата не може да бъде заредена.";
     console.error("Weather load failed:",place.id,error);
   }
 }
