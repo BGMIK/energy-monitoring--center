@@ -258,3 +258,24 @@ footer b{color:#dce8ec;letter-spacing:.5px}
 .mountain-camera-fullscreen img{width:100vw;height:100vh;object-fit:contain;background:#000}
 .mountain-camera-fullscreen iframe{width:min(96vw,177.77vh);height:min(96vh,56.25vw);border:0;background:#000}
 @media(max-width:850px){.mountain-camera-grid{grid-template-columns:1fr;grid-template-rows:none}.mountain-camera-card{min-height:300px}.mountain-camera-view{min-height:220px}}
+
+
+/* Reduced Weather Center typography */
+.weather-temp{font-size:64px}
+.weather-details{font-size:20px}
+.weather-details b{font-size:20px}
+.weather-hour-row span,.weather-hour-row small{font-size:18px}
+.weather-hour-row b{font-size:20px}
+.weather-day-list>div{font-size:20px}
+.weather-day-list b{font-size:20px}
+.weather-day-list small{font-size:18px}
+@media(max-width:500px){
+  .weather-temp{font-size:54px}
+  .weather-details{font-size:17px}
+  .weather-details b{font-size:17px}
+  .weather-hour-row span,.weather-hour-row small{font-size:15px}
+  .weather-hour-row b{font-size:17px}
+  .weather-day-list>div{font-size:16px}
+  .weather-day-list b{font-size:16px}
+  .weather-day-list small{font-size:14px}
+}
