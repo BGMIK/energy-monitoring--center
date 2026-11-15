@@ -279,3 +279,11 @@ footer b{color:#dce8ec;letter-spacing:.5px}
   .weather-day-list b{font-size:16px}
   .weather-day-list small{font-size:14px}
 }
+
+/* IBEX below TPP2 and larger frequency display */
+.frequency{font-size:20px;font-weight:900;letter-spacing:.35px}
+.frequency b{font-size:24px;font-variant-numeric:tabular-nums}
+.ibex-live{margin-top:12px;padding:14px 18px}
+.ibex-live .market{font-size:20px;font-weight:900;letter-spacing:.3px}
+.ibex-live .market b{font-size:24px;font-variant-numeric:tabular-nums}
+@media(max-width:700px){.frequency{font-size:13px}.frequency b{font-size:19px}.ibex-live .market{font-size:17px}.ibex-live .market b{font-size:21px}}
