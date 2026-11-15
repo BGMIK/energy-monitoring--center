@@ -6,6 +6,37 @@ const API = {
   ibex: "https://api.energy-charts.info/price?bzn=BG",
   npp: "https://www.kznpp.org/bg/proizvodstvo/danni-za-elektroproizvodstvoto"
 };
+
+const translations={"ЕЛЕКТРОЕНЕРГИЙНА СИСТЕМА НА БЪЛГАРИЯ":"BULGARIAN POWER SYSTEM","ЗАРЕЖДАНЕ НА ОПЕРАТИВНИ ДАННИ":"LOADING OPERATIONAL DATA","ЧЕСТОТА:":"FREQUENCY:","Смяна на езика":"Change language","ЛИЧНИ УСТРОЙСТВА":"PERSONAL DEVICES","Енергиен хъб":"Energy Hub","ПРОИЗВОДСТВО ПО ЦЕНТРАЛИ / ИЗТОЧНИЦИ":"GENERATION BY PLANT / SOURCE","ТОВАР — ЕСО":"SYSTEM LOAD — ESO","РЕАЛИЗИРАН ТОВАР — ЕСО":"ACTUAL SYSTEM LOAD — ESO","ИЗЧАКВАНЕ НА ДАННИ ОТ ЕСО":"WAITING FOR ESO DATA","Графика на товара от ЕСО":"ESO system load chart","ТРАНСГРАНИЧНИ ПОТОЦИ (MW)":"CROSS-BORDER FLOWS (MW)","ТРАНСГРАНИЧНИ ПОТОЦИ":"CROSS-BORDER FLOWS","ТЕЦ „МАРИЦА ИЗТОК 2“ — ПРОИЗВОДСТВО ПО БЛОКОВЕ":"MARITSA EAST 2 TPP — UNIT GENERATION","Вертикални колонки с индивидуална скала: I–IV блок 0–185 MW · V–VIII блок 0–240 MW.":"Vertical bars with individual scales: Units I–IV 0–185 MW · Units V–VIII 0–240 MW.","ОБЩО ПРОИЗВОДСТВО":"TOTAL GENERATION","ЦЕНА НА ЕМИСИОННИТЕ ПРАВА CO₂ (EUA)":"CO₂ EMISSION ALLOWANCE PRICE (EUA)","Последна налична котировка:":"Last available quote:","Източник: oEnergetice · Борсова цена EUA":"Source: oEnergetice · EUA market price","България · Европа · Свят":"Bulgaria · Europe · World","Централизирано табло за новини от избрани надеждни източници в България, Европа и света.":"Centralized news dashboard from selected reliable sources in Bulgaria, Europe and worldwide.","МОДУЛЪТ Е ПРЕДВИДЕН · НЯМА ЗАРЕДЕНИ НОВИНИ":"MODULE PLANNED · NO NEWS LOADED","Метеорология · Планински камери · България · Малта":"Weather · Mountain Cameras · Bulgaria · Malta","ПРОГНОЗА ЗА ВРЕМЕТО — БЪЛГАРИЯ":"WEATHER FORECAST — BULGARIA","Текущи условия, почасова прогноза за следващите 12 часа и прогноза за 7 дни. Източник: Open-Meteo.":"Current conditions, hourly forecast for the next 12 hours and a 7-day forecast. Source: Open-Meteo.","СОФИЯ":"SOFIA","ДЖУЛЮНИЦА":"DZHULYUNITSA","ЗАРЕЖДАНЕ…":"LOADING…","Очакване на данни":"Waiting for data","Усеща се":"Feels like","Влажност":"Humidity","Вятър":"Wind","Автоматично обновяване на всеки 15 минути · Часова зона: Europe/Sofia":"Automatic refresh every 15 minutes · Time zone: Europe/Sofia","⛰️ ПЛАНИНСКИ КАМЕРИ":"⛰️ MOUNTAIN WEBCAMS","Три камери в планинския мониторинг. Двоен клик върху изображение отваря изглед на цял екран; ESC или двоен клик затваря.":"Three mountain monitoring cameras. Double-click an image to open full screen; press ESC or double-click to close.","РИЛА · БОРОВЕЦ":"RILA · BOROVETS","Маркуджик 1 · 2345 m":"Markudjik 1 · 2345 m","СТАРА ПЛАНИНА":"BALKAN MOUNTAINS","Заслон Ботев · 2056 m":"Botev Shelter · 2056 m","РОДОПИ":"RHODOPE MOUNTAINS","Пампорово – Студенец · ≈1650 m":"Pamporovo – Studenets · ≈1650 m","ВИТОША":"VITOSHA","Алеко · 1840 m":"Aleko · 1840 m","● LIVE VIDEO":"● LIVE VIDEO","● CONNECTING":"● CONNECTING","LIVE SNAPSHOT · ОБНОВЯВАНЕ 3 СЕК.":"LIVE SNAPSHOT · REFRESH EVERY 3 SEC.","ESC / ЗАТВОРИ ✕":"ESC / CLOSE ✕","Планинска камера":"Mountain webcam","Снимковите потоци се обновяват през 3 секунди. Видеоизлъчването е от YouTube.":"Image feeds refresh every 3 seconds. Video stream provided by YouTube.","Управление и мониторинг на лични устройства":"Personal device management and monitoring","Тук ще бъдат събрани личните устройства, сензори и системи за наблюдение.":"Personal devices, sensors and monitoring systems will be collected here.","МОДУЛЪТ Е ГОТОВ ЗА ДОБАВЯНЕ НА УСТРОЙСТВА":"MODULE READY FOR DEVICE INTEGRATION","ЛИЧЕН ИНФОРМАЦИОНЕН ЦЕНТЪР":"PERSONAL INFORMATION CENTER","ДЕМО ИНТЕРФЕЙС · НЕ Е ЗА ОПЕРАТИВНИ РЕШЕНИЯ":"DEMO INTERFACE · NOT FOR OPERATIONAL DECISIONS","ТОВАР НА РБ":"BULGARIAN SYSTEM LOAD","ВНОС / ИЗНОС":"IMPORT / EXPORT","ССЕЕ + ПОМПИ":"BESS + PUMPED STORAGE","АЕЦ":"NUCLEAR","ТЕЦ":"THERMAL","ВЕЦ + МАЛКИ ВЕЦ":"HYDRO + SMALL HYDRO","ВЕИ":"RENEWABLES","АЕЦ Козлодуй":"Kozloduy NPP","Кондензационни ТЕЦ":"Condensing thermal plants","Топлофикационни ТЕЦ":"District heating plants","Заводски ТЕЦ":"Industrial power plants","ВЕЦ":"Hydro plants","Малки ВЕЦ":"Small hydro plants","ВяЕЦ":"Wind farms","ФЕЦ":"Solar PV","Био ЕЦ":"Biomass plants","ССЕЕ":"BESS","Помпи ПАВЕЦ":"Pumped-storage pumping","Сърбия":"Serbia","Румъния":"Romania","Турция":"Türkiye","С. Македония":"North Macedonia","Гърция":"Greece","БЛОК 5":"UNIT 5","БЛОК 6":"UNIT 6","ОБЩО АЕЦ КОЗЛОДУЙ":"KOZLODUY NPP TOTAL","СТАТУС НЕПОТВЪРДЕН":"STATUS UNCONFIRMED","Източникът за данните на блокове 5 и 6 предстои да бъде свързан.":"The data source for Units 5 and 6 is pending integration.","В РАБОТА":"IN SERVICE","ИЗВЪН РАБОТА":"OUT OF SERVICE","НЯМА ДАННИ":"NO DATA","Ясно":"Clear","Предимно ясно":"Mainly clear","Променлива облачност":"Partly cloudy","Облачно":"Cloudy","Мъгла":"Fog","Ръмеж":"Drizzle","Дъжд":"Rain","Сняг":"Snow","Краткотрайни превалявания":"Rain showers","Снежни превалявания":"Snow showers","Гръмотевична буря":"Thunderstorm","Променливо":"Variable","ПОЧАСОВО — СЛЕДВАЩИТЕ 12 ЧАСА":"HOURLY — NEXT 12 HOURS","дъжд":"rain","ОБНОВЕНО":"UPDATED","ДАННИТЕ СА ОСТАРЕЛИ":"DATA IS OUTDATED","ЧАСТИЧНИ ДАННИ":"PARTIAL DATA","НЯМА ВРЪЗКА СЪС СЪРВЪРА":"SERVER CONNECTION LOST"};
+let currentLanguage="bg";
+const originalTextNodes=new WeakMap();
+const originalAttributes=new WeakMap();
+function applyLanguage(){
+  const english=currentLanguage==="en";
+  document.documentElement.lang=english?"en":"bg";
+  const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
+  let node;
+  while((node=walker.nextNode())){
+    if(!originalTextNodes.has(node))originalTextNodes.set(node,node.nodeValue);
+    const original=originalTextNodes.get(node),trimmed=original.trim();
+    if(!trimmed)continue;
+    const translated=translations[trimmed];
+    if(english&&translated)node.nodeValue=original.replace(trimmed,translated);
+    else node.nodeValue=original;
+  }
+  document.querySelectorAll("[aria-label],[title]").forEach(el=>{
+    for(const attr of ["aria-label","title"]){
+      if(!el.hasAttribute(attr))continue;
+      const key=el.tagName+":"+attr;
+      let store=originalAttributes.get(el);if(!store){store={};originalAttributes.set(el,store);}
+      if(store[attr]===undefined)store[attr]=el.getAttribute(attr);
+      const original=store[attr];el.setAttribute(attr,english?(translations[original]||original):original);
+    }
+  });
+  const button=document.getElementById("languageBtn");
+  if(button){button.textContent=english?"БЪЛГАРСКИ":"ENGLISH";button.setAttribute("aria-label",english?"Switch to Bulgarian":"Switch to English");}
+}
+
 const $ = s => document.querySelector(s);
 const fmt = (n,d=0) => Number(n).toLocaleString("bg-BG",{maximumFractionDigits:d,minimumFractionDigits:d});
 const state = {lastUpdated:null, loadSeries:[], values:{}};
@@ -84,7 +115,7 @@ async function updateFrequency(){
 }
 async function updateIbex(){const raw=await getJson(API.ibex);const now=Date.now()/1000;let i=(raw.unix_seconds||[]).findLastIndex(t=>Number(t)<=now);if(i<0)i=0;const price=num(raw.price?.[i]);if(price==null)throw Error("Няма цена");$(".market b").textContent=fmt(price,2)+" €/MWh";}
 async function updateNpp(){const html=await getText(API.npp);const txt=html.replace(/<script\b.*?<\/script>/gis," ").replace(/<style\b.*?<\/style>/gis," ").replace(/<[^>]+>/g," ").replace(/\s+/g," ");const parse=n=>{const m=txt.match(new RegExp("Блок\\s*"+n+"\\s+([0-9][0-9\\s.,]*)\\s*MW","i"));return m?num(m[1]):null;};const a=parse(5),b=parse(6);const cards=document.querySelectorAll(".npp .unit");if(cards[0]){cards[0].querySelector("strong").textContent=a==null?"— MW":fmt(a)+" MW";cards[0].querySelector("small").textContent=a==null?"НЯМА ДАННИ":a>1?"В РАБОТА":"ИЗВЪН РАБОТА";}if(cards[1]){cards[1].querySelector("strong").textContent=b==null?"— MW":fmt(b)+" MW";cards[1].querySelector("small").textContent=b==null?"НЯМА ДАННИ":b>1?"В РАБОТА":"ИЗВЪН РАБОТА";}$(".npp .total strong").textContent=a==null||b==null?"— MW":fmt(a+b)+" MW";}
-function render(){renderGauges(state.values);renderProduction(state.values);renderFlows(state.values);}
+function render(){renderGauges(state.values);renderProduction(state.values);renderFlows(state.values);applyLanguage();}
 async function cycle(){
   const errors=[];
   try{
@@ -176,10 +207,10 @@ function renderTpp2Blocks(){
   total.textContent=fmt(tpp2BlockData.reduce((sum,b)=>sum+b.mw,0),2)+" MW";
 }
 renderTpp2Blocks();
-renderGauges();renderProduction();renderFlows();
+renderGauges();renderProduction();renderFlows();applyLanguage();
 function tick(){$("#clock").textContent=new Date().toLocaleTimeString("bg-BG",{hour12:false});}tick();setInterval(tick,1000);
 document.querySelectorAll(".module").forEach(btn=>btn.addEventListener("click",()=>{document.querySelectorAll(".module").forEach(b=>b.classList.toggle("active",b===btn));document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===btn.dataset.page));}));
-$("#languageBtn").addEventListener("click",()=>alert("Английската версия ще бъде добавена в следващ етап."));
+$("#languageBtn").addEventListener("click",()=>{currentLanguage=currentLanguage==="bg"?"en":"bg";applyLanguage();});
 cycle();setInterval(cycle,60000);
 updateFrequency().catch(e=>{document.querySelector(".frequency").title="Energy-Charts: "+e.message;});
 setInterval(()=>updateFrequency().catch(e=>{document.querySelector(".frequency").title="Energy-Charts: "+e.message;}),30000);
@@ -239,17 +270,17 @@ async function loadWeather(place){
     const response=await fetch(url,{cache:"no-store"});
     if(!response.ok)throw new Error("HTTP "+response.status);
     const data=await response.json(),cur=data.current;
-    const [icon,desc]=weatherDescription(cur.weather_code);
+    const [icon,bgDesc]=weatherDescription(cur.weather_code);const desc=currentLanguage==="en"?(translations[bgDesc]||bgDesc):bgDesc;
     card.querySelector(".weather-icon").textContent=icon;
     card.querySelector(".weather-temp").textContent=Math.round(cur.temperature_2m)+"°C";
     card.querySelector(".weather-description").textContent=desc;
     card.querySelector(".weather-feels").textContent=Math.round(cur.apparent_temperature)+"°C";
     card.querySelector(".weather-humidity").textContent=cur.relative_humidity_2m+"%";
     card.querySelector(".weather-wind").textContent=Math.round(cur.wind_speed_10m)+" km/h";
-    card.querySelector(".weather-updated").textContent="ОБНОВЕНО "+weatherTime(cur.time,{hour:"2-digit",minute:"2-digit"});
+    card.querySelector(".weather-updated").textContent=(currentLanguage==="en"?"UPDATED ":"ОБНОВЕНО ")+weatherTime(cur.time,{hour:"2-digit",minute:"2-digit"});
     const now=new Date(cur.time).getTime();
     const hours=data.hourly.time.map((t,i)=>({t,v:data.hourly.temperature_2m[i],p:data.hourly.precipitation_probability[i],w:data.hourly.weather_code[i]})).filter(x=>new Date(x.t).getTime()>=now).slice(0,12);
-    card.querySelector(".weather-hourly").innerHTML='<h4>ПОЧАСОВО — СЛЕДВАЩИТЕ 12 ЧАСА</h4><div class="weather-hour-row">'+hours.map(x=>{const wi=weatherDescription(x.w);return '<div><span>'+weatherTime(x.t,{hour:"2-digit",minute:"2-digit"})+'</span><b>'+wi[0]+' '+Math.round(x.v)+'°</b><small>'+Math.round(x.p||0)+'% дъжд</small></div>';}).join("")+'</div>';
+    card.querySelector(".weather-hourly").innerHTML='<h4>ПОЧАСОВО — СЛЕДВАЩИТЕ 12 ЧАСА</h4><div class="weather-hour-row">'+hours.map(x=>{const wi=weatherDescription(x.w);const wd=currentLanguage==="en"?(translations[wi[1]]||wi[1]):wi[1];return '<div><span>'+weatherTime(x.t,{hour:"2-digit",minute:"2-digit"})+'</span><b>'+wi[0]+' '+Math.round(x.v)+'°</b><small>'+Math.round(x.p||0)+'% '+(currentLanguage==="en"?"rain":"дъжд")+'</small></div>';}).join("")+'</div>';
     card.querySelector(".weather-daily").innerHTML='<h4>ПРОГНОЗА — 7 ДНИ</h4><div class="weather-day-list">'+data.daily.time.map((t,i)=>{const wi=weatherDescription(data.daily.weather_code[i]);return '<div><span>'+weatherTime(t+"T12:00",{weekday:"short",day:"2-digit",month:"2-digit"})+'</span><b>'+wi[0]+' '+Math.round(data.daily.temperature_2m_max[i])+'° / '+Math.round(data.daily.temperature_2m_min[i])+'°</b><small>'+Math.round(data.daily.precipitation_probability_max[i]||0)+'% дъжд</small></div>';}).join("")+'</div>';
   }catch(error){
     card.querySelector(".weather-updated").textContent="НЯМА ВРЪЗКА";
