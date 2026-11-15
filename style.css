@@ -28,12 +28,12 @@ button{font:inherit}
 main{padding-top:9px}
 .page{display:none}
 .page.active{display:block}
-.gauges{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;margin-bottom:9px}
-.gauge-card{background:var(--panel);border:1px solid #1d3d48;min-width:0;text-align:center;padding:10px 4px 8px;overflow:visible;position:relative}
-.gauge-card h3{font-size:clamp(10px,.86vw,14px);margin:0 0 3px;white-space:nowrap;font-weight:900;color:#f4f8f9}
-.gauge-svg{width:130%;max-width:none;display:block;margin:2px 0 0 -15%;overflow:visible;position:relative;z-index:2}
-.gauge-value{font:900 clamp(14px,1.16vw,20px) Consolas,monospace;letter-spacing:.5px;margin-top:-1px;color:#ffffff;text-shadow:0 1px 2px #000}
-.gauge-unit{font-size:9px;color:#9aadb4}
+.gauges{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.gauge-card{background:var(--panel);border:1px solid #1d3d48;min-width:0;text-align:center;padding:14px 8px 12px;overflow:visible;position:relative}
+.gauge-card h3{font-size:clamp(13px,1.05vw,18px);margin:0 0 5px;white-space:nowrap;font-weight:900;color:#f4f8f9}
+.gauge-svg{width:min(100%,300px);max-width:none;display:block;margin:3px auto 0;overflow:visible;position:relative;z-index:2}
+.gauge-value{font:900 clamp(19px,1.55vw,27px) Consolas,monospace;letter-spacing:.5px;margin-top:0;color:#ffffff;text-shadow:0 1px 2px #000}
+.gauge-unit{font-size:11px;color:#9aadb4}
 .dashboard{display:grid;grid-template-columns:minmax(250px,1fr) minmax(320px,1.06fr) minmax(245px,.82fr);gap:10px;align-items:stretch}
 .panel{background:var(--panel);border:1px solid #31515c;min-width:0;padding:0 8px 9px}
 .panel h2{font-size:clamp(12px,.94vw,16px);margin:0;padding:15px 9px 12px;font-weight:800}
@@ -86,7 +86,7 @@ footer b{color:#dce8ec;letter-spacing:.5px}
 @media(max-width:1150px){
  .topbar{gap:13px;flex-wrap:wrap;padding:12px}
  .dashboard{grid-template-columns:1fr 1fr}
- .gauges{grid-template-columns:repeat(4,minmax(0,1fr))}
+ .gauges{grid-template-columns:repeat(2,minmax(0,1fr))}
  .production{grid-row:span 2}
  .middle,.right{grid-column:2}
 }
