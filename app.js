@@ -132,6 +132,23 @@ async function cycle(){
     $(".meta").textContent="ПОСЛЕДНО ОБНОВЯВАНЕ: —";
   }
 }
+const tpp2BlockData = [
+  {name:"ТЕЦ „Марица Изток 2“ — I блок",mw:170},
+  {name:"ТЕЦ „Марица Изток 2“ — II блок",mw:152},
+  {name:"ТЕЦ „Марица Изток 2“ — III блок",mw:157},
+  {name:"ТЕЦ „Марица Изток 2“ — IV блок",mw:159},
+  {name:"ТЕЦ „Марица Изток 2“ — V блок",mw:208},
+  {name:"ТЕЦ „Марица Изток 2“ — VI блок",mw:208},
+  {name:"ТЕЦ „Марица Изток 2“ — VII блок",mw:212},
+  {name:"ТЕЦ „Марица Изток 2“ — VIII блок",mw:222}
+];
+function renderTpp2Blocks(){
+  const body=$("#tpp2Blocks"),total=$("#tpp2Total");
+  if(!body||!total)return;
+  body.innerHTML=tpp2BlockData.map(b=>"<tr><td>"+b.name+"</td><td>"+fmt(b.mw,2)+" MW</td></tr>").join("");
+  total.textContent=fmt(tpp2BlockData.reduce((sum,b)=>sum+b.mw,0),2)+" MW";
+}
+renderTpp2Blocks();
 renderGauges();renderProduction();renderFlows();
 function tick(){$("#clock").textContent=new Date().toLocaleTimeString("bg-BG",{hour12:false});}tick();setInterval(tick,1000);
 document.querySelectorAll(".module").forEach(btn=>btn.addEventListener("click",()=>{document.querySelectorAll(".module").forEach(b=>b.classList.toggle("active",b===btn));document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===btn.dataset.page));}));
