@@ -245,6 +245,11 @@ function refreshMountainCamera(id,url,statusId){
   if(!img)return;
   img.onload=()=>{if(status){status.textContent="● ONLINE";status.style.color="#21e38a";}};
   img.onerror=()=>{if(status){status.textContent="● NO FRAME";status.style.color="#ff5d63";}};
+  // Pladi camera rejects cache-busting query parameters; use its exact image URL.
+  if(id==="mountain-botev"){
+    if(img.dataset.source!==url){img.dataset.source=url;img.src=url;}
+    return;
+  }
   img.src=url+(url.includes("?")?"&":"?")+"_="+Date.now();
 }
 function refreshMountainCameras(){
