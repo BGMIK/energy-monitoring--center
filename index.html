@@ -60,10 +60,16 @@
   </div>
 </section>
 
-<section class="page placeholder" id="news">
-  <div class="module-heading"><span>📰</span><div><h1>NEWS CENTER</h1><p>България · Европа · Свят</p></div></div>
-  <p>Централизирано табло за новини от избрани надеждни източници в България, Европа и света.</p>
-  <div class="module-status">МОДУЛЪТ Е ПРЕДВИДЕН · НЯМА ЗАРЕДЕНИ НОВИНИ</div>
+<section class="page news-page" id="news">
+  <div class="module-heading"><span>📰</span><div><h1>NEWS CENTER</h1><p>Българска и европейска енергетика · Новини от днес</p></div></div>
+  <div class="news-toolbar"><span id="news-updated">ЗАРЕЖДАНЕ НА ЕНЕРГИЙНИ НОВИНИ…</span><button type="button" id="news-refresh">↻ ОБНОВИ</button></div>
+  <div class="news-categories">
+    <section class="news-category" id="news-electricity"><h2>⚡ ЕЛЕКТРОЕНЕРГЕТИКА</h2><p>ЕСО · БНЕБ · АЕЦ · ТЕЦ · ВЕЦ · ВЕИ</p><div class="news-list" data-news="electricity"><div class="news-loading">Зареждане…</div></div></section>
+    <section class="news-category" id="news-nuclear"><h2>☢️ ЯДРЕНА ЕНЕРГЕТИКА</h2><p>България · Международни проекти</p><div class="news-list" data-news="nuclear"><div class="news-loading">Зареждане…</div></div></section>
+    <section class="news-category" id="news-renewables"><h2>🔋 ВЕИ И СЪХРАНЕНИЕ</h2><p>Соларни паркове · Вятърни централи · BESS</p><div class="news-list" data-news="renewables"><div class="news-loading">Зареждане…</div></div></section>
+    <section class="news-category" id="news-policy"><h2>🏛️ ЕНЕРГИЙНА ПОЛИТИКА</h2><p>Министерство на енергетиката · КЕВР · Европейски съюз</p><div class="news-list" data-news="policy"><div class="news-loading">Зареждане…</div></div></section>
+  </div>
+  <div class="news-source-note">Новините се подбират по тематични заявки към Google News RSS. Показват се публикации от днешната дата; оригиналният материал остава в сайта на издателя.</div>
 </section>
 
 <section class="page placeholder" id="weather">
