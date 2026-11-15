@@ -152,5 +152,4 @@ footer b{color:#dce8ec;letter-spacing:.5px}
 /* AES refresh indicator */
 .aes-live h2{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .aes-live-status{display:inline-flex;align-items:center;gap:6px;color:#16d49a;font-size:10px;font-weight:800;white-space:nowrap}
-.aes-live-status i{width:8px;height:8px;border-radius:50%;background:#16d49a;display:inline-block;box-shadow:0 0 8px #16d49a;animation:aesBlink .8s steps(2,start) infinite}
-@keyframes aesBlink{to{visibility:hidden}}
+.aes-live-status i{width:8px;height:8px;border-radius:50%;background:#16d49a;display:inline-block;box-shadow:0 0 8px #16d49a}
