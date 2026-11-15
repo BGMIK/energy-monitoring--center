@@ -186,3 +186,55 @@ function renderThermalUnitBars(chartId,totalId,units){
 }
 renderThermalUnitBars("cg3Blocks","cg3Total",additionalThermalUnits.cg3);
 renderThermalUnitBars("bobovDolBlocks","bobovDolTotal",additionalThermalUnits.bobovDol);
+
+/* Weather forecast for Sofia and Dzhulyunitsa — Open-Meteo, no API key */
+const weatherPlaces=[
+  {id:"weather-sofia",lat:42.6977,lon:23.3219},
+  {id:"weather-dzhulyunitsa",lat:43.13668,lon:25.90033}
+];
+function weatherDescription(code){
+  if(code===0)return ["☀️","Ясно"];
+  if(code===1)return ["🌤️","Предимно ясно"];
+  if(code===2)return ["⛅","Променлива облачност"];
+  if(code===3)return ["☁️","Облачно"];
+  if([45,48].includes(code))return ["🌫️","Мъгла"];
+  if([51,53,55,56,57].includes(code))return ["🌦️","Ръмеж"];
+  if([61,63,65,66,67].includes(code))return ["🌧️","Дъжд"];
+  if([71,73,75,77].includes(code))return ["🌨️","Сняг"];
+  if([80,81,82].includes(code))return ["🌧️","Краткотрайни превалявания"];
+  if([85,86].includes(code))return ["🌨️","Снежни превалявания"];
+  if([95,96,99].includes(code))return ["⛈️","Гръмотевична буря"];
+  return ["🌡️","Променливо"];
+}
+function weatherTime(value,options){
+  return new Intl.DateTimeFormat("bg-BG",{timeZone:"Europe/Sofia",...options}).format(new Date(value));
+}
+async function loadWeather(place){
+  const card=document.getElementById(place.id);
+  if(!card)return;
+  try{
+    const url="https://api.open-meteo.com/v1/forecast?latitude="+place.lat+"&longitude="+place.lon+"&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,wind_speed_10m&hourly=temperature_2m,precipitation_probability,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&forecast_days=7&timezone=Europe%2FSofia";
+    const response=await fetch(url,{cache:"no-store"});
+    if(!response.ok)throw new Error("HTTP "+response.status);
+    const data=await response.json(),cur=data.current;
+    const [icon,desc]=weatherDescription(cur.weather_code);
+    card.querySelector(".weather-icon").textContent=icon;
+    card.querySelector(".weather-temp").textContent=Math.round(cur.temperature_2m)+"°C";
+    card.querySelector(".weather-description").textContent=desc;
+    card.querySelector(".weather-feels").textContent=Math.round(cur.apparent_temperature)+"°C";
+    card.querySelector(".weather-humidity").textContent=cur.relative_humidity_2m+"%";
+    card.querySelector(".weather-wind").textContent=Math.round(cur.wind_speed_10m)+" km/h";
+    card.querySelector(".weather-updated").textContent="ОБНОВЕНО "+weatherTime(cur.time,{hour:"2-digit",minute:"2-digit"});
+    const now=new Date(cur.time).getTime();
+    const hours=data.hourly.time.map((t,i)=>({t,v:data.hourly.temperature_2m[i],p:data.hourly.precipitation_probability[i],w:data.hourly.weather_code[i]})).filter(x=>new Date(x.t).getTime()>=now).slice(0,12);
+    card.querySelector(".weather-hourly").innerHTML='<h4>ПОЧАСОВО — СЛЕДВАЩИТЕ 12 ЧАСА</h4><div class="weather-hour-row">'+hours.map(x=>{const wi=weatherDescription(x.w);return '<div><span>'+weatherTime(x.t,{hour:"2-digit",minute:"2-digit"})+'</span><b>'+wi[0]+' '+Math.round(x.v)+'°</b><small>'+Math.round(x.p||0)+'% дъжд</small></div>';}).join("")+'</div>';
+    card.querySelector(".weather-daily").innerHTML='<h4>ПРОГНОЗА — 7 ДНИ</h4><div class="weather-day-list">'+data.daily.time.map((t,i)=>{const wi=weatherDescription(data.daily.weather_code[i]);return '<div><span>'+weatherTime(t+"T12:00",{weekday:"short",day:"2-digit",month:"2-digit"})+'</span><b>'+wi[0]+' '+Math.round(data.daily.temperature_2m_max[i])+'° / '+Math.round(data.daily.temperature_2m_min[i])+'°</b><small>'+Math.round(data.daily.precipitation_probability_max[i]||0)+'% дъжд</small></div>';}).join("")+'</div>';
+  }catch(error){
+    card.querySelector(".weather-updated").textContent="НЯМА ВРЪЗКА";
+    card.querySelector(".weather-description").textContent="Прогнозата не може да бъде заредена.";
+    console.error("Weather load failed:",place.id,error);
+  }
+}
+function refreshWeather(){weatherPlaces.forEach(loadWeather);}
+refreshWeather();
+setInterval(refreshWeather,15*60*1000);
