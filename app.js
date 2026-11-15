@@ -161,3 +161,28 @@ function tick(){$("#clock").textContent=new Date().toLocaleTimeString("bg-BG",{h
 document.querySelectorAll(".module").forEach(btn=>btn.addEventListener("click",()=>{document.querySelectorAll(".module").forEach(b=>b.classList.toggle("active",b===btn));document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===btn.dataset.page));}));
 $("#languageBtn").addEventListener("click",()=>alert("Английската версия ще бъде добавена в следващ етап."));
 cycle();setInterval(cycle,60000);
+
+const additionalThermalUnits = {
+  cg3: [
+    {name:"I",mw:null},{name:"II",mw:null},{name:"III",mw:null},{name:"IV",mw:null}
+  ],
+  bobovDol: [
+    {name:"I",mw:null},{name:"II",mw:null},{name:"III",mw:null}
+  ]
+};
+function renderThermalUnitBars(chartId,totalId,units){
+  const chart=$("#"+chartId),total=$("#"+totalId);
+  if(!chart||!total)return;
+  const max=240;
+  chart.innerHTML=units.map(unit=>{
+    const valid=Number.isFinite(unit.mw);
+    const value=valid?Math.max(0,Math.min(unit.mw,max)):0;
+    const pct=(value/max)*100;
+    const ticks=[0,25,50,75,100].map(t=>'<span class="tpp2-gridline" style="bottom:'+t+'%"></span>').join("");
+    return '<div class="tpp2-bar-col"><div class="tpp2-value">'+(valid?fmt(value,0)+' <small>MW</small>':'— <small>MW</small>')+'</div><div class="tpp2-track" role="img" aria-label="Блок '+unit.name+': '+(valid?fmt(value,0):'няма данни')+' от 240 MW">'+ticks+(valid?'<div class="tpp2-bar" style="height:'+pct+'%"></div>':'')+'</div><div class="tpp2-block">БЛОК '+unit.name+'</div><div class="tpp2-scale">0–240 MW</div></div>';
+  }).join("");
+  const measured=units.filter(unit=>Number.isFinite(unit.mw));
+  total.textContent=measured.length?fmt(measured.reduce((sum,unit)=>sum+unit.mw,0),2)+" MW":"НЯМА ДАННИ";
+}
+renderThermalUnitBars("cg3Blocks","cg3Total",additionalThermalUnits.cg3);
+renderThermalUnitBars("bobovDolBlocks","bobovDolTotal",additionalThermalUnits.bobovDol);
