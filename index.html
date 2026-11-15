@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#071a22">
 <meta name="description" content="MILCHO HUB — личен информационен център за енергетика, планини, новини и метеорология.">
 <title>MILCHO HUB — Personal Information Center</title>
-<link rel="stylesheet" href="style.css?v=weather-sofia-dzhulyunitsa-20261115-1">
+<link rel="stylesheet" href="style.css?v=mountain-cameras-in-weather-20261115-1">
 </head>
 <body>
 <header class="topbar">
@@ -85,8 +85,35 @@
   </section>
   <section class="weather-section mountain-cameras">
     <h2>⛰️ ПЛАНИНСКИ КАМЕРИ</h2>
-    <p>Камери от планините и курортите в България — Ботев, Родопи, Витоша, Боровец и Мальовица.</p>
-    <div class="module-status">КАМЕРИТЕ ЩЕ БЪДАТ ДОБАВЕНИ В ТОЗИ МОДУЛ</div>
+    <p>Четири камери в подредба 2 × 2. Двоен клик върху изображение отваря изглед на цял екран; ESC или двоен клик затваря.</p>
+    <div class="mountain-camera-grid">
+      <article class="mountain-camera-card">
+        <div class="mountain-camera-region">СТАРА ПЛАНИНА</div><h3>Заслон Ботев · 2056 m</h3>
+        <div class="mountain-camera-view" ondblclick="mountainFullscreen('image','mountain-botev')"><img id="mountain-botev" alt="Камера заслон Ботев"></div>
+        <div class="mountain-camera-status" id="mountain-botev-status">● CONNECTING</div><small>LIVE SNAPSHOT · ОБНОВЯВАНЕ 3 СЕК.</small>
+      </article>
+      <article class="mountain-camera-card">
+        <div class="mountain-camera-region">РИЛА</div><h3>Мальовица · 1960 m</h3>
+        <div class="mountain-camera-view" ondblclick="mountainFullscreen('frame','mountain-maly')"><iframe id="mountain-maly" src="https://www.youtube.com/embed/iFgXw3BNuns?autoplay=1&amp;mute=1&amp;playsinline=1&amp;rel=0&amp;controls=1" title="Камера Мальовица" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>
+        <div class="mountain-camera-status">● LIVE VIDEO</div><small>YOUTUBE LIVE</small>
+      </article>
+      <article class="mountain-camera-card">
+        <div class="mountain-camera-region">РОДОПИ</div><h3>Пампорово – Студенец · ≈1650 m</h3>
+        <div class="mountain-camera-view" ondblclick="mountainFullscreen('image','mountain-pamporovo')"><img id="mountain-pamporovo" alt="Камера Пампорово Студенец"></div>
+        <div class="mountain-camera-status" id="mountain-pamporovo-status">● CONNECTING</div><small>LIVE SNAPSHOT · ОБНОВЯВАНЕ 3 СЕК.</small>
+      </article>
+      <article class="mountain-camera-card">
+        <div class="mountain-camera-region">ВИТОША</div><h3>Алеко · 1840 m</h3>
+        <div class="mountain-camera-view" ondblclick="mountainFullscreen('image','mountain-aleko')"><img id="mountain-aleko" alt="Камера Алеко"></div>
+        <div class="mountain-camera-status" id="mountain-aleko-status">● CONNECTING</div><small>LIVE SNAPSHOT · ОБНОВЯВАНЕ 3 СЕК.</small>
+      </article>
+    </div>
+    <div class="mountain-camera-fullscreen" id="mountain-camera-fullscreen" ondblclick="closeMountainFullscreen()">
+      <button type="button" onclick="closeMountainFullscreen()">ESC / ЗАТВОРИ ✕</button>
+      <img id="mountain-fs-image" alt="Планинска камера" hidden>
+      <iframe id="mountain-fs-frame" title="Планинска камера на цял екран" hidden allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
+    </div>
+    <div class="weather-source">Снимковите потоци се обновяват през 3 секунди. Видеоизлъчването е от YouTube.</div>
   </section>
 </section>
 </main>
@@ -95,6 +122,6 @@
   <b>MILCHO HUB</b><span>ЛИЧЕН ИНФОРМАЦИОНЕН ЦЕНТЪР</span>
   <span class="warning">ДЕМО ИНТЕРФЕЙС · НЕ Е ЗА ОПЕРАТИВНИ РЕШЕНИЯ</span>
 </footer>
-<script src="app.js?v=weather-sofia-dzhulyunitsa-20261115-1"></script>
+<script src="app.js?v=mountain-cameras-in-weather-20261115-1"></script>
 </body>
 </html>
