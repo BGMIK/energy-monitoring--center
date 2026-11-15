@@ -305,3 +305,10 @@ footer b{color:#dce8ec;letter-spacing:.5px}
 .production{min-height:0}
 @media(max-width:1150px){.dashboard{min-height:0}.production{min-height:590px}}
 @media(max-width:700px){.left-stack,.middle,.right{display:flex;flex-direction:column}.left-stack>.panel,.middle>.panel,.right>.panel{flex:initial;min-height:0}.production{min-height:0}}
+
+/* Fix TPP2 chart overlap: keep its chart panel tall and market panels below it */
+.right>.tpp2-live{flex:1 0 390px;min-height:390px;overflow:visible}
+.right>.ibex-live,.right>.co2-live{flex:0 0 auto;min-height:58px}
+.tpp2-chart{flex-shrink:0}
+.tpp2-track{flex-shrink:0}
+@media(max-width:700px){.right>.tpp2-live{flex:0 0 auto;min-height:0}.right>.ibex-live,.right>.co2-live{flex:0 0 auto}}
