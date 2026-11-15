@@ -222,3 +222,23 @@ footer b{color:#dce8ec;letter-spacing:.5px}
   .weather-day-list b{font-size:16px}
   .weather-day-list small{font-size:14px}
 }
+
+/* Double weather value typography again */
+.weather-temp{font-size:128px}
+.weather-details{font-size:40px}
+.weather-details b{font-size:40px}
+.weather-hour-row span,.weather-hour-row small{font-size:36px}
+.weather-hour-row b{font-size:40px}
+.weather-day-list>div{font-size:40px}
+.weather-day-list b{font-size:40px}
+.weather-day-list small{font-size:36px}
+@media(max-width:500px){
+  .weather-temp{font-size:108px}
+  .weather-details{font-size:34px}
+  .weather-details b{font-size:34px}
+  .weather-hour-row span,.weather-hour-row small{font-size:30px}
+  .weather-hour-row b{font-size:34px}
+  .weather-day-list>div{font-size:32px}
+  .weather-day-list b{font-size:32px}
+  .weather-day-list small{font-size:28px}
+}
