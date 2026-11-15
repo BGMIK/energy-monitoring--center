@@ -68,6 +68,17 @@ def find_frequency(obj):
             if x is not None:return x
     elif isinstance(obj,(int,float)) and 45<=float(obj)<=55:return float(obj)
     return None
+def fresh_mirror():
+    mirror=json.loads(get(BASE+"latest.json",18))
+    stamp=mirror.get("timestamp_utc")
+    if not stamp:
+        raise RuntimeError("ESO mirror timestamp missing")
+    from datetime import datetime
+    dt=datetime.fromisoformat(stamp.replace("Z","+00:00"))
+    if (datetime.now(timezone.utc)-dt).total_seconds()>20*60:
+        raise RuntimeError("ESO mirror snapshot is older than 20 minutes")
+    return mirror
+
 def run():
     result={"updated_at":datetime.now(timezone.utc).isoformat(timespec="seconds"),"sources":{},"values":{},"series":[]}
     def source(name, fn):
@@ -77,7 +88,10 @@ def run():
         except Exception as e:
             result["sources"][name]={"ok":False,"error":str(e)[:240]}
     def generation():
-        raw=json.loads(get(URLS["generation"]))
+        try:
+            raw=json.loads(get(URLS["generation"]))
+        except Exception:
+            raw=fresh_mirror().get("raw_gen_api",[])
         f=flatten(raw); v=result["values"]
         keys=["АЕЦ","Кондензационни ТЕЦ","Топлофикационни ТЕЦ","Заводски ТЕЦ","ВЕЦ","Малки ВЕЦ","ВяЕЦ","ФЕЦ","Био ЕЦ"]
         for k in keys:
@@ -98,13 +112,35 @@ def run():
         if any(k in v for k in renewable_keys):v["renew"]=sum(v.get(k,0) for k in renewable_keys)
         if charge is not None or discharge is not None or pumps is not None:
             v["bess"]=(pumps or 0)+(charge or 0)-(discharge or 0)
+        if not any(k in v for k in keys):
+            mirror=fresh_mirror()
+            for k in keys:
+                x=number(mirror.get(k))
+                if x is not None:v[k]=x
+            for key in ("batt_charge_mw","batt_discharge_mw","pumps_mw","pump_mw","load_mw","Товар на РБ"):
+                x=number(mirror.get(key))
+                if x is not None:v[key]=x
+            v["nuclear"]=v.get("АЕЦ")
+            if any(k in v for k in ("Кондензационни ТЕЦ","Топлофикационни ТЕЦ","Заводски ТЕЦ")):v["thermal"]=sum(v.get(k,0) for k in ("Кондензационни ТЕЦ","Топлофикационни ТЕЦ","Заводски ТЕЦ"))
+            if any(k in v for k in ("ВЕЦ","Малки ВЕЦ")):v["hydro"]=sum(v.get(k,0) for k in ("ВЕЦ","Малки ВЕЦ"))
+            if any(k in v for k in ("ВяЕЦ","ФЕЦ","Био ЕЦ")):v["renew"]=sum(v.get(k,0) for k in ("ВяЕЦ","ФЕЦ","Био ЕЦ"))
+            if any(k in v for k in ("batt_charge_mw","batt_discharge_mw","pump_mw","pumps_mw")):v["bess"]=(v.get("pump_mw",v.get("pumps_mw",0)) or 0)+(v.get("batt_charge_mw",0) or 0)-(v.get("batt_discharge_mw",0) or 0)
         if not any(k in v for k in keys):raise RuntimeError("ESO generation endpoint returned no recognized generation rows")
     def flows():
-        raw=json.loads(get(URLS["flows"])); f=flatten(raw); v=result["values"]
+        try:
+            raw=json.loads(get(URLS["flows"]))
+        except Exception:
+            raw=fresh_mirror()
+        f=flatten(raw); v=result["values"]
         aliases={"SR_mw":("SR_mw","SR","Сърбия","Serbia"),"RO_mw":("RO_mw","RO","Румъния","Romania"),"TR_mw":("TR_mw","TR","Турция","Turkey"),"MK_mw":("MK_mw","MK","Македония","Северна Македония","North Macedonia"),"GR_mw":("GR_mw","GR","Гърция","Greece")}
         for k,a in aliases.items():
             x=pick(f,*a)
             if x is not None:v[k]=x
+        if not any(k in v for k in aliases):
+            mirror=fresh_mirror()
+            for k in aliases:
+                x=number(mirror.get(k))
+                if x is not None:v[k]=x
         if not any(k in v for k in aliases):raise RuntimeError("ESO flow endpoint returned no country values")
         v["net"]=sum(v[k] for k in aliases if k in v)
     def load():
