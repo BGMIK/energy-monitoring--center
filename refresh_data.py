@@ -45,7 +45,7 @@ def flatten(obj, out=None):
             elif isinstance(item,(dict,list)): flatten(item,out)
     return out
 def pick(flat,*names):
-    norm=lambda x: re.sub(r"\\s+"," ",re.sub(r"\\s*[0-9]+(?:[.,][0-9]+)?%","",str(x).strip().lower())).strip(" :;-—")
+    norm=lambda x: re.sub(r"\s+"," ",re.sub(r"\s*[0-9]+(?:[.,][0-9]+)?%","",str(x).strip().lower())).strip(" :;-—")
     wanted=[norm(n) for n in names]
     for exact in (True,False):
         for k,v in flat.items():
@@ -135,10 +135,10 @@ def run():
         result["values"]["ibex"]=number(prices[idx])
     def npp():
         page=get(URLS["npp"])
-        txt=re.sub(r"<script\\b.*?</script>|<style\\b.*?</style>"," ",page,flags=re.I|re.S)
-        txt=re.sub(r"<[^>]+>"," ",txt);txt=re.sub(r"\\s+"," ",txt)
+        txt=re.sub(r"<script\b.*?</script>|<style\b.*?</style>"," ",page,flags=re.I|re.S)
+        txt=re.sub(r"<[^>]+>"," ",txt);txt=re.sub(r"\s+"," ",txt)
         for n in (5,6):
-            m=re.search(r"Блок\\s*"+str(n)+r"\\s+([0-9][0-9\\s.,]*)\\s*MW",txt,re.I)
+            m=re.search(r"Блок\s*"+str(n)+r"\s+([0-9][0-9\s.,]*)\s*MW",txt,re.I)
             if m:
                 x=number(m.group(1))
                 if x is not None:result["values"]["block"+str(n)]=x
