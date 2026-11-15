@@ -148,3 +148,9 @@ footer b{color:#dce8ec;letter-spacing:.5px}
 .aes-live .note{margin:7px 0 0}
 @media(max-width:1150px){.left-stack{grid-column:1}.aes-frame{height:265px}}
 @media(max-width:700px){.aes-frame{height:245px}.aes-frame iframe{height:390px}}
+
+/* AES refresh indicator */
+.aes-live h2{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.aes-live-status{display:inline-flex;align-items:center;gap:6px;color:#16d49a;font-size:10px;font-weight:800;white-space:nowrap}
+.aes-live-status i{width:8px;height:8px;border-radius:50%;background:#16d49a;display:inline-block;box-shadow:0 0 8px #16d49a;animation:aesBlink .8s steps(2,start) infinite}
+@keyframes aesBlink{to{visibility:hidden}}
