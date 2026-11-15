@@ -169,3 +169,9 @@ footer b{color:#dce8ec;letter-spacing:.5px}
 .thermal-units:nth-of-type(2) .tpp2-chart{grid-template-columns:repeat(3,minmax(0,1fr))}
 .thermal-units .tpp2-track{height:165px}
 @media(max-width:700px){.thermal-units .tpp2-track{height:135px}}
+
+/* Weather Center combined with mountain cameras */
+.weather-section{margin:12px 0;padding:14px;background:#102b35;border:1px solid #294954;border-radius:4px}
+.weather-section h2{margin:0 0 10px;padding-bottom:8px;border-bottom:1px solid #294954;color:#e8f5f7;font-size:14px}
+.weather-section p{color:#91aab3;font-size:12px;line-height:1.6}
+.mountain-cameras{border-color:#315866}
