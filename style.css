@@ -112,3 +112,17 @@ footer b{color:#dce8ec;letter-spacing:.5px}
  .warning{display:none}
  footer{flex-wrap:wrap}
 }
+
+/* TPP Maritsa East 2 block production */
+.tpp2-source-note{margin:0 9px 9px;color:#91aab3;font-size:10px;line-height:1.5}
+.tpp2-table-wrap{overflow-x:auto;margin:0 8px 12px}
+.tpp2-table{width:100%;border-collapse:collapse;font-size:12px}
+.tpp2-table th,.tpp2-table td{padding:9px 10px;border-bottom:1px solid #294954;text-align:left}
+.tpp2-table thead th{color:#91aab3;font-size:10px;text-transform:uppercase}
+.tpp2-table td:last-child,.tpp2-table th:last-child{text-align:right;font-family:Consolas,monospace;white-space:nowrap}
+.tpp2-table tbody tr:nth-child(even){background:#122e38}
+.tpp2-table tfoot th{border-top:2px solid #16d49a;border-bottom:0;color:#eaf5f7;font-weight:900}
+.tpp2-table tfoot th:last-child{color:#16d49a;font-size:16px}
+.tpp2-frame{height:360px;margin:0 8px;border:1px solid #294954;background:#07171f}
+.tpp2-frame iframe{width:100%;height:100%;border:0}
+@media(max-width:700px){.tpp2-frame{height:300px}.tpp2-table th,.tpp2-table td{padding:8px 6px;font-size:11px}}
