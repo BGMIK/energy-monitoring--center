@@ -1,7 +1,13 @@
 name: Refresh MILCHO HUB live data
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/refresh-data.yml"
+      - "refresh_data.py"
   schedule:
-    - cron: "3-59/5 * * * *"
+    - cron: "*/5 * * * *"
   workflow_dispatch:
 permissions:
   contents: write
