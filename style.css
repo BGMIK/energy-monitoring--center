@@ -37,10 +37,11 @@ main{padding-top:9px}
 .dashboard{display:grid;grid-template-columns:minmax(250px,1fr) minmax(320px,1.06fr) minmax(245px,.82fr);gap:10px;align-items:stretch}
 .panel{background:var(--panel);border:1px solid #31515c;min-width:0;padding:0 8px 9px}
 .panel h2{font-size:clamp(12px,.94vw,16px);margin:0;padding:15px 9px 12px;font-weight:800}
-.production{min-height:590px}
+.production{min-height:590px;display:flex;flex-direction:column}
 .production h2{border-bottom:1px solid #23434e;font-size:clamp(16px,1.25vw,21px);letter-spacing:.25px}
-.production-row{display:flex;justify-content:space-between;gap:8px;padding:10px;margin:2px 0;background:#122e38;font-size:clamp(11px,.88vw,15px);font-weight:700}
-.production-row strong{font:700 12px Consolas,monospace;white-space:nowrap;color:#d7e8ed}
+.production>#production{display:flex;flex:1;flex-direction:column;gap:4px}
+.production-row{display:flex;flex:1;align-items:center;justify-content:space-between;gap:8px;padding:11px 12px;margin:0;background:#122e38;font-size:clamp(14px,1.05vw,18px);font-weight:700}
+.production-row strong{font:700 clamp(14px,1vw,17px) Consolas,monospace;white-space:nowrap;color:#d7e8ed}
 .middle,.right{display:flex;flex-direction:column;gap:9px;min-width:0}
 .chart-panel{min-height:250px}
 .chart-title{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#dcecf7;color:#164e78;padding:8px 12px;font-size:clamp(10px,.88vw,14px)}
