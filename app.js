@@ -41,7 +41,7 @@ function render(){renderGauges(state.values);renderProduction(state.values);rend
 async function cycle(){
   const errors=[];
   try{
-    const response=await fetch("data.json?ts="+Date.now(),{cache:"no-store"});
+    const response=await fetch("https://raw.githubusercontent.com/BGMIK/energy-monitoring--center/main/data.json?ts="+Date.now(),{cache:"no-store"});
     if(!response.ok)throw new Error("data.json HTTP "+response.status);
     const snapshot=await response.json();
     const v=snapshot.values||{};
