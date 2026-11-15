@@ -31,15 +31,15 @@ function gaugeSvg(g,v){
   }
   const labels=g.marks.map((m,i)=>{
     const a=(150+i*60)*Math.PI/180;
-    return `<text x="${cx+Math.cos(a)*54}" y="${cy+Math.sin(a)*54+4}" text-anchor="middle" font-size="9" font-weight="800" fill="#263b43">${m}</text>`;
+    return `<text x="${cx+Math.cos(a)*61}" y="${cy+Math.sin(a)*61+4}" text-anchor="middle" font-size="12" font-weight="800" fill="#263b43">${m}</text>`;
   }).join("");
   let needle="";
   if(valid){
     const ratio=Math.max(0,Math.min(1,(Number(v)-g.min)/(g.max-g.min)));
     const a=(150+ratio*240)*Math.PI/180;
-    const tipX=cx+Math.cos(a)*53,tipY=cy+Math.sin(a)*53;
-    const tailX=cx-Math.cos(a)*11,tailY=cy-Math.sin(a)*11;
-    needle=`<line x1="${tailX}" y1="${tailY}" x2="${tipX}" y2="${tipY}" stroke="#5b252a" stroke-width="8" stroke-linecap="round"/><line x1="${tailX}" y1="${tailY}" x2="${tipX}" y2="${tipY}" stroke="#e32636" stroke-width="4.5" stroke-linecap="round"/>`;
+    const tipX=cx+Math.cos(a)*75,tipY=cy+Math.sin(a)*75;
+    const tailX=cx-Math.cos(a)*7,tailY=cy-Math.sin(a)*7;
+    needle=`<line x1="${tailX}" y1="${tailY}" x2="${tipX}" y2="${tipY}" stroke="#5b252a" stroke-width="3.2" stroke-linecap="round"/><line x1="${tailX}" y1="${tailY}" x2="${tipX}" y2="${tipY}" stroke="#e32636" stroke-width="1.8" stroke-linecap="round"/>`;
   }
   return `<svg class="gauge-svg" viewBox="0 0 200 184" role="img" aria-label="${g.label}: ${valid?fmt(Number(v))+" MW":"няма данни"}">
     <circle cx="100" cy="91" r="82" fill="#eef2f3" stroke="#71858d" stroke-width="4"/>
