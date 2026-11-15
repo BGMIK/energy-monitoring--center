@@ -12,7 +12,6 @@ URLS = {
     "load": BASE + "today.jsonl",
     "ibex": "https://api.energy-charts.info/price?bzn=BG",
     "npp": "https://www.kznpp.org/bg/proizvodstvo/danni-za-elektroproizvodstvoto",
-    "temperature": "https://api.open-meteo.com/v1/forecast?latitude=42.6977&longitude=23.3219&current=temperature_2m&timezone=Europe%2FSofia",
 }
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (compatible; MILCHO-HUB/1.0)",
@@ -175,12 +174,7 @@ def run():
                 if x is not None:result["values"]["block"+str(n)]=x
         if "block5" not in result["values"] and "block6" not in result["values"]:
             raise RuntimeError("Unit 5/6 output not found in official page")
-    def temperature():
-        raw=json.loads(get(URLS["temperature"]))
-        x=number(raw.get("current",{}).get("temperature_2m"))
-        if x is None:raise RuntimeError("Open-Meteo current temperature missing")
-        result["values"]["temperature"]=x
-    for name,fn in [("eso_generation",generation),("eso_flows",flows),("eso_load",load),("frequency",frequency),("ibex",ibex),("kozloduy",npp),("sofia_temperature",temperature)]:
+    for name,fn in [("eso_generation",generation),("eso_flows",flows),("eso_load",load),("frequency",frequency),("ibex",ibex),("kozloduy",npp)]:
         source(name,fn)
     result["sources"]["eso_generation"]["provider"]="ЕСО API; при недостъпност се използва резервно копие"
     result["sources"]["eso_flows"]["provider"]="ЕСО SCADA API; при недостъпност се използва резервно копие"
@@ -188,7 +182,6 @@ def run():
     result["sources"]["frequency"]["provider"]="ЕСО frequency endpoint"
     result["sources"]["ibex"]["provider"]="БНЕБ/IBEX — няма конфигуриран официален API достъп"
     result["sources"]["kozloduy"]["provider"]="Официален сайт на АЕЦ Козлодуй"
-    result["sources"]["sofia_temperature"]["provider"]="Open-Meteo"
     with open("data.json","w",encoding="utf-8") as f:json.dump(result,f,ensure_ascii=False,indent=2)
     print(json.dumps(result["sources"],ensure_ascii=False))
 if __name__=="__main__":run()
