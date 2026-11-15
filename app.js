@@ -238,3 +238,37 @@ async function loadWeather(place){
 function refreshWeather(){weatherPlaces.forEach(loadWeather);}
 refreshWeather();
 setInterval(refreshWeather,15*60*1000);
+
+/* Mountain cameras integrated into Weather Center */
+function refreshMountainCamera(id,url,statusId){
+  const img=document.getElementById(id),status=document.getElementById(statusId);
+  if(!img)return;
+  img.onload=()=>{if(status){status.textContent="● ONLINE";status.style.color="#21e38a";}};
+  img.onerror=()=>{if(status){status.textContent="● NO FRAME";status.style.color="#ff5d63";}};
+  img.src=url+(url.includes("?")?"&":"?")+"_="+Date.now();
+}
+function refreshMountainCameras(){
+  refreshMountainCamera("mountain-botev","https://cams.pladi.bg/zaslon.jpg","mountain-botev-status");
+  refreshMountainCamera("mountain-pamporovo","https://webcams.pamporovo.me/memfs/54d2de25-1031-438f-9088-ea70df4702a1.jpg","mountain-pamporovo-status");
+  refreshMountainCamera("mountain-aleko","https://vod132.witmind.com/hls/cam1.jpg","mountain-aleko-status");
+}
+function mountainFullscreen(type,id){
+  const box=document.getElementById("mountain-camera-fullscreen");
+  const img=document.getElementById("mountain-fs-image");
+  const frame=document.getElementById("mountain-fs-frame");
+  img.hidden=true;frame.hidden=true;img.src="";frame.src="";
+  const original=document.getElementById(id);
+  if(type==="image"){img.src=original.src;img.hidden=false;}
+  else{frame.src=original.src;frame.hidden=false;}
+  box.classList.add("on");
+}
+function closeMountainFullscreen(){
+  const box=document.getElementById("mountain-camera-fullscreen");
+  box.classList.remove("on");
+  document.getElementById("mountain-fs-image").src="";
+  document.getElementById("mountain-fs-frame").src="";
+}
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeMountainFullscreen();});
+refreshMountainCameras();
+setInterval(refreshMountainCameras,3000);
+setTimeout(()=>{try{document.getElementById("mountain-maly").contentWindow.postMessage(JSON.stringify({event:"command",func:"playVideo",args:""}),"*");}catch(e){}},2500);
