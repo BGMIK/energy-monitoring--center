@@ -14,7 +14,7 @@ const gaugeDefs = [
   {key:"net",label:"ВНОС / ИЗНОС",min:-4000,max:4000,marks:["-4k","-2k","0","2k","4k"]},
   {key:"bess",label:"ССЕЕ + ПОМПИ",min:-5000,max:5000,marks:["-5k","-2.5k","0","2.5k","5k"]},
   {key:"nuclear",label:"АЕЦ",min:0,max:2500,marks:["0","0.625k","1.25k","1.875k","2.5k"]},
-  {key:"thermal",label:"ТЕЦ",min:0,max:5000,marks:["0","1.25k","2.5k","3.75k","5k"]},
+  {key:"thermal",label:"ТЕЦ",min:0,max:4000,marks:["0","1k","2k","3k","4k"]},
   {key:"hydro",label:"ВЕЦ + МАЛКИ ВЕЦ",min:0,max:3000,marks:["0","0.75k","1.5k","2.25k","3k"]},
   {key:"renew",label:"ВЕИ",min:0,max:10000,marks:["0","2.5k","5k","7.5k","10k"]}
 ];
