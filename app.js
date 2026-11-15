@@ -10,13 +10,13 @@ const $ = s => document.querySelector(s);
 const fmt = (n,d=0) => Number(n).toLocaleString("bg-BG",{maximumFractionDigits:d,minimumFractionDigits:d});
 const state = {lastUpdated:null, loadSeries:[], values:{}};
 const gaugeDefs = [
-  {key:"load",label:"ТОВАР НА РБ",min:0,max:10000,marks:["0","2.5k","5k","7.5k","10k"]},
-  {key:"net",label:"ВНОС / ИЗНОС",min:-4000,max:4000,marks:["-4k","-2k","0","2k","4k"]},
-  {key:"bess",label:"ССЕЕ + ПОМПИ",min:-5000,max:5000,marks:["-5k","-2.5k","0","2.5k","5k"]},
-  {key:"nuclear",label:"АЕЦ",min:0,max:2500,marks:["0","0.625k","1.25k","1.875k","2.5k"]},
-  {key:"thermal",label:"ТЕЦ",min:0,max:4000,marks:["0","1k","2k","3k","4k"]},
-  {key:"hydro",label:"ВЕЦ + МАЛКИ ВЕЦ",min:0,max:3000,marks:["0","0.75k","1.5k","2.25k","3k"]},
-  {key:"renew",label:"ВЕИ",min:0,max:10000,marks:["0","2.5k","5k","7.5k","10k"]}
+  {key:"load",label:"ТОВАР НА РБ",min:0,max:10000,marks:["0","2k","4k","6k","8k","10k"]},
+  {key:"net",label:"ВНОС / ИЗНОС",min:-4000,max:4000,marks:["-4k","-3.5k","-3k","-2.5k","-2k","-1.5k","-1k","-0.5k","0","0.5k","1k","1.5k","2k","2.5k","3k","3.5k","4k"]},
+  {key:"bess",label:"ССЕЕ + ПОМПИ",min:-5000,max:5000,marks:["-5k","-4.5k","-4k","-3.5k","-3k","-2.5k","-2k","-1.5k","-1k","-0.5k","0","0.5k","1k","1.5k","2k","2.5k","3k","3.5k","4k","4.5k","5k"]},
+  {key:"nuclear",label:"АЕЦ",min:0,max:2500,marks:["0","0.5k","1k","1.5k","2k","2.5k"]},
+  {key:"thermal",label:"ТЕЦ",min:0,max:4000,marks:["0","0.5k","1k","1.5k","2k","2.5k","3k","3.5k","4k"]},
+  {key:"hydro",label:"ВЕЦ + МАЛКИ ВЕЦ",min:0,max:3000,marks:["0","0.5k","1k","1.5k","2k","2.5k","3k"]},
+  {key:"renew",label:"ВЕИ",min:0,max:10000,marks:["0","2k","4k","6k","8k","10k"]}
 ];
 const productionDefs = [["АЕЦ Козлодуй","АЕЦ"],["Кондензационни ТЕЦ","Кондензационни ТЕЦ"],["Топлофикационни ТЕЦ","Топлофикационни ТЕЦ"],["Заводски ТЕЦ","Заводски ТЕЦ"],["ВЕЦ","ВЕЦ"],["Малки ВЕЦ","Малки ВЕЦ"],["ВяЕЦ","ВяЕЦ"],["ФЕЦ","ФЕЦ"],["Био ЕЦ","Био ЕЦ"],["ССЕЕ","ССЕЕ"],["Помпи ПАВЕЦ","Помпи"]];
 const countries = [["Сърбия","SR_mw"],["Румъния","RO_mw"],["Турция","TR_mw"],["С. Македония","MK_mw"],["Гърция","GR_mw"]];
