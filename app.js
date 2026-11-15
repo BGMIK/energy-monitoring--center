@@ -63,7 +63,25 @@ async function updateGeneration(){const raw=await getJson(API.generation);const 
 async function updateFlows(){const raw=await getJson(API.flows);const f=flatten(raw);const d={};for(const [key,...aliases] of [["SR_mw","SR","Сърбия","Serbia"],["RO_mw","RO","Румъния","Romania"],["TR_mw","TR","Турция","Turkey"],["MK_mw","MK","Македония","Северна Македония","North Macedonia"],["GR_mw","GR","Гърция","Greece"]])d[key]=pick(f,key,...aliases);if(Object.values(d).some(v=>v!=null)){state.values={...state.values,...d};const vals=Object.values(d).filter(v=>v!=null);state.values.net=-vals.reduce((a,b)=>a+b,0);}}
 async function updateLoad(){const text=await getText(API.load);const rows=text.split(/\r?\n/).filter(Boolean).map(x=>{try{return JSON.parse(x)}catch{return null}}).filter(Boolean);const pts=rows.map(r=>({t:r.timestamp_utc||r.timestamp,v:num(r.load_mw??r["Товар на РБ"])})).filter(x=>x.t&&x.v!=null&&x.v>0).slice(-288);if(!pts.length)throw Error("Няма стойности в JSONL");state.loadSeries=pts;state.values.load=pts[pts.length-1].v;renderChart(pts);}
 function renderChart(points){const svg=$("#chart");if(!points||points.length<2){svg.innerHTML="";return;}const vals=points.map(p=>p.v),lo=Math.min(...vals)-100,hi=Math.max(...vals)+100;const x0=42,x1=620,y0=25,y1=158;let grid="";for(let i=0;i<5;i++){const y=y0+i*(y1-y0)/4,v=hi-(hi-lo)*i/4;grid+=`<line x1="${x0}" y1="${y}" x2="${x1}" y2="${y}" stroke="#d4dde0"/><text x="34" y="${y+4}" text-anchor="end" font-size="10" fill="#718087">${Math.round(v)}</text>`;}const coords=vals.map((v,i)=>`${x0+i*(x1-x0)/Math.max(1,vals.length-1)},${y1-(v-lo)/(hi-lo)*(y1-y0)}`).join(" ");let timeLabels="";for(let i=0;i<5;i++){const index=Math.round(i*(points.length-1)/4),stamp=Date.parse(points[index].t);const label=Number.isFinite(stamp)?new Date(stamp).toLocaleTimeString("bg-BG",{timeZone:"Europe/Sofia",hour:"2-digit",minute:"2-digit",hour12:false}):"";const x=x0+i*(x1-x0)/4;timeLabels+=`<line x1="${x}" y1="${y1}" x2="${x}" y2="${y1+4}" stroke="#718087"/><text x="${x}" y="180" text-anchor="middle" font-size="11" font-weight="700" fill="#52636a">${label}</text>`;}svg.innerHTML=grid+`<polyline points="${coords}" fill="none" stroke="#087f99" stroke-width="2.5"/>`+timeLabels;}
-async function updateFrequency(){const raw=await getJson(API.frequency);const f=flatten(raw);let hz=null;for(const [k,v] of Object.entries(f)){if(/freq|hz|чест/i.test(k)){hz=num(v);if(hz>=45&&hz<=55)break;hz=null;}}if(hz==null)throw Error("Не е намерена честота");$(".frequency b").textContent=fmt(hz,4)+" Hz";}
+async function updateFrequency(){
+  const end=Math.floor(Date.now()/1000),start=end-180;
+  const url="https://api.energy-charts.info/v2/frequency?region=DE-Freiburg&start="+start+"&end="+end;
+  const raw=await getJson(url);
+  let hz=null,stamp=null;
+  if(Array.isArray(raw.data)){
+    for(let i=raw.data.length-1;i>=0;i--){
+      const point=raw.data[i],values=point.values||{};
+      const candidates=Object.values(values).map(num).filter(v=>v!=null&&v>=45&&v<=55);
+      if(candidates.length){hz=candidates[0];stamp=point.timestamp||null;break;}
+    }
+  }
+  if(hz==null&&Array.isArray(raw.data)&&Array.isArray(raw.unix_seconds)){
+    for(let i=raw.data.length-1;i>=0;i--){const v=num(raw.data[i]);if(v!=null&&v>=45&&v<=55){hz=v;stamp=raw.unix_seconds[i]*1000;break;}}
+  }
+  if(hz==null)throw Error("Не е намерена актуална честота в Energy-Charts");
+  $(".frequency b").textContent=fmt(hz,4)+" Hz";
+  $(".frequency").title="Continental Europe · Fraunhofer ISE, Freiburg · измерване: "+(stamp?new Date(stamp).toLocaleTimeString("bg-BG"):"последна налична точка")+" · Energy-Charts";
+}
 async function updateIbex(){const raw=await getJson(API.ibex);const now=Date.now()/1000;let i=(raw.unix_seconds||[]).findLastIndex(t=>Number(t)<=now);if(i<0)i=0;const price=num(raw.price?.[i]);if(price==null)throw Error("Няма цена");$(".market b").textContent=fmt(price,2)+" €/MWh";}
 async function updateNpp(){const html=await getText(API.npp);const txt=html.replace(/<script\b.*?<\/script>/gis," ").replace(/<style\b.*?<\/style>/gis," ").replace(/<[^>]+>/g," ").replace(/\s+/g," ");const parse=n=>{const m=txt.match(new RegExp("Блок\\s*"+n+"\\s+([0-9][0-9\\s.,]*)\\s*MW","i"));return m?num(m[1]):null;};const a=parse(5),b=parse(6);const cards=document.querySelectorAll(".npp .unit");if(cards[0]){cards[0].querySelector("strong").textContent=a==null?"— MW":fmt(a)+" MW";cards[0].querySelector("small").textContent=a==null?"НЯМА ДАННИ":a>1?"В РАБОТА":"ИЗВЪН РАБОТА";}if(cards[1]){cards[1].querySelector("strong").textContent=b==null?"— MW":fmt(b)+" MW";cards[1].querySelector("small").textContent=b==null?"НЯМА ДАННИ":b>1?"В РАБОТА":"ИЗВЪН РАБОТА";}$(".npp .total strong").textContent=a==null||b==null?"— MW":fmt(a+b)+" MW";}
 function render(){renderGauges(state.values);renderProduction(state.values);renderFlows(state.values);}
@@ -163,6 +181,8 @@ function tick(){$("#clock").textContent=new Date().toLocaleTimeString("bg-BG",{h
 document.querySelectorAll(".module").forEach(btn=>btn.addEventListener("click",()=>{document.querySelectorAll(".module").forEach(b=>b.classList.toggle("active",b===btn));document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===btn.dataset.page));}));
 $("#languageBtn").addEventListener("click",()=>alert("Английската версия ще бъде добавена в следващ етап."));
 cycle();setInterval(cycle,60000);
+updateFrequency().catch(e=>{document.querySelector(".frequency").title="Energy-Charts: "+e.message;});
+setInterval(()=>updateFrequency().catch(e=>{document.querySelector(".frequency").title="Energy-Charts: "+e.message;}),30000);
 
 const additionalThermalUnits = {
   cg3: [
