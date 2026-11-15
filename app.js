@@ -22,30 +22,30 @@ const productionDefs = [["АЕЦ Козлодуй","АЕЦ"],["Конденза�
 const countries = [["Сърбия","SR_mw"],["Румъния","RO_mw"],["Турция","TR_mw"],["С. Македония","MK_mw"],["Гърция","GR_mw"]];
 function gaugeSvg(g,v){
   const cx=100,cy=91,r=77;
-  const valid=Number.isFinite(Number(v))&&v!==null&&v!==undefined;
+  const valid=v!==null&&v!==undefined&&Number.isFinite(Number(v));
   let ticks="";
   for(let i=0;i<=40;i++){
-    const a=(-135+i*6.75)*Math.PI/180;
-    const inner=r-(i%5===0?13:7);
-    ticks+=`<line x1="${cx+Math.cos(a)*inner}" y1="${cy+Math.sin(a)*inner}" x2="${cx+Math.cos(a)*r}" y2="${cy+Math.sin(a)*r}" stroke="#52656d" stroke-width="${i%5===0?2:1}"/>`;
+    const a=(180+i*4.5)*Math.PI/180;
+    const inner=r-(i%5===0?15:8);
+    ticks+=`<line x1="${cx+Math.cos(a)*inner}" y1="${cy+Math.sin(a)*inner}" x2="${cx+Math.cos(a)*r}" y2="${cy+Math.sin(a)*r}" stroke="${i%5===0?"#263b43":"#71838a"}" stroke-width="${i%5===0?2.8:1.5}"/>`;
   }
   const labels=g.marks.map((m,i)=>{
-    const a=(-135+i*67.5)*Math.PI/180;
-    return `<text x="${cx+Math.cos(a)*53}" y="${cy+Math.sin(a)*53+3}" text-anchor="middle" font-size="8" font-weight="600" fill="#45555b">${m}</text>`;
+    const a=(180+i*45)*Math.PI/180;
+    return `<text x="${cx+Math.cos(a)*54}" y="${cy+Math.sin(a)*54+4}" text-anchor="middle" font-size="9" font-weight="800" fill="#263b43">${m}</text>`;
   }).join("");
   let needle="";
   if(valid){
     const ratio=Math.max(0,Math.min(1,(Number(v)-g.min)/(g.max-g.min)));
-    const a=(-135+ratio*270)*Math.PI/180;
-    const tipX=cx+Math.cos(a)*49,tipY=cy+Math.sin(a)*49;
-    const tailX=cx-Math.cos(a)*10,tailY=cy-Math.sin(a)*10;
-    needle=`<line x1="${tailX}" y1="${tailY}" x2="${tipX}" y2="${tipY}" stroke="#e43f4d" stroke-width="4" stroke-linecap="round"/>`;
+    const a=(180+ratio*180)*Math.PI/180;
+    const tipX=cx+Math.cos(a)*53,tipY=cy+Math.sin(a)*53;
+    const tailX=cx-Math.cos(a)*11,tailY=cy-Math.sin(a)*11;
+    needle=`<line x1="${tailX}" y1="${tailY}" x2="${tipX}" y2="${tipY}" stroke="#5b252a" stroke-width="8" stroke-linecap="round"/><line x1="${tailX}" y1="${tailY}" x2="${tipX}" y2="${tipY}" stroke="#e32636" stroke-width="4.5" stroke-linecap="round"/>`;
   }
   return `<svg class="gauge-svg" viewBox="0 0 200 184" role="img" aria-label="${g.label}: ${valid?fmt(Number(v))+" MW":"няма данни"}">
-    <circle cx="100" cy="91" r="82" fill="#e8edef" stroke="#81939a" stroke-width="4"/>
+    <circle cx="100" cy="91" r="82" fill="#eef2f3" stroke="#71858d" stroke-width="4"/>
     ${ticks}${labels}${needle}
-    <circle cx="100" cy="91" r="9" fill="#e43f4d" stroke="#46565d" stroke-width="4"/>
-    <circle cx="100" cy="91" r="2.5" fill="#f7f9fa"/>
+    <circle cx="100" cy="91" r="10" fill="#263b43" stroke="#eef2f3" stroke-width="2"/>
+    <circle cx="100" cy="91" r="5" fill="#e32636"/>
   </svg>`;
 }
 function renderGauges(data={}){$("#gauges").innerHTML=gaugeDefs.map(g=>{const v=data[g.key];return `<article class="gauge-card"><h3>${g.label}</h3>${gaugeSvg(g,v)}<div class="gauge-value">${v==null?"—":fmt(v)}</div><div class="gauge-unit">MW</div></article>`;}).join("");}
