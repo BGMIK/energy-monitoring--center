@@ -211,7 +211,7 @@ renderGauges();renderProduction();renderFlows();applyLanguage();
 function tick(){$("#clock").textContent=new Date().toLocaleTimeString("bg-BG",{hour12:false});}tick();setInterval(tick,1000);
 document.querySelectorAll(".module").forEach(btn=>btn.addEventListener("click",()=>{document.querySelectorAll(".module").forEach(b=>b.classList.toggle("active",b===btn));document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===btn.dataset.page));}));
 $("#languageBtn").addEventListener("click",()=>{currentLanguage=currentLanguage==="bg"?"en":"bg";applyLanguage();});
-cycle();setInterval(cycle,60000);
+cycle();setInterval(cycle,10000);
 updateFrequency().catch(e=>{document.querySelector(".frequency").title="Energy-Charts: "+e.message;});
 setInterval(()=>updateFrequency().catch(e=>{document.querySelector(".frequency").title="Energy-Charts: "+e.message;}),30000);
 
