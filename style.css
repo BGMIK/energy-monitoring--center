@@ -242,3 +242,19 @@ footer b{color:#dce8ec;letter-spacing:.5px}
   .weather-day-list b{font-size:32px}
   .weather-day-list small{font-size:28px}
 }
+
+/* Mountain camera center — adapted from supplied desktop monitor layout */
+.mountain-camera-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(260px,1fr));gap:12px;margin-top:12px}
+.mountain-camera-card{min-width:0;min-height:0;padding:9px;background:#0d1b20;border:1px solid #29464d;display:flex;flex-direction:column;overflow:hidden}
+.mountain-camera-region{color:#21e38a;font-size:12px;font-weight:800}
+.mountain-camera-card h3{margin:4px 0 8px;color:#eaf5f7;font-size:13px}
+.mountain-camera-view{flex:1;min-height:180px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#030708;border:1px solid #1d3338;cursor:zoom-in}
+.mountain-camera-view img,.mountain-camera-view iframe{display:block;width:100%;height:100%;min-height:180px;object-fit:contain;object-position:center;background:#000;border:0}
+.mountain-camera-status{padding-top:7px;color:#21e38a;font:700 10px Consolas,monospace}
+.mountain-camera-card>small{padding-top:3px;color:#789096;font:9px Consolas,monospace}
+.mountain-camera-fullscreen{display:none;position:fixed;inset:0;z-index:999999;background:#050b0e;align-items:center;justify-content:center}
+.mountain-camera-fullscreen.on{display:flex}
+.mountain-camera-fullscreen button{position:absolute;z-index:2;top:12px;right:14px;padding:8px 12px;color:#fff;background:rgba(7,16,20,.8);border:1px solid #49616a;cursor:pointer}
+.mountain-camera-fullscreen img{width:100vw;height:100vh;object-fit:contain;background:#000}
+.mountain-camera-fullscreen iframe{width:min(96vw,177.77vh);height:min(96vh,56.25vw);border:0;background:#000}
+@media(max-width:850px){.mountain-camera-grid{grid-template-columns:1fr;grid-template-rows:none}.mountain-camera-card{min-height:300px}.mountain-camera-view{min-height:220px}}
