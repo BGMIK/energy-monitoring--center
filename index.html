@@ -4,31 +4,46 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#071a22">
-<title>MILCHO HUB — Energy Hub</title>
+<meta name="description" content="MILCHO HUB — личен информационен център за енергетика, планини, новини и метеорология.">
+<title>MILCHO HUB — Personal Information Center</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header class="topbar">
   <div class="system-title">ЕЛЕКТРОЕНЕРГИЙНА СИСТЕМА НА БЪЛГАРИЯ</div>
-  <div class="meta">РЕАЛНО ВРЕМЕ</div><div class="market">IBEX: <b>— €/MWh</b></div>
-  <div class="frequency">ЧЕСТОТА: <b>— Hz</b></div><div class="spacer"></div>
-  <button id="languageBtn">ENGLISH</button><div class="online"><i></i> DEMO</div><div id="clock">--:--:--</div>
+  <div class="meta">РЕАЛНО ВРЕМЕ</div>
+  <div class="market">IBEX: <b>— €/MWh</b></div>
+  <div class="frequency">ЧЕСТОТА: <b>— Hz</b></div>
+  <div class="spacer"></div>
+  <button id="languageBtn" type="button" aria-label="Смяна на езика">ENGLISH</button>
+  <div class="online"><i></i> DEMO</div>
+  <div id="clock" aria-label="Час">--:--:--</div>
 </header>
-<nav class="module-nav">
-  <button class="module active" data-page="energy"><span>⚡</span> ENERGY HUB</button>
-  <button class="module" data-page="mountain"><span>⛰</span> MOUNTAIN MONITORING</button>
-  <button class="module" data-page="news"><span>▤</span> NEWS CENTER</button>
-  <button class="module" data-page="weather"><span>☁</span> WEATHER CENTER</button>
+
+<nav class="module-nav" aria-label="Основни информационни центрове">
+  <button class="module active" type="button" data-page="energy" aria-current="page">
+    <span class="module-icon" aria-hidden="true">⚡</span><span class="module-label">ENERGY HUB</span>
+  </button>
+  <button class="module" type="button" data-page="mountain">
+    <span class="module-icon" aria-hidden="true">⛰️</span><span class="module-label">MOUNTAIN MONITORING</span>
+  </button>
+  <button class="module" type="button" data-page="news">
+    <span class="module-icon" aria-hidden="true">📰</span><span class="module-label">NEWS CENTER</span>
+  </button>
+  <button class="module" type="button" data-page="weather">
+    <span class="module-icon" aria-hidden="true">🌤️</span><span class="module-label">WEATHER CENTER</span>
+  </button>
 </nav>
+
 <main>
-<section class="page active" id="energy">
+<section class="page active" id="energy" aria-label="Енергиен хъб">
   <div class="gauges" id="gauges"></div>
   <div class="dashboard">
     <section class="panel production"><h2>ПРОИЗВОДСТВО ПО ЦЕНТРАЛИ / ИЗТОЧНИЦИ</h2><div id="production"></div></section>
     <div class="middle">
       <section class="panel chart-panel"><h2>ТОВАР — ЕСО</h2>
         <div class="chart-title"><b>РЕАЛИЗИРАН ТОВАР — ИЛЮСТРАТИВНА ГРАФИКА</b><small>DEMO DATA</small></div>
-        <div class="chart-wrap"><div>MW</div><svg id="chart" viewBox="0 0 650 190"></svg></div>
+        <div class="chart-wrap"><div>MW</div><svg id="chart" viewBox="0 0 650 190" role="img" aria-label="Демонстрационна графика на товара"></svg></div>
       </section>
       <section class="panel flows"><h2>ТРАНСГРАНИЧНИ ПОТОЦИ (MW)</h2><h3>ТРАНСГРАНИЧНИ ПОТОЦИ</h3><div id="flows"></div></section>
     </div>
@@ -43,10 +58,30 @@
     </div>
   </div>
 </section>
-<section class="page placeholder" id="mountain"><h1>⛰ MOUNTAIN MONITORING</h1><p>Планински камери и метеорология. Модулът ще бъде разработен на следващ етап.</p></section>
-<section class="page placeholder" id="news"><h1>▤ NEWS CENTER</h1><p>Новини от България, Европа и света. Модулът ще бъде разработен на следващ етап.</p></section>
-<section class="page placeholder" id="weather"><h1>☁ WEATHER CENTER</h1><p>Прогнози за България и Малта. Модулът ще бъде разработен на следващ етап.</p></section>
+
+<section class="page placeholder" id="mountain">
+  <div class="module-heading"><span>⛰️</span><div><h1>MOUNTAIN MONITORING</h1><p>Планински камери и метеорология</p></div></div>
+  <p>Тук ще бъдат събрани избраните планински камери, метеорологични условия и наблюдение на планините.</p>
+  <div class="module-status">МОДУЛЪТ Е ПРЕДВИДЕН · ИЗТОЧНИЦИТЕ ЩЕ БЪДАТ ДОБАВЕНИ ПОЕТАПНО</div>
+</section>
+
+<section class="page placeholder" id="news">
+  <div class="module-heading"><span>📰</span><div><h1>NEWS CENTER</h1><p>България · Европа · Свят</p></div></div>
+  <p>Централизирано табло за новини от избрани надеждни източници в България, Европа и света.</p>
+  <div class="module-status">МОДУЛЪТ Е ПРЕДВИДЕН · НЯМА ЗАРЕДЕНИ НОВИНИ</div>
+</section>
+
+<section class="page placeholder" id="weather">
+  <div class="module-heading"><span>🌤️</span><div><h1>WEATHER CENTER</h1><p>България · Малта</p></div></div>
+  <p>Метеорологичен център с текущи условия, прогнози и предупреждения за избрани населени места в България и Малта.</p>
+  <div class="module-status">МОДУЛЪТ Е ПРЕДВИДЕН · МЕТЕОРОЛОГИЧНИЯТ ИЗТОЧНИК ЩЕ БЪДЕ СВЪРЗАН</div>
+</section>
 </main>
-<footer><b>MILCHO HUB</b><span>ЛИЧЕН ИНФОРМАЦИОНЕН ЦЕНТЪР</span><span class="warning">ДЕМО ИНТЕРФЕЙС · НЕ Е ЗА ОПЕРАТИВНИ РЕШЕНИЯ</span></footer>
+
+<footer>
+  <b>MILCHO HUB</b><span>ЛИЧЕН ИНФОРМАЦИОНЕН ЦЕНТЪР</span>
+  <span class="warning">ДЕМО ИНТЕРФЕЙС · НЕ Е ЗА ОПЕРАТИВНИ РЕШЕНИЯ</span>
+</footer>
 <script src="app.js"></script>
-</body></html>
+</body>
+</html>
