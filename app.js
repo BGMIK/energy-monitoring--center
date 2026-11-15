@@ -358,4 +358,4 @@ async function refreshNews(){
  if(stamp)stamp.textContent="ПОСЛЕДНО ОБНОВЯВАНЕ: "+new Date().toLocaleTimeString("bg-BG",{hour:"2-digit",minute:"2-digit"});
 }
 document.getElementById("news-refresh")?.addEventListener("click",refreshNews);
-refreshNews();setInterval(refreshNews,15*60*1000);
+refreshNews();setInterval(refreshNews,60*60*1000);
