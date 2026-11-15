@@ -1,89 +1,52 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="bg">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SCADA — Energy System Bulgaria</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#071a22">
+<title>MILCHO HUB — Energy Hub</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="app">
-  <header class="topbar">
-    <div>
-      <div class="title" data-bg="ЕЛЕКТРОЕНЕРГИЙНА СИСТЕМА НА БЪЛГАРИЯ" data-en="BULGARIAN POWER SYSTEM">ЕЛЕКТРОЕНЕРГИЙНА СИСТЕМА НА БЪЛГАРИЯ</div>
-      <div class="subtitle" data-bg="РЕАЛНО ВРЕМЕ" data-en="REAL TIME">РЕАЛНО ВРЕМЕ</div>
+<header class="topbar">
+  <div class="system-title">ЕЛЕКТРОЕНЕРГИЙНА СИСТЕМА НА БЪЛГАРИЯ</div>
+  <div class="meta">РЕАЛНО ВРЕМЕ</div><div class="market">IBEX: <b>— €/MWh</b></div>
+  <div class="frequency">ЧЕСТОТА: <b>— Hz</b></div><div class="spacer"></div>
+  <button id="languageBtn">ENGLISH</button><div class="online"><i></i> DEMO</div><div id="clock">--:--:--</div>
+</header>
+<nav class="module-nav">
+  <button class="module active" data-page="energy"><span>⚡</span> ENERGY HUB</button>
+  <button class="module" data-page="mountain"><span>⛰</span> MOUNTAIN MONITORING</button>
+  <button class="module" data-page="news"><span>▤</span> NEWS CENTER</button>
+  <button class="module" data-page="weather"><span>☁</span> WEATHER CENTER</button>
+</nav>
+<main>
+<section class="page active" id="energy">
+  <div class="gauges" id="gauges"></div>
+  <div class="dashboard">
+    <section class="panel production"><h2>ПРОИЗВОДСТВО ПО ЦЕНТРАЛИ / ИЗТОЧНИЦИ</h2><div id="production"></div></section>
+    <div class="middle">
+      <section class="panel chart-panel"><h2>ТОВАР — ЕСО</h2>
+        <div class="chart-title"><b>РЕАЛИЗИРАН ТОВАР — ИЛЮСТРАТИВНА ГРАФИКА</b><small>DEMO DATA</small></div>
+        <div class="chart-wrap"><div>MW</div><svg id="chart" viewBox="0 0 650 190"></svg></div>
+      </section>
+      <section class="panel flows"><h2>ТРАНСГРАНИЧНИ ПОТОЦИ (MW)</h2><h3>ТРАНСГРАНИЧНИ ПОТОЦИ</h3><div id="flows"></div></section>
     </div>
-    <button id="langBtn">EN</button>
-  </header>
-
-  <main class="dashboard">
-    <section class="panel source-panel">
-      <div class="panel-head" data-bg="ПРОИЗВОДСТВО ПО ИЗТОЧНИЦИ" data-en="GENERATION BY SOURCE">ПРОИЗВОДСТВО ПО ИЗТОЧНИЦИ</div>
-      <div id="sources" class="source-list"></div>
-    </section>
-
-    <section class="panel main-panel">
-      <div class="panel-head" data-bg="ЕНЕРГИЕН МОНИТОРИНГ — MW" data-en="ENERGY MONITORING — MW">ЕНЕРГИЕН МОНИТОРИНГ — MW</div>
-      <div class="gauges">
-        <div class="gauge-card">
-          <div class="gauge-title">TOTAL GENERATION</div>
-          <svg class="gauge" viewBox="0 0 260 180">
-            <path class="arc-bg" d="M35 145 A95 95 0 0 1 225 145"/>
-            <path class="arc" d="M35 145 A95 95 0 0 1 225 145" pathLength="100" id="arcTotal"/>
-            <g class="ticks" id="ticksTotal"></g>
-            <line class="needle" id="needleTotal" x1="130" y1="145" x2="130" y2="62"/>
-            <circle class="hub" cx="130" cy="145" r="8"/>
-            <text class="gauge-min" x="30" y="164">0</text>
-            <text class="gauge-max" x="213" y="164">10 GW</text>
-          </svg>
-          <div class="gauge-value" id="totalMW">0 MW</div>
-        </div>
-
-        <div class="gauge-card">
-          <div class="gauge-title">KOZLODUY NPP</div>
-          <svg class="gauge" viewBox="0 0 260 180">
-            <path class="arc-bg" d="M35 145 A95 95 0 0 1 225 145"/>
-            <path class="arc npp-arc" d="M35 145 A95 95 0 0 1 225 145" pathLength="100" id="arcNpp"/>
-            <g class="ticks" id="ticksNpp"></g>
-            <line class="needle npp-needle" id="needleNpp" x1="130" y1="145" x2="130" y2="62"/>
-            <circle class="hub" cx="130" cy="145" r="8"/>
-            <text class="gauge-min" x="30" y="164">0</text>
-            <text class="gauge-max" x="213" y="164">2 GW</text>
-          </svg>
-          <div class="gauge-value npp-value" id="nppMW">0 MW</div>
-        </div>
-      </div>
-
-      <div class="npp-blocks">
-        <div class="unit"><b>БЛОК 5</b><strong id="b5">— MW</strong><span>● RUN</span></div>
-        <div class="unit"><b>БЛОК 6</b><strong id="b6">— MW</strong><span>● RUN</span></div>
-        <div class="unit total-unit"><b>ОБЩО АЕЦ КОЗЛОДУЙ</b><strong id="nppTotal">— MW</strong></div>
-      </div>
-    </section>
-
-    <section class="panel alarm-panel">
-      <div class="panel-head" data-bg="АЛАРМИ / СЪСТОЯНИЕ" data-en="ALARMS / STATUS">АЛАРМИ / СЪСТОЯНИЕ</div>
-      <div class="facets">
-        <div class="facet green"><i></i><b>BLOCK 5</b><span>RUN</span></div>
-        <div class="facet green"><i></i><b>BLOCK 6</b><span>RUN</span></div>
-        <div class="facet green"><i></i><b>GRID</b><span>NORMAL</span></div>
-        <div class="facet dark"><i></i><b>TRIP</b><span>NONE</span></div>
-        <div class="facet dark"><i></i><b>ALARM</b><span>NONE</span></div>
-      </div>
-      <div class="clock-box">
-        <b>СОФИЯ</b>
-        <strong id="clock">--:--:--</strong>
-        <span id="date">--.--.----</span>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    <div class="flag"><i></i><i></i><i></i></div>
-    <b data-bg="ЕНЕРГИЯ ЗА ПО-СИЛНА БЪЛГАРИЯ" data-en="ENERGY FOR A STRONGER BULGARIA">ЕНЕРГИЯ ЗА ПО-СИЛНА БЪЛГАРИЯ</b>
-    <span>SCADA | REAL TIME MONITORING</span>
-  </footer>
-</div>
+    <div class="right">
+      <section class="panel npp"><h2>АЕЦ КОЗЛОДУЙ — БЛОК 5 / БЛОК 6</h2>
+        <div class="unit"><b>БЛОК 5</b><strong class="blue">— MW</strong><small>СТАТУС НЕПОТВЪРДЕН</small></div>
+        <div class="unit"><b>БЛОК 6</b><strong class="green">— MW</strong><small>СТАТУС НЕПОТВЪРДЕН</small></div>
+        <div class="total"><b>ОБЩО АЕЦ КОЗЛОДУЙ</b><strong>— MW</strong></div>
+        <p class="note">Източникът за данните на блокове 5 и 6 предстои да бъде свързан.</p>
+      </section>
+      <section class="panel temperature"><h2>ТЕМПЕРАТУРА · СОФИЯ</h2><strong>— °C</strong><small>Източникът предстои да бъде свързан</small></section>
+    </div>
+  </div>
+</section>
+<section class="page placeholder" id="mountain"><h1>⛰ MOUNTAIN MONITORING</h1><p>Планински камери и метеорология. Модулът ще бъде разработен на следващ етап.</p></section>
+<section class="page placeholder" id="news"><h1>▤ NEWS CENTER</h1><p>Новини от България, Европа и света. Модулът ще бъде разработен на следващ етап.</p></section>
+<section class="page placeholder" id="weather"><h1>☁ WEATHER CENTER</h1><p>Прогнози за България и Малта. Модулът ще бъде разработен на следващ етап.</p></section>
+</main>
+<footer><b>MILCHO HUB</b><span>ЛИЧЕН ИНФОРМАЦИОНЕН ЦЕНТЪР</span><span class="warning">ДЕМО ИНТЕРФЕЙС · НЕ Е ЗА ОПЕРАТИВНИ РЕШЕНИЯ</span></footer>
 <script src="app.js"></script>
-</body>
-</html>
+</body></html>
