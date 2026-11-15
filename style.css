@@ -202,3 +202,23 @@ footer b{color:#dce8ec;letter-spacing:.5px}
 .weather-source{margin-top:10px;color:#91aab3;font-size:9px;text-align:right}
 @media(max-width:850px){.weather-cards{grid-template-columns:1fr}}
 @media(max-width:500px){.weather-hour-row{grid-template-columns:repeat(4,minmax(0,1fr))}.weather-day-list>div{grid-template-columns:.8fr 1.2fr .6fr;font-size:9px}}
+
+/* Double the displayed numeric values in Weather Center */
+.weather-temp{font-size:64px}
+.weather-details{font-size:20px}
+.weather-details b{font-size:20px}
+.weather-hour-row span,.weather-hour-row small{font-size:18px}
+.weather-hour-row b{font-size:20px}
+.weather-day-list>div{font-size:20px}
+.weather-day-list b{font-size:20px}
+.weather-day-list small{font-size:18px}
+@media(max-width:500px){
+  .weather-temp{font-size:54px}
+  .weather-details{font-size:17px}
+  .weather-details b{font-size:17px}
+  .weather-hour-row span,.weather-hour-row small{font-size:15px}
+  .weather-hour-row b{font-size:17px}
+  .weather-day-list>div{font-size:16px}
+  .weather-day-list b{font-size:16px}
+  .weather-day-list small{font-size:14px}
+}
