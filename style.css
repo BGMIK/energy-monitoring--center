@@ -149,3 +149,17 @@ footer b{color:#dce8ec;letter-spacing:.5px}
 
 /* AES refresh indicator */
 .aes-live h2{display:flex;align-items:center;justify-content:space-between;gap:8px}
+
+/* Maritsa East 2 block production columns */
+.tpp2-chart{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:9px;padding:12px 10px 8px;align-items:end}
+.tpp2-bar-col{min-width:0;text-align:center;display:flex;flex-direction:column;align-items:stretch;gap:6px}
+.tpp2-value{font:700 12px Consolas,monospace;color:#e8f5f7;white-space:nowrap}
+.tpp2-value small{font-size:9px;color:#91aab3}
+.tpp2-track{height:190px;position:relative;overflow:hidden;border-left:1px solid #42616b;border-bottom:1px solid #42616b;background:linear-gradient(to top,rgba(40,75,88,.18),rgba(10,28,37,.1))}
+.tpp2-gridline{position:absolute;left:0;right:0;border-top:1px dashed rgba(135,169,180,.25);pointer-events:none}
+.tpp2-bar{position:absolute;bottom:0;left:12%;width:76%;min-height:2px;background:linear-gradient(to top,#087f75,#19d6a0);border:1px solid rgba(95,255,205,.55);border-bottom:0;border-radius:3px 3px 0 0;z-index:1}
+.tpp2-block{font-size:10px;font-weight:800;color:#dcebef;white-space:nowrap}
+.tpp2-scale{font-size:9px;color:#91aab3;white-space:nowrap}
+.tpp2-total{display:flex;justify-content:space-between;align-items:center;margin:5px 10px 12px;padding:10px 12px;border-top:2px solid #16d49a;color:#eaf5f7;font-size:11px;font-weight:900}
+.tpp2-total strong{font:900 17px Consolas,monospace;color:#16d49a}
+@media(max-width:700px){.tpp2-chart{gap:4px;padding:10px 5px}.tpp2-track{height:145px}.tpp2-value{font-size:10px}.tpp2-block{font-size:8px}.tpp2-scale{font-size:7px}.tpp2-total{margin-left:5px;margin-right:5px}}
