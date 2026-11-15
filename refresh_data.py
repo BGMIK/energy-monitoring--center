@@ -185,3 +185,5 @@ def run():
     with open("data.json","w",encoding="utf-8") as f:json.dump(result,f,ensure_ascii=False,indent=2)
     print(json.dumps(result["sources"],ensure_ascii=False))
 if __name__=="__main__":run()
+
+# Manual trigger: verify that the live data collector is still running.
