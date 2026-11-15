@@ -25,18 +25,18 @@ function gaugeSvg(g,v){
   const valid=v!==null&&v!==undefined&&Number.isFinite(Number(v));
   let ticks="";
   for(let i=0;i<=40;i++){
-    const a=(180+i*4.5)*Math.PI/180;
+    const a=(150+i*6)*Math.PI/180;
     const inner=r-(i%5===0?15:8);
     ticks+=`<line x1="${cx+Math.cos(a)*inner}" y1="${cy+Math.sin(a)*inner}" x2="${cx+Math.cos(a)*r}" y2="${cy+Math.sin(a)*r}" stroke="${i%5===0?"#263b43":"#71838a"}" stroke-width="${i%5===0?2.8:1.5}"/>`;
   }
   const labels=g.marks.map((m,i)=>{
-    const a=(180+i*45)*Math.PI/180;
+    const a=(150+i*60)*Math.PI/180;
     return `<text x="${cx+Math.cos(a)*54}" y="${cy+Math.sin(a)*54+4}" text-anchor="middle" font-size="9" font-weight="800" fill="#263b43">${m}</text>`;
   }).join("");
   let needle="";
   if(valid){
     const ratio=Math.max(0,Math.min(1,(Number(v)-g.min)/(g.max-g.min)));
-    const a=(180+ratio*180)*Math.PI/180;
+    const a=(150+ratio*240)*Math.PI/180;
     const tipX=cx+Math.cos(a)*53,tipY=cy+Math.sin(a)*53;
     const tailX=cx-Math.cos(a)*11,tailY=cy-Math.sin(a)*11;
     needle=`<line x1="${tailX}" y1="${tailY}" x2="${tipX}" y2="${tipY}" stroke="#5b252a" stroke-width="8" stroke-linecap="round"/><line x1="${tailX}" y1="${tailY}" x2="${tipX}" y2="${tipY}" stroke="#e32636" stroke-width="4.5" stroke-linecap="round"/>`;
