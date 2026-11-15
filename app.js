@@ -154,11 +154,3 @@ function tick(){$("#clock").textContent=new Date().toLocaleTimeString("bg-BG",{h
 document.querySelectorAll(".module").forEach(btn=>btn.addEventListener("click",()=>{document.querySelectorAll(".module").forEach(b=>b.classList.toggle("active",b===btn));document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===btn.dataset.page));}));
 $("#languageBtn").addEventListener("click",()=>alert("Английската версия ще бъде добавена в следващ етап."));
 cycle();setInterval(cycle,60000);
-
-function refreshAesPanel(){
-  const frame=document.querySelector(".aes-frame iframe");
-  if(!frame)return;
-  const base="https://euapr01appsta001.z20.web.core.windows.net/";
-  frame.src=base+"?refresh="+Date.now();
-}
-setInterval(refreshAesPanel,5000);
