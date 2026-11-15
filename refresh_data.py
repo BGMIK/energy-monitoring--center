@@ -160,15 +160,10 @@ def run():
         if x is None:raise RuntimeError("Frequency value not found in ESO response")
         result["values"]["frequency"]=x
     def ibex():
-        raw=json.loads(get(URLS["ibex"]))
-        times=raw.get("unix_seconds",[]); prices=raw.get("price",[])
-        if not times or not prices:raise RuntimeError("IBEX API returned no price series")
-        now=time.time(); idx=0
-        for i,t in enumerate(times):
-            if number(t) is not None and float(t)<=now:idx=i
-            else:break
-        if idx>=len(prices) or number(prices[idx]) is None:raise RuntimeError("No current IBEX price")
-        result["values"]["ibex"]=number(prices[idx])
+        # Do not relabel Energy-Charts BG prices as official IBEX data.
+        # Public redistribution terms for the BG series are restrictive;
+        # official IBEX API access requires a separate agreement/account.
+        raise RuntimeError("Официален IBEX API достъп не е конфигуриран. Не публикуваме заместителна цена от Energy-Charts.")
     def npp():
         page=get(URLS["npp"])
         txt=re.sub(r"<script\b.*?</script>|<style\b.*?</style>"," ",page,flags=re.I|re.S)
@@ -187,6 +182,13 @@ def run():
         result["values"]["temperature"]=x
     for name,fn in [("eso_generation",generation),("eso_flows",flows),("eso_load",load),("frequency",frequency),("ibex",ibex),("kozloduy",npp),("sofia_temperature",temperature)]:
         source(name,fn)
+    result["sources"]["eso_generation"]["provider"]="ЕСО API; при недостъпност се използва резервно копие"
+    result["sources"]["eso_flows"]["provider"]="ЕСО SCADA API; при недостъпност се използва резервно копие"
+    result["sources"]["eso_load"]["provider"]="ESO dashboard mirror (външен проект; резервен източник)"
+    result["sources"]["frequency"]["provider"]="ЕСО frequency endpoint"
+    result["sources"]["ibex"]["provider"]="БНЕБ/IBEX — няма конфигуриран официален API достъп"
+    result["sources"]["kozloduy"]["provider"]="Официален сайт на АЕЦ Козлодуй"
+    result["sources"]["sofia_temperature"]["provider"]="Open-Meteo"
     with open("data.json","w",encoding="utf-8") as f:json.dump(result,f,ensure_ascii=False,indent=2)
     print(json.dumps(result["sources"],ensure_ascii=False))
 if __name__=="__main__":run()
