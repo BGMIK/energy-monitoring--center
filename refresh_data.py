@@ -182,6 +182,14 @@ def run():
     result["sources"]["frequency"]["provider"]="ЕСО frequency endpoint"
     result["sources"]["ibex"]["provider"]="БНЕБ/IBEX — няма конфигуриран официален API достъп"
     result["sources"]["kozloduy"]["provider"]="Официален сайт на АЕЦ Козлодуй"
+    # Publish a complete fresh snapshot only when every core ESO feed is valid.
+    required_eso = ("eso_generation", "eso_flows", "eso_load", "frequency")
+    failed = [name for name in required_eso if not result["sources"].get(name, {}).get("ok")]
+    if failed:
+        details = {name: result["sources"].get(name, {}) for name in failed}
+        raise RuntimeError("Fresh ESO snapshot rejected; previous data.json preserved: " +
+                           json.dumps(details, ensure_ascii=False))
+    result["updated_at"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
     with open("data.json","w",encoding="utf-8") as f:json.dump(result,f,ensure_ascii=False,indent=2)
     print(json.dumps(result["sources"],ensure_ascii=False))
 if __name__=="__main__":run()
