@@ -295,3 +295,13 @@ footer b{color:#dce8ec;letter-spacing:.5px}
 .co2-price span{font-size:15px;font-weight:800}
 .co2-meta{font-size:11px;color:#aebfc5}
 .co2-live a{font-size:11px;color:#8fd3e2;text-decoration:underline;width:max-content}
+
+/* Equal-height dashboard columns and aligned panel stacks */
+.dashboard{align-items:stretch;min-height:590px}
+.left-stack,.middle,.right{min-width:0;min-height:0}
+.left-stack{display:flex;flex-direction:column}
+.left-stack>.panel{flex:1;min-height:0}
+.middle>.panel,.right>.panel{flex:1;min-height:0}
+.production{min-height:0}
+@media(max-width:1150px){.dashboard{min-height:0}.production{min-height:590px}}
+@media(max-width:700px){.left-stack,.middle,.right{display:flex;flex-direction:column}.left-stack>.panel,.middle>.panel,.right>.panel{flex:initial;min-height:0}.production{min-height:0}}
