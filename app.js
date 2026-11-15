@@ -82,7 +82,6 @@ async function cycle(){
     render();
     if(v.frequency!=null)$(".frequency b").textContent=fmt(v.frequency,2)+" Hz";
     if(v.ibex!=null)$(".market b").textContent=fmt(v.ibex,2)+" €/MWh";
-    if(v.temperature!=null)document.querySelector(".temperature strong").textContent=fmt(v.temperature,1)+" °C";
     const cards=document.querySelectorAll(".npp .unit");
     for(const n of [5,6]){
       const x=v["block"+n],card=cards[n===5?0:1];
