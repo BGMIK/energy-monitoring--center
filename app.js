@@ -31,7 +31,7 @@ function gaugeSvg(g,v){
   }
   const labels=g.marks.map((m,i)=>{
     const a=(150+i*60)*Math.PI/180;
-    return `<text x="${cx+Math.cos(a)*61}" y="${cy+Math.sin(a)*61+3}" text-anchor="middle" font-size="9" font-weight="800" fill="#263b43">${m}</text>`;
+    return `<text x="${cx+Math.cos(a)*49}" y="${cy+Math.sin(a)*49+3}" text-anchor="middle" font-size="12" font-weight="800" fill="#263b43">${m}</text>`;
   }).join("");
   let needle="";
   if(valid){
