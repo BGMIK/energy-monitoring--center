@@ -163,3 +163,9 @@ footer b{color:#dce8ec;letter-spacing:.5px}
 .tpp2-total{display:flex;justify-content:space-between;align-items:center;margin:5px 10px 12px;padding:10px 12px;border-top:2px solid #16d49a;color:#eaf5f7;font-size:11px;font-weight:900}
 .tpp2-total strong{font:900 17px Consolas,monospace;color:#16d49a}
 @media(max-width:700px){.tpp2-chart{gap:4px;padding:10px 5px}.tpp2-track{height:145px}.tpp2-value{font-size:10px}.tpp2-block{font-size:8px}.tpp2-scale{font-size:7px}.tpp2-total{margin-left:5px;margin-right:5px}}
+
+/* Additional thermal plant unit charts, same 0–240 MW scale as Maritsa East 2 units V–VIII */
+.thermal-units .tpp2-chart{grid-template-columns:repeat(4,minmax(0,1fr))}
+.thermal-units:nth-of-type(2) .tpp2-chart{grid-template-columns:repeat(3,minmax(0,1fr))}
+.thermal-units .tpp2-track{height:165px}
+@media(max-width:700px){.thermal-units .tpp2-track{height:135px}}
