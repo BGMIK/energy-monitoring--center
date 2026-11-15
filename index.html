@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#071a22">
 <meta name="description" content="MILCHO HUB — личен информационен център за енергетика, планини, новини и метеорология.">
 <title>MILCHO HUB — Personal Information Center</title>
-<link rel="stylesheet" href="style.css?v=thermal-unit-bars-20261115-1">
+<link rel="stylesheet" href="style.css?v=weather-mountain-cameras-20261115-1">
 </head>
 <body>
 <header class="topbar">
@@ -23,9 +23,6 @@
 <nav class="module-nav" aria-label="Основни информационни центрове">
   <button class="module active" type="button" data-page="energy" aria-current="page">
     <span class="module-icon" aria-hidden="true">⚡</span><span class="module-label">ENERGY HUB</span>
-  </button>
-  <button class="module" type="button" data-page="mountain">
-    <span class="module-icon" aria-hidden="true">⛰️</span><span class="module-label">MOUNTAIN MONITORING</span>
   </button>
   <button class="module" type="button" data-page="news">
     <span class="module-icon" aria-hidden="true">📰</span><span class="module-label">NEWS CENTER</span>
@@ -59,12 +56,6 @@
   </div>
 </section>
 
-<section class="page placeholder" id="mountain">
-  <div class="module-heading"><span>⛰️</span><div><h1>MOUNTAIN MONITORING</h1><p>Планински камери и метеорология</p></div></div>
-  <p>Тук ще бъдат събрани избраните планински камери, метеорологични условия и наблюдение на планините.</p>
-  <div class="module-status">МОДУЛЪТ Е ПРЕДВИДЕН · ИЗТОЧНИЦИТЕ ЩЕ БЪДАТ ДОБАВЕНИ ПОЕТАПНО</div>
-</section>
-
 <section class="page placeholder" id="news">
   <div class="module-heading"><span>📰</span><div><h1>NEWS CENTER</h1><p>България · Европа · Свят</p></div></div>
   <p>Централизирано табло за новини от избрани надеждни източници в България, Европа и света.</p>
@@ -72,9 +63,17 @@
 </section>
 
 <section class="page placeholder" id="weather">
-  <div class="module-heading"><span>🌤️</span><div><h1>WEATHER CENTER</h1><p>България · Малта</p></div></div>
-  <p>Метеорологичен център с текущи условия, прогнози и предупреждения за избрани населени места в България и Малта.</p>
-  <div class="module-status">МОДУЛЪТ Е ПРЕДВИДЕН · МЕТЕОРОЛОГИЧНИЯТ ИЗТОЧНИК ЩЕ БЪДЕ СВЪРЗАН</div>
+  <div class="module-heading"><span>🌤️</span><div><h1>WEATHER CENTER</h1><p>Метеорология · Планински камери · България · Малта</p></div></div>
+  <section class="weather-section">
+    <h2>МЕТЕОРОЛОГИЯ</h2>
+    <p>Текущи условия, прогнози и предупреждения за избрани населени места в България и Малта.</p>
+    <div class="module-status">МЕТЕОРОЛОГИЧНИЯТ ИЗТОЧНИК ЩЕ БЪДЕ СВЪРЗАН</div>
+  </section>
+  <section class="weather-section mountain-cameras">
+    <h2>⛰️ ПЛАНИНСКИ КАМЕРИ</h2>
+    <p>Камери от планините и курортите в България — Ботев, Родопи, Витоша, Боровец и Мальовица.</p>
+    <div class="module-status">КАМЕРИТЕ ЩЕ БЪДАТ ДОБАВЕНИ В ТОЗИ МОДУЛ</div>
+  </section>
 </section>
 </main>
 
