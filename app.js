@@ -143,9 +143,16 @@ const tpp2BlockData = [
   {name:"ТЕЦ „Марица Изток 2“ — VIII блок",mw:222}
 ];
 function renderTpp2Blocks(){
-  const body=$("#tpp2Blocks"),total=$("#tpp2Total");
-  if(!body||!total)return;
-  body.innerHTML=tpp2BlockData.map(b=>"<tr><td>"+b.name+"</td><td>"+fmt(b.mw,2)+" MW</td></tr>").join("");
+  const chart=$("#tpp2Blocks"),total=$("#tpp2Total");
+  if(!chart||!total)return;
+  chart.innerHTML=tpp2BlockData.map((b,i)=>{
+    const max=i<4?185:240;
+    const value=Math.max(0,Math.min(Number(b.mw)||0,max));
+    const pct=(value/max)*100;
+    const blockRoman=["I","II","III","IV","V","VI","VII","VIII"][i];
+    const ticks=[0,25,50,75,100].map(t=>'<span class="tpp2-gridline" style="bottom:'+t+'%"></span>').join("");
+    return '<div class="tpp2-bar-col"><div class="tpp2-value">'+fmt(value,0)+' <small>MW</small></div><div class="tpp2-track" role="img" aria-label="'+blockRoman+' блок: '+fmt(value,0)+' от '+max+' MW">'+ticks+'<div class="tpp2-bar" style="height:'+pct+'%"></div></div><div class="tpp2-block">БЛОК '+blockRoman+'</div><div class="tpp2-scale">0–'+max+' MW</div></div>';
+  }).join("");
   total.textContent=fmt(tpp2BlockData.reduce((sum,b)=>sum+b.mw,0),2)+" MW";
 }
 renderTpp2Blocks();
