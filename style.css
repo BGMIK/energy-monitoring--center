@@ -38,7 +38,7 @@ main{padding-top:9px}
 .panel{background:var(--panel);border:1px solid #31515c;min-width:0;padding:0 8px 9px}
 .panel h2{font-size:clamp(12px,.94vw,16px);margin:0;padding:15px 9px 12px;font-weight:800}
 .production{min-height:590px}
-.production h2{border-bottom:1px solid #23434e}
+.production h2{border-bottom:1px solid #23434e;font-size:clamp(16px,1.25vw,21px);letter-spacing:.25px}
 .production-row{display:flex;justify-content:space-between;gap:8px;padding:10px;margin:2px 0;background:#122e38;font-size:clamp(11px,.88vw,15px);font-weight:700}
 .production-row strong{font:700 12px Consolas,monospace;white-space:nowrap;color:#d7e8ed}
 .middle,.right{display:flex;flex-direction:column;gap:9px;min-width:0}
