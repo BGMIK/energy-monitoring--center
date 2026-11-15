@@ -213,7 +213,7 @@ document.querySelectorAll(".module").forEach(btn=>btn.addEventListener("click",(
 $("#languageBtn").addEventListener("click",()=>{currentLanguage=currentLanguage==="bg"?"en":"bg";applyLanguage();});
 cycle();setInterval(cycle,10000);
 updateFrequency().catch(e=>{document.querySelector(".frequency").title="Energy-Charts: "+e.message;});
-setInterval(()=>updateFrequency().catch(e=>{document.querySelector(".frequency").title="Energy-Charts: "+e.message;}),30000);
+setInterval(()=>updateFrequency().catch(e=>{document.querySelector(".frequency").title="Energy-Charts: "+e.message;}),10000);
 
 const additionalThermalUnits = {
   cg3: [
