@@ -38,7 +38,74 @@ async function updateFrequency(){const raw=await getJson(API.frequency);const f=
 async function updateIbex(){const raw=await getJson(API.ibex);const now=Date.now()/1000;let i=(raw.unix_seconds||[]).findLastIndex(t=>Number(t)<=now);if(i<0)i=0;const price=num(raw.price?.[i]);if(price==null)throw Error("Няма цена");$(".market b").textContent=fmt(price,2)+" €/MWh";}
 async function updateNpp(){const html=await getText(API.npp);const txt=html.replace(/<script\b.*?<\/script>/gis," ").replace(/<style\b.*?<\/style>/gis," ").replace(/<[^>]+>/g," ").replace(/\s+/g," ");const parse=n=>{const m=txt.match(new RegExp("Блок\\s*"+n+"\\s+([0-9][0-9\\s.,]*)\\s*MW","i"));return m?num(m[1]):null;};const a=parse(5),b=parse(6);const cards=document.querySelectorAll(".npp .unit");if(cards[0]){cards[0].querySelector("strong").textContent=a==null?"— MW":fmt(a)+" MW";cards[0].querySelector("small").textContent=a==null?"НЯМА ДАННИ":a>1?"В РАБОТА":"ИЗВЪН РАБОТА";}if(cards[1]){cards[1].querySelector("strong").textContent=b==null?"— MW":fmt(b)+" MW";cards[1].querySelector("small").textContent=b==null?"НЯМА ДАННИ":b>1?"В РАБОТА":"ИЗВЪН РАБОТА";}$(".npp .total strong").textContent=a==null||b==null?"— MW":fmt(a+b)+" MW";}
 function render(){renderGauges(state.values);renderProduction(state.values);renderFlows(state.values);}
-async function cycle(){const jobs=[["ЕСО производство",updateGeneration],["ЕСО потоци",updateFlows],["ЕСО товар",updateLoad],["Честота",updateFrequency],["IBEX",updateIbex],["АЕЦ Козлодуй",updateNpp]];const errors=[];await Promise.all(jobs.map(async([name,fn])=>{try{await fn();}catch(e){errors.push(name+": "+e.message);}}));render();state.lastUpdated=new Date();$(".meta").textContent="ПОСЛЕДНО ОБНОВЯВАНЕ: "+state.lastUpdated.toLocaleTimeString("bg-BG");const status=$(".online");status.innerHTML=errors.length?`<i style="background:#ffb84d"></i> ЧАСТИЧНИ ДАННИ (${jobs.length-errors.length}/${jobs.length})`:"<i></i> LIVE DATA";status.title=errors.join("\n");if(errors.length)console.warn("MILCHO HUB data errors",errors);}
+async function cycle(){
+  const errors=[];
+  try{
+    const response=await fetch("data.json?ts="+Date.now(),{cache:"no-store"});
+    if(!response.ok)throw new Error("data.json HTTP "+response.status);
+    const snapshot=await response.json();
+    const v=snapshot.values||{};
+    const src=snapshot.sources||{};
+    const names=Object.keys(src);
+    const ok=names.filter(k=>src[k]&&src[k].ok).length;
+    for(const [name,item] of Object.entries(src)){if(!item.ok)errors.push(name+": "+(item.error||"source error"));}
+    const updated=Date.parse(snapshot.updated_at||"");
+    const age=updated?Math.max(0,(Date.now()-updated)/60000):Infinity;
+    if(age>20)errors.push("Данните са остарели ("+Math.round(age)+" мин.)");
+    state.values={
+      load:num(v.load),
+      net:num(v.net),
+      bess:v.bess==null?null:-num(v.bess),
+      nuclear:num(v.nuclear),
+      thermal:num(v.thermal),
+      hydro:num(v.hydro),
+      renew:num(v.renew),
+      "АЕЦ":num(v["АЕЦ"]),
+      "Кондензационни ТЕЦ":num(v["Кондензационни ТЕЦ"]),
+      "Топлофикационни ТЕЦ":num(v["Топлофикационни ТЕЦ"]),
+      "Заводски ТЕЦ":num(v["Заводски ТЕЦ"]),
+      "ВЕЦ":num(v["ВЕЦ"]),
+      "Малки ВЕЦ":num(v["Малки ВЕЦ"]),
+      "ВяЕЦ":num(v["ВяЕЦ"]),
+      "ФЕЦ":num(v["ФЕЦ"]),
+      "Био ЕЦ":num(v["Био ЕЦ"]),
+      "ССЕЕ":v.batt_charge_mw==null&&v.batt_discharge_mw==null?null:num(v.batt_discharge_mw)-num(v.batt_charge_mw),
+      "Помпи":num(v.pump_mw),
+      SR_mw:v.SR_mw==null?null:-num(v.SR_mw),
+      RO_mw:v.RO_mw==null?null:-num(v.RO_mw),
+      TR_mw:v.TR_mw==null?null:-num(v.TR_mw),
+      MK_mw:v.MK_mw==null?null:-num(v.MK_mw),
+      GR_mw:v.GR_mw==null?null:-num(v.GR_mw)
+    };
+    const pts=(snapshot.series||[]).map(p=>({t:p.t,v:num(p.v)})).filter(p=>p.t&&p.v!=null);
+    if(pts.length>=2){state.loadSeries=pts;renderChart(pts);}
+    render();
+    if(v.frequency!=null)$(".frequency b").textContent=fmt(v.frequency,2)+" Hz";
+    if(v.ibex!=null)$(".market b").textContent=fmt(v.ibex,2)+" €/MWh";
+    if(v.temperature!=null)document.querySelector(".temperature strong").textContent=fmt(v.temperature,1)+" °C";
+    const cards=document.querySelectorAll(".npp .unit");
+    for(const n of [5,6]){
+      const x=v["block"+n],card=cards[n===5?0:1];
+      if(card){card.querySelector("strong").textContent=x==null?"— MW":fmt(x)+" MW";card.querySelector("small").textContent=x==null?"СТАТУС НЕПОТВЪРДЕН":x>1?"В РАБОТА":"ИЗВЪН РАБОТА";}
+    }
+    const total=document.querySelector(".npp .total strong");
+    if(total)total.textContent=v.block5==null||v.block6==null?"— MW":fmt(v.block5+v.block6)+" MW";
+    const status=$(".online");
+    status.innerHTML=errors.length?'<i style="background:#ffb84d"></i> ЧАСТИЧНИ ДАННИ ('+ok+'/'+names.length+')':'<i></i> LIVE DATA';
+    status.title=errors.length?errors.join("\n"):"Всички източници са актуални";
+    status.setAttribute("aria-label",status.title);
+    $(".meta").textContent="ПОСЛЕДНО ОБНОВЯВАНЕ: "+(updated?new Date(updated).toLocaleTimeString("bg-BG"):"—");
+    const chartLabel=document.querySelector(".chart-title small");
+    if(chartLabel)chartLabel.textContent=pts.length>=2?"LIVE • "+pts.length+" ТОЧКИ":"НЯМА ДАННИ";
+  }catch(e){
+    errors.push(e.message);
+    const status=$(".online");
+    status.innerHTML='<i style="background:#ff525d"></i> НЯМА ВРЪЗКА СЪС СЪРВЪРА';
+    status.title=errors.join("\n");
+    status.setAttribute("aria-label",status.title);
+    $(".meta").textContent="ПОСЛЕДНО ОБНОВЯВАНЕ: —";
+  }
+}
 renderGauges();renderProduction();renderFlows();
 function tick(){$("#clock").textContent=new Date().toLocaleTimeString("bg-BG",{hour12:false});}tick();setInterval(tick,1000);
 document.querySelectorAll(".module").forEach(btn=>btn.addEventListener("click",()=>{document.querySelectorAll(".module").forEach(b=>b.classList.toggle("active",b===btn));document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===btn.dataset.page));}));
