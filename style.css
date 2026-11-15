@@ -137,3 +137,14 @@ footer b{color:#dce8ec;letter-spacing:.5px}
 .npp-gauge-slot .note{margin:5px 0 0;font-size:9px}
 @media(max-width:1150px){.npp-gauge-slot{grid-column:2;grid-row:auto}}
 @media(max-width:700px){.npp-gauge-slot{grid-column:1 / -1;grid-row:auto}}
+
+/* Left column: production and AES real-time dashboard */
+.left-stack{display:flex;flex-direction:column;gap:10px;min-width:0}
+.left-stack .production{flex:0 0 auto}
+.aes-live{min-height:390px}
+.aes-live h2{border-bottom:1px solid #23434e}
+.aes-frame{height:410px;width:100%;overflow:hidden;background:#fff;border:1px solid #31515c}
+.aes-frame iframe{display:block;width:100%;height:100%;border:0;background:#fff}
+.aes-live .note{margin:7px 0 0}
+@media(max-width:1150px){.left-stack{grid-column:1}.aes-frame{height:380px}}
+@media(max-width:700px){.aes-frame{height:340px}}
