@@ -478,6 +478,7 @@ footer b{color:#dce8ec;letter-spacing:.5px}
 }
 
 
-/* Compact TPP2 panel: show only the upper part of the official module */
-.tpp2-frame{height:300px!important;overflow:hidden!important}
-@media(max-width:700px){.tpp2-frame{height:300px!important}}
+/* TPP2: scale the complete official module to fit the dashboard panel */
+.tpp2-frame{height:300px!important;overflow:hidden!important;position:relative!important}
+.tpp2-frame iframe{width:238.1%!important;height:714px!important;max-width:none!important;transform:scale(.42)!important;transform-origin:top left!important}
+@media(max-width:700px){.tpp2-frame{height:300px!important}.tpp2-frame iframe{width:238.1%!important;height:714px!important;transform:scale(.42)!important}}
