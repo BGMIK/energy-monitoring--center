@@ -476,3 +476,8 @@ footer b{color:#dce8ec;letter-spacing:.5px}
   .tpp2-frame{height:540px;margin:6px 0 0}
   .tpp2-frame iframe{width:133.3333%;height:720px;transform:scale(.75)}
 }
+
+
+/* Compact TPP2 panel: show only the upper part of the official module */
+.tpp2-frame{height:300px!important;overflow:hidden!important}
+@media(max-width:700px){.tpp2-frame{height:300px!important}}
