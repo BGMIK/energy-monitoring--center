@@ -468,3 +468,26 @@ footer b{color:#dce8ec;letter-spacing:.5px}
   width:100%!important;height:560px!important;min-height:560px!important;max-height:none!important;
   border:0!important;transform:none!important;
 }
+
+
+/* Botev camera: smaller centered 16:9 frame */
+.mountain-camera-card .botev-camera-view{
+  width:min(100%,560px)!important;
+  max-width:560px!important;
+  aspect-ratio:16/9!important;
+  height:auto!important;
+  min-height:0!important;
+  margin:0 auto!important;
+  overflow:hidden!important;
+  position:relative!important;
+}
+.mountain-camera-card .botev-camera-view iframe{
+  position:absolute!important;
+  top:0!important;
+  left:0!important;
+  width:100%!important;
+  height:100%!important;
+  min-height:0!important;
+  max-height:none!important;
+  border:0!important;
+}
