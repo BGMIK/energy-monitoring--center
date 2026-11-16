@@ -373,7 +373,8 @@ footer b{color:#dce8ec;letter-spacing:.5px}
 }
 
 
-/* Botev live iframe: 16:9 viewport keeps the live panorama and crops the provider's lower loading animation */
+
+/* Botev: keep the working Weather-Webcam source; clip the provider's lower loading animation */
 .mountain-camera-card .botev-live-view{
   position:relative!important;
   display:block!important;
@@ -390,36 +391,8 @@ footer b{color:#dce8ec;letter-spacing:.5px}
   left:0!important;
   display:block!important;
   width:100%!important;
-  height:560px!important;
-  min-height:560px!important;
-  max-height:none!important;
-  border:0!important;
-}
-
-
-/* Botev direct camera JPEG: 16:9 viewport, no external webpage or spinner */
-.mountain-camera-card .botev-live-view{aspect-ratio:16/9!important;overflow:hidden!important;background:#000!important;position:relative!important;}
-.mountain-camera-card .botev-live-view img{display:block!important;width:100%!important;height:100%!important;object-fit:contain!important;}
-
-
-/* Botev summit independent RTSP stream: responsive player, no forced crop */
-.mountain-camera-card .botev-live-view{
-  position:relative!important;
-  display:block!important;
-  width:100%!important;
-  aspect-ratio:16/9!important;
-  height:auto!important;
-  min-height:0!important;
-  overflow:hidden!important;
-  background:#000!important;
-}
-.mountain-camera-card .botev-live-view iframe{
-  position:absolute!important;
-  inset:0!important;
-  display:block!important;
-  width:100%!important;
-  height:100%!important;
-  min-height:100%!important;
+  height:700px!important;
+  min-height:700px!important;
   max-height:none!important;
   border:0!important;
 }
