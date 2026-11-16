@@ -178,7 +178,7 @@ footer b{color:#dce8ec;letter-spacing:.5px}
 .mountain-cameras{border-color:#315866}
 
 /* Weather forecast cards */
-.weather-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}
+.weather-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:12px;margin-top:14px}
 .weather-card{min-width:0;padding:13px;background:#0b2029;border:1px solid #31515c;border-radius:4px}
 .weather-card-head{display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid #294954;padding-bottom:8px}
 .weather-card-head h3{margin:0;color:#eaf5f7;font-size:14px}
