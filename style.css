@@ -430,3 +430,9 @@ footer b{color:#dce8ec;letter-spacing:.5px}
 .mountain-camera-card .botev-camera-view iframe{
   top:300px!important;
 }
+
+
+/* Botev: move the embedded camera 600px down within the 4:3 crop window */
+.mountain-camera-card .botev-camera-view iframe{
+  top:600px!important;
+}
