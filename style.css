@@ -387,3 +387,16 @@ footer b{color:#dce8ec;letter-spacing:.5px}
 .mountain-camera-card #mountain-botev-frame{
   display:block;width:100%;height:100%;min-height:220px;border:0;background:#000;
 }
+
+
+/* Webcams.bg: crop the page viewport to its camera-player section */
+.botev-webcams-view{
+  display:block!important;position:relative!important;overflow:hidden!important;
+  width:100%!important;aspect-ratio:16/9!important;height:auto!important;
+  min-height:0!important;background:#000!important;
+}
+.botev-webcams-view iframe{
+  position:absolute!important;left:0!important;top:-900px!important;
+  width:100%!important;height:1800px!important;min-height:1800px!important;
+  border:0!important;display:block!important;
+}
