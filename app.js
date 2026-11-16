@@ -188,6 +188,7 @@ async function cycle(){
     if(details.length)status.title+="\n"+details.join("\n");
     status.setAttribute("aria-label",status.title);
     $(".meta").textContent="ПОСЛЕДНО ОБНОВЯВАНЕ: "+(updated?new Date(updated).toLocaleString("bg-BG",{hour12:false})+" · преди "+ageText:"—");
+    renderTpp2Blocks();
     const chartLabel=document.querySelector(".chart-title small");
     if(chartLabel)chartLabel.textContent=pts.length>=2?"LIVE • "+pts.length+" ТОЧКИ":"НЯМА ДАННИ";
   }catch(e){
@@ -202,18 +203,33 @@ async function cycle(){
     cycleInFlight=false;
   }
 }
-function refreshTpp2OfficialFrame(){
-  const frame=$("#tpp2OfficialFrame");
-  const status=$("#tpp2FrameStatus");
-  if(!frame)return;
-  if(status)status.textContent="ПОСЛЕДЕН ОПИТ ЗА ЗАРЕЖДАНЕ: "+new Date().toLocaleTimeString("bg-BG",{hour12:false});
-  frame.src="https://www.tpp2.com/realtimedataouter.php?lang=bg&hub_refresh="+Date.now();
+const tpp2BlockData = [
+  {name:"I",key:"tpp2_unit_1",mw:null,max:185},
+  {name:"II",key:"tpp2_unit_2",mw:null,max:185},
+  {name:"III",key:"tpp2_unit_3",mw:null,max:185},
+  {name:"IV",key:"tpp2_unit_4",mw:null,max:185},
+  {name:"V",key:"tpp2_unit_5",mw:null,max:240},
+  {name:"VI",key:"tpp2_unit_6",mw:null,max:240},
+  {name:"VII",key:"tpp2_unit_7",mw:null,max:240},
+  {name:"VIII",key:"tpp2_unit_8",mw:null,max:240}
+];
+function renderTpp2Blocks(){
+  const chart=$("#tpp2Blocks"),total=$("#tpp2Total"),status=$("#tpp2DataStatus");
+  if(!chart||!total)return;
+  const values=state.values||{};
+  tpp2BlockData.forEach(b=>{const v=values[b.key];b.mw=Number.isFinite(Number(v))&&v!==null?Number(v):null;});
+  chart.innerHTML=tpp2BlockData.map(b=>{
+    const valid=Number.isFinite(b.mw);
+    const value=valid?Math.max(0,Math.min(b.mw,b.max)):0;
+    const pct=(value/b.max)*100;
+    const ticks=[0,25,50,75,100].map(t=>'<span class="tpp2-gridline" style="bottom:'+t+'%"></span>').join("");
+    return '<div class="tpp2-bar-col"><div class="tpp2-value">'+(valid?fmt(value,0):'—')+' <small>MW</small></div><div class="tpp2-track" role="img" aria-label="Блок '+b.name+': '+(valid?fmt(value,0):'няма данни')+' MW">'+ticks+(valid?'<div class="tpp2-bar" style="height:'+pct+'%"></div>':'')+'</div><div class="tpp2-block">БЛОК '+b.name+'</div><div class="tpp2-scale">0–'+b.max+' MW</div></div>';
+  }).join("");
+  const available=tpp2BlockData.filter(b=>Number.isFinite(b.mw));
+  total.textContent=available.length===8?fmt(available.reduce((s,b)=>s+b.mw,0),2)+" MW":"— MW";
+  if(status)status.textContent=available.length===8?"ОФИЦИАЛНИ СТОЙНОСТИ · 8/8 БЛОКА": "НЯМА ПОТВЪРДЕНИ ЧИСЛОВИ ДАННИ · "+available.length+"/8 БЛОКА";
 }
-const tpp2Frame=$("#tpp2OfficialFrame");
-if(tpp2Frame){
-  tpp2Frame.addEventListener("load",()=>{const status=$("#tpp2FrameStatus");if(status)status.textContent="ОФИЦИАЛНИЯТ ИЗТОЧНИК Е ЗАРЕДЕН · "+new Date().toLocaleTimeString("bg-BG",{hour12:false});});
-  setInterval(refreshTpp2OfficialFrame,60000);
-}
+renderTpp2Blocks();
 renderGauges();renderProduction();renderFlows();applyLanguage();
 function tick(){$("#clock").textContent=new Date().toLocaleTimeString("bg-BG",{hour12:false});}tick();setInterval(tick,1000);
 document.querySelectorAll(".module").forEach(btn=>btn.addEventListener("click",()=>{document.querySelectorAll(".module").forEach(b=>b.classList.toggle("active",b===btn));document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===btn.dataset.page));}));
