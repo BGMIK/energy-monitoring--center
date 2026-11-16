@@ -294,19 +294,16 @@ refreshWeather();
 setInterval(refreshWeather,15*60*1000);
 
 /* Mountain cameras integrated into Weather Center */
-function refreshMountainCamera(id,url,statusId){
+function refreshMountainCamera(id,url,statusId,intervalMode="snapshot"){
   const img=document.getElementById(id),status=document.getElementById(statusId);
   if(!img)return;
   img.onload=()=>{if(status){status.textContent="● ONLINE";status.style.color="#21e38a";}};
   img.onerror=()=>{if(status){status.textContent="● NO FRAME";status.style.color="#ff5d63";}};
-  // Pladi camera rejects cache-busting query parameters; use its exact image URL.
-  if(id==="mountain-botev"){
-    if(img.dataset.source!==url){img.dataset.source=url;img.src=url;}
-    return;
-  }
+  // Direct JPEG streams: no embedded camera webpage, ads, or loading overlay.
   img.src=url+(url.includes("?")?"&":"?")+"_="+Date.now();
 }
 function refreshMountainCameras(){
+  refreshMountainCamera("mountain-borovets-markudjik","https://media.borovets-bg.com/cams/channel?channel=81","mountain-borovets-status");
   refreshMountainCamera("mountain-botev","https://cams.pladi.bg/zaslon.jpg","mountain-botev-status");
   refreshMountainCamera("mountain-pamporovo","https://webcams.pamporovo.me/memfs/54d2de25-1031-438f-9088-ea70df4702a1.jpg","mountain-pamporovo-status");
   refreshMountainCamera("mountain-aleko","https://vod132.witmind.com/hls/cam1.jpg","mountain-aleko-status");
@@ -329,7 +326,7 @@ function closeMountainFullscreen(){
 }
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeMountainFullscreen();});
 refreshMountainCameras();
-setInterval(refreshMountainCameras,3000);
+setInterval(refreshMountainCameras,15000);
 setTimeout(()=>{try{document.getElementById("mountain-maly").contentWindow.postMessage(JSON.stringify({event:"command",func:"playVideo",args:""}),"*");}catch(e){}},2500);
 
 
