@@ -321,6 +321,13 @@ function refreshMountainCamera(id,url,statusId,intervalMode="snapshot"){
   // Direct JPEG streams: no embedded camera webpage, ads, or loading overlay.
   img.src=url+(url.includes("?")?"&":"?")+"_="+Date.now();
 }
+/* Botev embedded live page: reload the provider page every 30 seconds. */
+function refreshBotevCamera(){
+  const frame=document.getElementById("mountain-botev-frame");
+  if(!frame)return;
+  const base="https://www.weather-webcam.eu/cams/balkana-zaslon-botev.html";
+  frame.src=base+"?refresh="+Date.now();
+}
 function refreshMountainCameras(){
   refreshMountainCamera("mountain-borovets-markudjik","https://media.borovets-bg.com/cams/channel?channel=81","mountain-borovets-status");
   refreshMountainCamera("mountain-pamporovo","https://webcams.pamporovo.me/memfs/54d2de25-1031-438f-9088-ea70df4702a1.jpg","mountain-pamporovo-status");
@@ -345,6 +352,8 @@ function closeMountainFullscreen(){
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeMountainFullscreen();});
 refreshMountainCameras();
 setInterval(refreshMountainCameras,15000);
+refreshBotevCamera();
+setInterval(refreshBotevCamera,30000);
 setTimeout(()=>{try{document.getElementById("mountain-maly").contentWindow.postMessage(JSON.stringify({event:"command",func:"playVideo",args:""}),"*");}catch(e){}},2500);
 
 
