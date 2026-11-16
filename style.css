@@ -395,3 +395,16 @@ footer b{color:#dce8ec;letter-spacing:.5px}
   max-height:none!important;
   border:0!important;
 }
+
+
+/* Botev: enlarge the embedded page inside the fixed 16:9 viewport.
+   This pushes the provider's loader circles below the clipped viewport. */
+.mountain-camera-card .botev-live-view iframe{
+  width:125%!important;
+  height:700px!important;
+  min-height:700px!important;
+  left:-12.5%!important;
+  top:0!important;
+  transform:scale(1.08)!important;
+  transform-origin:top center!important;
+}
