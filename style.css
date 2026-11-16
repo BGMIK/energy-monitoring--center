@@ -400,3 +400,26 @@ footer b{color:#dce8ec;letter-spacing:.5px}
   width:100%!important;height:1800px!important;min-height:1800px!important;
   border:0!important;display:block!important;
 }
+
+
+/* Botev Webcams.bg: previous crop (-900px) skipped past the camera player.
+   Reset the iframe viewport near the top of the page where the player is located. */
+.botev-webcams-view{
+  display:block!important;
+  position:relative!important;
+  width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  aspect-ratio:16/9!important;
+  overflow:hidden!important;
+  background:#000!important;
+}
+.botev-webcams-view iframe{
+  position:absolute!important;
+  top:-220px!important;
+  left:0!important;
+  width:100%!important;
+  height:1800px!important;
+  min-height:1800px!important;
+  border:0!important;
+}
