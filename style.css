@@ -448,3 +448,10 @@ footer b{color:#dce8ec;letter-spacing:.5px}
 .mountain-camera-card .botev-camera-view iframe{
   top:0!important;
 }
+
+
+/* Botev recovery: restore the last known working camera position.
+   At 0px the provider page shows a blank area; 300px previously showed the live panorama. */
+.mountain-camera-card .botev-camera-view iframe{
+  top:300px!important;
+}
