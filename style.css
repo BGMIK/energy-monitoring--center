@@ -383,3 +383,32 @@ footer b{color:#dce8ec;letter-spacing:.5px}
 .mountain-camera-card:has(.botev-camera-view){height:auto;min-height:0}
 .botev-camera-view{display:block!important;flex:0 0 auto!important;width:100%;height:auto!important;min-height:0!important;aspect-ratio:16/9!important;overflow:hidden!important;position:relative;align-items:initial!important;justify-content:initial!important}
 .botev-camera-view iframe{display:block!important;position:absolute!important;top:0!important;left:0!important;width:100%!important;height:560px!important;min-height:560px!important;max-height:none!important;border:0!important}
+
+
+/* Botev: fixed responsive camera viewport; hide the provider's loading animation below the image */
+.botev-camera-view{
+  display:block!important;
+  flex:0 0 auto!important;
+  position:relative!important;
+  width:100%!important;
+  height:min(56.25vw,350px)!important;
+  min-height:0!important;
+  max-height:350px!important;
+  aspect-ratio:auto!important;
+  padding:0!important;
+  overflow:hidden!important;
+  background:#000!important;
+}
+.botev-camera-view iframe{
+  position:absolute!important;
+  inset:0 auto auto 0!important;
+  display:block!important;
+  width:100%!important;
+  height:560px!important;
+  min-height:560px!important;
+  max-height:none!important;
+  border:0!important;
+}
+@media(max-width:700px){
+  .botev-camera-view{height:56.25vw!important;max-height:350px!important}
+}
