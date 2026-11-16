@@ -395,3 +395,8 @@ footer b{color:#dce8ec;letter-spacing:.5px}
   max-height:none!important;
   border:0!important;
 }
+
+
+/* Botev direct camera JPEG: 16:9 viewport, no external webpage or spinner */
+.mountain-camera-card .botev-live-view{aspect-ratio:16/9!important;overflow:hidden!important;background:#000!important;position:relative!important;}
+.mountain-camera-card .botev-live-view img{display:block!important;width:100%!important;height:100%!important;object-fit:contain!important;}
