@@ -491,3 +491,29 @@ footer b{color:#dce8ec;letter-spacing:.5px}
   max-height:none!important;
   border:0!important;
 }
+
+
+/* Botev: crop the black header above the embedded frame so the camera image fills 16:9;
+   the provider's loading dots remain below the clipped viewport. */
+.mountain-camera-card .botev-camera-view{
+  width:100%!important;
+  max-width:560px!important;
+  height:auto!important;
+  min-height:0!important;
+  aspect-ratio:16/9!important;
+  margin:0 auto!important;
+  position:relative!important;
+  overflow:hidden!important;
+  display:block!important;
+  flex:none!important;
+}
+.mountain-camera-card .botev-camera-view iframe{
+  position:absolute!important;
+  top:-68px!important;
+  left:0!important;
+  width:100%!important;
+  height:560px!important;
+  min-height:560px!important;
+  max-height:none!important;
+  border:0!important;
+}
