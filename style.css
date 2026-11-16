@@ -446,3 +446,17 @@ footer b{color:#dce8ec;letter-spacing:.5px}
   .tpp2-live iframe{height:680px;min-width:0}
   .tpp2-official-meta{font-size:10px}
 }
+
+/* TPP2 restored compact bar chart */
+.tpp2-data-status{font-size:11px;color:#ffbf59;margin:6px 0 10px;font-weight:700}
+.tpp2-live .tpp2-chart{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;align-items:end}
+.tpp2-live .tpp2-bar-col{min-width:0;text-align:center}
+.tpp2-live .tpp2-track{height:150px;position:relative;overflow:hidden;border:1px solid #36545d;background:#0a2028;display:flex;align-items:end}
+.tpp2-live .tpp2-gridline{position:absolute;left:0;right:0;border-top:1px dashed #35515a;pointer-events:none}
+.tpp2-live .tpp2-bar{position:relative;width:100%;background:linear-gradient(0deg,#0aa6c2,#38d3e5);z-index:1}
+.tpp2-live .tpp2-value{font-weight:700;font-size:13px;margin-bottom:5px;white-space:nowrap}
+.tpp2-live .tpp2-value small{font-size:9px;color:#9bb2ba}
+.tpp2-live .tpp2-block{font-weight:700;font-size:11px;margin-top:5px}
+.tpp2-live .tpp2-scale{font-size:9px;color:#91aab2;margin-top:3px}
+.tpp2-live .tpp2-total{margin-top:12px}
+@media(max-width:700px){.tpp2-live .tpp2-chart{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}.tpp2-live .tpp2-track{height:110px}.tpp2-live .tpp2-value{font-size:11px}.tpp2-live .tpp2-block{font-size:10px}}
