@@ -412,3 +412,9 @@ footer b{color:#dce8ec;letter-spacing:.5px}
   max-height:none!important;
   border:0!important;
 }
+
+
+/* Botev camera test: 4:3 viewport */
+.mountain-camera-card .botev-camera-view{
+  aspect-ratio:4/3!important;
+}
