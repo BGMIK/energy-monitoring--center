@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#071a22">
 <meta name="description" content="MILCHO HUB — личен информационен център за енергетика, планини, новини и метеорология.">
 <title>MILCHO HUB — Personal Information Center</title>
-<link rel="stylesheet" href="style.css?v=tpp2-official-live-20261116-1">
+<link rel="stylesheet" href="style.css?v=tpp2-graph-restored-20261116-1">
 </head>
 <body>
 <header class="topbar">
@@ -49,11 +49,12 @@
     </div>
     <div class="right">
       <section class="panel tpp2-live">
-        <h2>ТЕЦ „МАРИЦА ИЗТОК 2“ — ОФИЦИАЛНИ ДАННИ В РЕАЛНО ВРЕМЕ</h2>
-        <p class="tpp2-source-note">Директен изглед от официалната система на централата. Не използваме фиктивни или предварително зададени стойности.</p>
-        <div class="tpp2-official-meta"><span id="tpp2FrameStatus">ЗАРЕЖДАНЕ НА ОФИЦИАЛНИЯ ИЗТОЧНИК…</span><span>Автоматично презареждане: 60 сек.</span></div>
-        <iframe id="tpp2OfficialFrame" title="Официални данни в реално време — ТЕЦ Марица изток 2" src="https://www.tpp2.com/realtimedataouter.php?lang=bg" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
-        <p class="tpp2-source-link">Източник: <a href="https://www.tpp2.com/site/realTimeData.html" target="_blank" rel="noopener noreferrer">ТЕЦ „Марица изток 2“ — официални данни в реално време</a></p>
+        <h2>ТЕЦ „МАРИЦА ИЗТОК 2“ — ПРОИЗВОДСТВО ПО БЛОКОВЕ</h2>
+        <p class="tpp2-source-note">Мощност по блокове · MW · само стойности от официален източник</p>
+        <div class="tpp2-data-status" id="tpp2DataStatus">ОЧАКВАНЕ НА ОФИЦИАЛНИ ДАННИ</div>
+        <div class="tpp2-chart" id="tpp2Blocks" aria-label="Производство по блокове в MW"></div>
+        <div class="tpp2-total">ОБЩО ПРОИЗВОДСТВО <strong id="tpp2Total">— MW</strong></div>
+        <p class="tpp2-source-link">Източник: <a href="https://www.tpp2.com/site/realTimeData.html" target="_blank" rel="noopener noreferrer">ТЕЦ „Марица изток 2“ — официални данни</a></p>
       </section>
       <section class="panel ibex-live"><div class="market">IBEX: <b>— €/MWh</b></div></section>
       <section class="panel co2-live"><div class="co2-heading">ЦЕНА НА ЕМИСИОННИТЕ ПРАВА CO₂ (EUA)</div><div class="co2-price">87,84 <span>€/tCO₂</span></div><div class="co2-meta">Dec-26 · Последна налична котировка: 14.11.2026, 18:40</div><a href="https://oenergetice.cz/en/energostat/online-prices/emission-allowance" target="_blank" rel="noopener noreferrer">Източник: oEnergetice · Борсова цена EUA</a></section>
