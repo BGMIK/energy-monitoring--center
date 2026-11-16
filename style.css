@@ -436,3 +436,13 @@ footer b{color:#dce8ec;letter-spacing:.5px}
   }
   .npp-gauge-slot .note{display:none}
 }
+
+/* Official TPP2 live data panel */
+.tpp2-official-meta{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:11px;color:#9bb2ba;margin:8px 0}
+.tpp2-live iframe{display:block;width:100%;height:620px;border:1px solid #294a53;background:#fff;border-radius:4px}
+.tpp2-source-link{font-size:11px;color:#9bb2ba;margin:8px 0 0}
+.tpp2-source-link a{color:#36c5dd;text-decoration:underline}
+@media(max-width:700px){
+  .tpp2-live iframe{height:680px;min-width:0}
+  .tpp2-official-meta{font-size:10px}
+}
