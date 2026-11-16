@@ -131,6 +131,7 @@ async function cycle(){
     const ok=names.filter(k=>src[k]&&src[k].ok).length;
     for(const [name,item] of Object.entries(src)){if(!item.ok)errors.push(name+": "+(item.error||"source error"));}
     const updated=Date.parse(snapshot.updated_at||"");
+    if(Number.isFinite(updated))state.lastUpdated=updated;
     const age=updated?Math.max(0,(Date.now()-updated)/60000):Infinity;
     const coreNames=["eso_generation","eso_flows","eso_load","frequency"];
     const coreErrors=coreNames.filter(name=>!src[name]||!src[name].ok);
