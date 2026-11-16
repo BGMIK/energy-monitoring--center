@@ -344,3 +344,30 @@ footer b{color:#dce8ec;letter-spacing:.5px}
 .device-security-note{padding:10px 12px;margin:0;background:#30291b;border-left:3px solid #d5a64b;color:#e6d7b3;font-size:12px;line-height:1.5}
 .device-card-foot{margin-top:14px;padding-top:10px;border-top:1px solid #294954;color:#6f929d;font-size:10px;font-weight:800;letter-spacing:.06em}
 @media(max-width:520px){.device-details{grid-template-columns:1fr}.device-card-head{flex-wrap:wrap}.device-state{margin-left:58px}}
+
+
+/* Weather Center: mobile typography and hourly forecast overflow fix */
+.weather-card{min-width:0;overflow:hidden}
+.weather-current{min-width:0;flex-wrap:wrap;gap:8px}
+.weather-temp{font-size:42px!important;line-height:1.1;white-space:nowrap}
+.weather-description{font-size:13px;min-width:0}
+.weather-details{display:grid;grid-template-columns:1fr;gap:7px;font-size:14px;line-height:1.35}
+.weather-details b{font-size:14px}
+.weather-hourly,.weather-daily{min-width:0;overflow:hidden}
+.weather-hour-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;overflow:visible}
+.weather-hour-row>div{min-width:0;padding:8px 4px;gap:6px;overflow:hidden}
+.weather-hour-row span,.weather-hour-row small{font-size:11px;line-height:1.25;white-space:normal;text-align:center}
+.weather-hour-row b{font-size:14px;line-height:1.25;white-space:normal;text-align:center}
+.weather-day-list>div{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr) minmax(0,.7fr);gap:5px;font-size:12px;line-height:1.35}
+.weather-day-list b{font-size:13px;white-space:normal}
+.weather-day-list small{font-size:11px;white-space:normal}
+@media(max-width:500px){
+  .weather-temp{font-size:38px!important}
+  .weather-details,.weather-details b{font-size:13px}
+  .weather-hour-row{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  .weather-hour-row span,.weather-hour-row small{font-size:11px}
+  .weather-hour-row b{font-size:14px}
+  .weather-day-list>div{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr) minmax(0,.65fr);font-size:11px}
+  .weather-day-list b{font-size:12px}
+  .weather-day-list small{font-size:10px}
+}
