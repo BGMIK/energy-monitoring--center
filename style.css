@@ -436,3 +436,9 @@ footer b{color:#dce8ec;letter-spacing:.5px}
 .mountain-camera-card .botev-camera-view iframe{
   top:600px!important;
 }
+
+
+/* Botev: raise the iframe 300px from the previous 600px position */
+.mountain-camera-card .botev-camera-view iframe{
+  top:300px!important;
+}
