@@ -40,6 +40,7 @@ function applyLanguage(){
 const $ = s => document.querySelector(s);
 const fmt = (n,d=0) => Number(n).toLocaleString("bg-BG",{maximumFractionDigits:d,minimumFractionDigits:d});
 const state = {lastUpdated:null, loadSeries:[], values:{}};
+let cycleInFlight=false;
 const gaugeDefs = [
   {key:"load",label:"ТОВАР НА РБ",min:0,max:10000,marks:["0","2k","4k","6k","8k","10k"]},
   {key:"net",label:"ВНОС / ИЗНОС",min:-4000,max:4000,marks:["-4k","-3.5k","-3k","-2.5k","-2k","-1.5k","-1k","-0.5k","0","0.5k","1k","1.5k","2k","2.5k","3k","3.5k","4k"]},
@@ -117,6 +118,8 @@ async function updateIbex(){const raw=await getJson(API.ibex);const now=Date.now
 async function updateNpp(){const html=await getText(API.npp);const txt=html.replace(/<script\b.*?<\/script>/gis," ").replace(/<style\b.*?<\/style>/gis," ").replace(/<[^>]+>/g," ").replace(/\s+/g," ");const parse=n=>{const m=txt.match(new RegExp("Блок\\s*"+n+"\\s+([0-9][0-9\\s.,]*)\\s*MW","i"));return m?num(m[1]):null;};const a=parse(5),b=parse(6);const cards=document.querySelectorAll(".npp .unit");if(cards[0]){cards[0].querySelector("strong").textContent=a==null?"— MW":fmt(a)+" MW";cards[0].querySelector("small").textContent=a==null?"НЯМА ДАННИ":a>1?"В РАБОТА":"ИЗВЪН РАБОТА";}if(cards[1]){cards[1].querySelector("strong").textContent=b==null?"— MW":fmt(b)+" MW";cards[1].querySelector("small").textContent=b==null?"НЯМА ДАННИ":b>1?"В РАБОТА":"ИЗВЪН РАБОТА";}$(".npp .total strong").textContent=a==null||b==null?"— MW":fmt(a+b)+" MW";}
 function render(){renderGauges(state.values);renderProduction(state.values);renderFlows(state.values);applyLanguage();}
 async function cycle(){
+  if(cycleInFlight)return;
+  cycleInFlight=true;
   const errors=[];
   try{
     const response=await fetch("https://bgmik.github.io/energy-monitoring--center/data.json?ts="+Date.now(),{cache:"no-store"});
@@ -129,7 +132,10 @@ async function cycle(){
     for(const [name,item] of Object.entries(src)){if(!item.ok)errors.push(name+": "+(item.error||"source error"));}
     const updated=Date.parse(snapshot.updated_at||"");
     const age=updated?Math.max(0,(Date.now()-updated)/60000):Infinity;
-    if(age>20)errors.push("Данните са остарели ("+Math.round(age)+" мин.)");
+    const coreNames=["eso_generation","eso_flows","eso_load","frequency"];
+    const coreErrors=coreNames.filter(name=>!src[name]||!src[name].ok);
+    const auxiliaryErrors=names.filter(name=>!coreNames.includes(name)&&src[name]&&!src[name].ok);
+    const ageMinutes=Number.isFinite(age)?age:Infinity;
     state.values={
       load:num(v.load),
       net:num(v.net),
@@ -168,19 +174,31 @@ async function cycle(){
     const total=document.querySelector(".npp .total strong");
     if(total)total.textContent=v.block5==null||v.block6==null?"— MW":fmt(v.block5+v.block6)+" MW";
     const status=$(".online");
-    status.innerHTML=errors.length?'<i style="background:#ffb84d"></i> ЧАСТИЧНИ ДАННИ ('+ok+'/'+names.length+')':'<i></i> LIVE DATA';
-    status.title=errors.length?errors.join("\n"):"Всички източници са актуални";
+    let label="LIVE DATA",dot="#16d49a";
+    if(ageMinutes>20){label="OFFLINE · СТАРИ ДАННИ";dot="#ff525d";}
+    else if(ageMinutes>7||coreErrors.length){label="DELAYED · ЗАБАВЕНИ ДАННИ";dot="#ffb84d";}
+    else if(auxiliaryErrors.length){label="LIVE · ЧАСТИЧНИ ИЗТОЧНИЦИ";dot="#ffb84d";}
+    status.innerHTML='<i style="background:'+dot+'"></i> '+label;
+    const ageText=Number.isFinite(ageMinutes)?Math.floor(ageMinutes)+' мин.':'неизвестна';
+    const details=[];
+    if(coreErrors.length)details.push("Основни източници с грешка: "+coreErrors.join(", "));
+    if(auxiliaryErrors.length)details.push("Допълнителни източници: "+auxiliaryErrors.join(", "));
+    status.title="Възраст на снимката: "+ageText+(errors.length?"\n"+errors.join("\n"):"\nОсновните източници са налични.");
+    if(details.length)status.title+="\n"+details.join("\n");
     status.setAttribute("aria-label",status.title);
-    $(".meta").textContent="ПОСЛЕДНО ОБНОВЯВАНЕ: "+(updated?new Date(updated).toLocaleTimeString("bg-BG"):"—");
+    $(".meta").textContent="ПОСЛЕДНО ОБНОВЯВАНЕ: "+(updated?new Date(updated).toLocaleString("bg-BG",{hour12:false})+" · преди "+ageText:"—");
     const chartLabel=document.querySelector(".chart-title small");
     if(chartLabel)chartLabel.textContent=pts.length>=2?"LIVE • "+pts.length+" ТОЧКИ":"НЯМА ДАННИ";
   }catch(e){
     errors.push(e.message);
     const status=$(".online");
-    status.innerHTML='<i style="background:#ff525d"></i> НЯМА ВРЪЗКА СЪС СЪРВЪРА';
+    status.innerHTML='<i style="background:#ff525d"></i> OFFLINE · НЯМА ВРЪЗКА';
     status.title=errors.join("\n");
     status.setAttribute("aria-label",status.title);
-    $(".meta").textContent="ПОСЛЕДНО ОБНОВЯВАНЕ: —";
+    const previous=state.lastUpdated;
+    $(".meta").textContent="ПОСЛЕДНО УСПЕШНО ОБНОВЯВАНЕ: "+(previous?new Date(previous).toLocaleString("bg-BG",{hour12:false}):"няма");
+  }finally{
+    cycleInFlight=false;
   }
 }
 const tpp2BlockData = [
