@@ -195,3 +195,4 @@ def run():
 if __name__=="__main__":run()
 
 # Manual trigger: verify that the live data collector is still running.
+# Commit-triggered validation: keep this collector path eligible for workflow checks.
