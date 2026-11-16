@@ -442,3 +442,9 @@ footer b{color:#dce8ec;letter-spacing:.5px}
 .mountain-camera-card .botev-camera-view iframe{
   top:300px!important;
 }
+
+
+/* Botev: reset the iframe to the top so the live camera image is visible inside the black viewport */
+.mountain-camera-card .botev-camera-view iframe{
+  top:0!important;
+}
