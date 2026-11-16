@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#071a22">
 <meta name="description" content="MILCHO HUB — личен информационен център за енергетика, планини, новини и метеорология.">
 <title>MILCHO HUB — Personal Information Center</title>
-<link rel="stylesheet" href="style.css?v=tpp2-graph-restored-20261116-1">
+<link rel="stylesheet" href="style.css?v=tpp2-official-frame-20261116-1">
 </head>
 <body>
 <header class="topbar">
@@ -52,8 +52,9 @@
         <h2>ТЕЦ „МАРИЦА ИЗТОК 2“ — ПРОИЗВОДСТВО ПО БЛОКОВЕ</h2>
         <p class="tpp2-source-note">Мощност по блокове · MW · само стойности от официален източник</p>
         <div class="tpp2-data-status" id="tpp2DataStatus">ОЧАКВАНЕ НА ОФИЦИАЛНИ ДАННИ</div>
-        <div class="tpp2-chart" id="tpp2Blocks" aria-label="Производство по блокове в MW"></div>
-        <div class="tpp2-total">ОБЩО ПРОИЗВОДСТВО <strong id="tpp2Total">— MW</strong></div>
+        <div class="tpp2-official-meta"><span>ОФИЦИАЛЕН ЖИВ МОДУЛ · ТЕЦ 2</span><span id="tpp2FrameUpdated">ЗАРЕЖДАНЕ…</span></div>
+        <div class="tpp2-frame"><iframe id="tpp2OfficialFrame" title="Официални данни в реално време — ТЕЦ Марица изток 2" src="https://www.tpp2.com/realtimedataouter.php?lang=bg" loading="eager" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
+        <p class="tpp2-frame-note">Официалният модул показва моментните показатели на централата. Презареждане на модула през 60 секунди.</p>
         <p class="tpp2-source-link">Източник: <a href="https://www.tpp2.com/site/realTimeData.html" target="_blank" rel="noopener noreferrer">ТЕЦ „Марица изток 2“ — официални данни</a></p>
       </section>
       <section class="panel ibex-live"><div class="market">IBEX: <b>— €/MWh</b></div></section>
@@ -141,6 +142,6 @@
   <b>MILCHO HUB</b><span>ЛИЧЕН ИНФОРМАЦИОНЕН ЦЕНТЪР</span>
   <span class="warning">ДЕМО ИНТЕРФЕЙС · НЕ Е ЗА ОПЕРАТИВНИ РЕШЕНИЯ</span>
 </footer>
-<script src="app.js?v=live-status-20261116-1"></script>
+<script src="app.js?v=tpp2-official-frame-20261116-1"></script>
 </body>
 </html>
