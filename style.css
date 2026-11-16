@@ -371,3 +371,9 @@ footer b{color:#dce8ec;letter-spacing:.5px}
   .weather-day-list b{font-size:12px}
   .weather-day-list small{font-size:10px}
 }
+
+
+/* Botev camera: use the official Weather-Webcam embed as Pladi blocks direct image hotlinking */
+.botev-camera-view{height:auto;aspect-ratio:16/9;min-height:0;display:block;position:relative;overflow:hidden}
+.botev-camera-view iframe{position:absolute;top:0;left:0;width:100%;height:560px;min-height:560px;border:0;background:#000}
+@media(max-width:850px){.botev-camera-view{height:auto;min-height:0;aspect-ratio:16/9}.botev-camera-view iframe{height:560px;min-height:560px}}
