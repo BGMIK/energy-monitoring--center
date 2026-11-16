@@ -202,30 +202,18 @@ async function cycle(){
     cycleInFlight=false;
   }
 }
-const tpp2BlockData = [
-  {name:"ТЕЦ „Марица Изток 2“ — I блок",mw:170},
-  {name:"ТЕЦ „Марица Изток 2“ — II блок",mw:152},
-  {name:"ТЕЦ „Марица Изток 2“ — III блок",mw:157},
-  {name:"ТЕЦ „Марица Изток 2“ — IV блок",mw:159},
-  {name:"ТЕЦ „Марица Изток 2“ — V блок",mw:208},
-  {name:"ТЕЦ „Марица Изток 2“ — VI блок",mw:208},
-  {name:"ТЕЦ „Марица Изток 2“ — VII блок",mw:212},
-  {name:"ТЕЦ „Марица Изток 2“ — VIII блок",mw:222}
-];
-function renderTpp2Blocks(){
-  const chart=$("#tpp2Blocks"),total=$("#tpp2Total");
-  if(!chart||!total)return;
-  chart.innerHTML=tpp2BlockData.map((b,i)=>{
-    const max=i<4?185:240;
-    const value=Math.max(0,Math.min(Number(b.mw)||0,max));
-    const pct=(value/max)*100;
-    const blockRoman=["I","II","III","IV","V","VI","VII","VIII"][i];
-    const ticks=[0,25,50,75,100].map(t=>'<span class="tpp2-gridline" style="bottom:'+t+'%"></span>').join("");
-    return '<div class="tpp2-bar-col"><div class="tpp2-value">'+fmt(value,0)+' <small>MW</small></div><div class="tpp2-track" role="img" aria-label="'+blockRoman+' блок: '+fmt(value,0)+' от '+max+' MW">'+ticks+'<div class="tpp2-bar" style="height:'+pct+'%"></div></div><div class="tpp2-block">БЛОК '+blockRoman+'</div><div class="tpp2-scale">0–'+max+' MW</div></div>';
-  }).join("");
-  total.textContent=fmt(tpp2BlockData.reduce((sum,b)=>sum+b.mw,0),2)+" MW";
+function refreshTpp2OfficialFrame(){
+  const frame=$("#tpp2OfficialFrame");
+  const status=$("#tpp2FrameStatus");
+  if(!frame)return;
+  if(status)status.textContent="ПОСЛЕДЕН ОПИТ ЗА ЗАРЕЖДАНЕ: "+new Date().toLocaleTimeString("bg-BG",{hour12:false});
+  frame.src="https://www.tpp2.com/realtimedataouter.php?lang=bg&hub_refresh="+Date.now();
 }
-renderTpp2Blocks();
+const tpp2Frame=$("#tpp2OfficialFrame");
+if(tpp2Frame){
+  tpp2Frame.addEventListener("load",()=>{const status=$("#tpp2FrameStatus");if(status)status.textContent="ОФИЦИАЛНИЯТ ИЗТОЧНИК Е ЗАРЕДЕН · "+new Date().toLocaleTimeString("bg-BG",{hour12:false});});
+  setInterval(refreshTpp2OfficialFrame,60000);
+}
 renderGauges();renderProduction();renderFlows();applyLanguage();
 function tick(){$("#clock").textContent=new Date().toLocaleTimeString("bg-BG",{hour12:false});}tick();setInterval(tick,1000);
 document.querySelectorAll(".module").forEach(btn=>btn.addEventListener("click",()=>{document.querySelectorAll(".module").forEach(b=>b.classList.toggle("active",b===btn));document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===btn.dataset.page));}));
