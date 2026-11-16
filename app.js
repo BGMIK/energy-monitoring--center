@@ -324,7 +324,7 @@ function refreshMountainCamera(id,url,statusId,intervalMode="snapshot"){
 function refreshMountainCameras(){
   refreshMountainCamera("mountain-borovets-markudjik","https://media.borovets-bg.com/cams/channel?channel=81","mountain-borovets-status");
   refreshMountainCamera("mountain-pamporovo","https://webcams.pamporovo.me/memfs/54d2de25-1031-438f-9088-ea70df4702a1.jpg","mountain-pamporovo-status");
-  refreshMountainCamera("mountain-aleko","https://vod132.witmind.com/hls/cam1.jpg","mountain-aleko-status");
+  refreshMountainCamera("mountain-aleko","https://www.weather-webcam.eu/cams/aleko26.php","mountain-aleko-status");
 }
 function mountainFullscreen(type,id){
   const box=document.getElementById("mountain-camera-fullscreen");
