@@ -203,6 +203,7 @@ async function cycle(){
     cycleInFlight=false;
   }
 }
+/* Legacy numerical chart disabled: official TPP2 module is embedded directly. */
 const tpp2BlockData = [
   {name:"I",key:"tpp2_unit_1",mw:null,max:185},
   {name:"II",key:"tpp2_unit_2",mw:null,max:185},
@@ -229,8 +230,16 @@ function renderTpp2Blocks(){
   total.textContent=available.length===8?fmt(available.reduce((s,b)=>s+b.mw,0),2)+" MW":"— MW";
   if(status)status.textContent=available.length===8?"ОФИЦИАЛНИ СТОЙНОСТИ · 8/8 БЛОКА": "НЯМА ПОТВЪРДЕНИ ЧИСЛОВИ ДАННИ · "+available.length+"/8 БЛОКА";
 }
-renderTpp2Blocks();
 renderGauges();renderProduction();renderFlows();applyLanguage();
+function refreshOfficialTpp2Frame(){
+  const frame=$("#tpp2OfficialFrame"),label=$("#tpp2FrameUpdated");
+  if(!frame)return;
+  const url="https://www.tpp2.com/realtimedataouter.php?lang=bg&_hub="+Date.now();
+  frame.src=url;
+  if(label)label.textContent="ПОСЛЕДНО ПРЕЗАРЕЖДАНЕ: "+new Date().toLocaleTimeString("bg-BG",{hour12:false});
+}
+refreshOfficialTpp2Frame();
+setInterval(refreshOfficialTpp2Frame,60000);
 function tick(){$("#clock").textContent=new Date().toLocaleTimeString("bg-BG",{hour12:false});}tick();setInterval(tick,1000);
 document.querySelectorAll(".module").forEach(btn=>btn.addEventListener("click",()=>{document.querySelectorAll(".module").forEach(b=>b.classList.toggle("active",b===btn));document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===btn.dataset.page));}));
 $("#languageBtn").addEventListener("click",()=>{currentLanguage=currentLanguage==="bg"?"en":"bg";applyLanguage();});
