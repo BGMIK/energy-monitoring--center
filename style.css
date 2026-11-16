@@ -454,3 +454,17 @@ footer b{color:#dce8ec;letter-spacing:.5px}
 .mountain-camera-card .botev-camera-view iframe{
   top:290px!important;
 }
+
+
+/* Botev final framing: show only the camera picture, fitted to a 16:9 frame */
+.mountain-camera-card:has(.botev-camera-view){min-height:0!important;height:auto!important}
+.mountain-camera-card .botev-camera-view{
+  display:block!important;position:relative!important;flex:none!important;
+  width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;
+  aspect-ratio:16/9!important;overflow:hidden!important;padding:0!important;background:#000!important;
+}
+.mountain-camera-card .botev-camera-view iframe{
+  position:absolute!important;top:0!important;left:0!important;display:block!important;
+  width:100%!important;height:560px!important;min-height:560px!important;max-height:none!important;
+  border:0!important;transform:none!important;
+}
