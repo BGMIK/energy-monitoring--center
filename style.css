@@ -448,3 +448,9 @@ footer b{color:#dce8ec;letter-spacing:.5px}
   height:560px!important;
   min-height:560px!important;
 }
+
+
+/* Botev: move the embedded camera another 145px down */
+.mountain-camera-card .botev-camera-view iframe{
+  top:290px!important;
+}
