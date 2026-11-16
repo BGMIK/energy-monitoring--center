@@ -188,7 +188,6 @@ async function cycle(){
     if(details.length)status.title+="\n"+details.join("\n");
     status.setAttribute("aria-label",status.title);
     $(".meta").textContent="ПОСЛЕДНО ОБНОВЯВАНЕ: "+(updated?new Date(updated).toLocaleString("bg-BG",{hour12:false})+" · преди "+ageText:"—");
-    renderTpp2Blocks();
     const chartLabel=document.querySelector(".chart-title small");
     if(chartLabel)chartLabel.textContent=pts.length>=2?"LIVE • "+pts.length+" ТОЧКИ":"НЯМА ДАННИ";
   }catch(e){
