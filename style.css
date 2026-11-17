@@ -801,3 +801,8 @@ img,svg,iframe,canvas{max-width:100%}
 .tpp2-frame{height:225px!important;overflow:hidden!important;}
 .tpp2-frame iframe{height:535px!important;overflow:hidden!important;}
 @media(max-width:700px){.tpp2-frame{height:225px!important}.tpp2-frame iframe{height:535px!important}}
+
+/* Final TPP2 fit: fixed compact viewport, scaled official graphic, no iframe scrollbars */
+.tpp2-frame{height:225px!important;overflow:hidden!important;}
+.tpp2-frame iframe{display:block;width:238.1%!important;height:535px!important;max-width:none!important;transform:scale(.42)!important;transform-origin:top left!important;overflow:hidden!important;}
+@media(max-width:700px){.tpp2-frame{height:225px!important}.tpp2-frame iframe{width:238.1%!important;height:535px!important;transform:scale(.42)!important}}
