@@ -797,7 +797,7 @@ img,svg,iframe,canvas{max-width:100%}
 @media(max-width:700px){.tpp2-frame iframe{height:620px!important;}}
 
 
-/* TPP2: show only the requested live-generation section, without an inner scrollbar */
+/* TPP2 compact view: fit the complete official generation graphic without an inner scrollbar */
 .tpp2-frame{height:225px!important;overflow:hidden!important;}
-.tpp2-frame iframe{height:1400px!important;overflow:hidden!important;}
-@media(max-width:700px){.tpp2-frame{height:225px!important}.tpp2-frame iframe{height:1400px!important}}
+.tpp2-frame iframe{height:535px!important;overflow:hidden!important;}
+@media(max-width:700px){.tpp2-frame{height:225px!important}.tpp2-frame iframe{height:535px!important}}
