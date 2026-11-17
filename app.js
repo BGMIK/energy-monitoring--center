@@ -238,7 +238,7 @@ function refreshOfficialTpp2Frame(){
   if(label)label.textContent="ПОСЛЕДНО ПРЕЗАРЕЖДАНЕ: "+new Date().toLocaleTimeString("bg-BG",{hour12:false});
 }
 refreshOfficialTpp2Frame();
-setInterval(refreshOfficialTpp2Frame,5000);
+setInterval(refreshOfficialTpp2Frame,60000);
 function tick(){$("#clock").textContent=new Date().toLocaleTimeString("bg-BG",{hour12:false});}tick();setInterval(tick,1000);
 document.querySelectorAll(".module").forEach(btn=>btn.addEventListener("click",()=>{document.querySelectorAll(".module").forEach(b=>b.classList.toggle("active",b===btn));document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===btn.dataset.page));}));
 $("#languageBtn").addEventListener("click",()=>{currentLanguage=currentLanguage==="bg"?"en":"bg";applyLanguage();});
