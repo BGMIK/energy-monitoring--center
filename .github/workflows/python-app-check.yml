@@ -1,0 +1,23 @@
+name: Python web app validation
+on:
+  push:
+    branches:
+      - python-webapp
+    paths:
+      - "python_app/**"
+      - "Dockerfile"
+      - "render.yaml"
+      - ".github/workflows/python-app-check.yml"
+  workflow_dispatch:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile Python modules
+        run: python -m compileall -q python_app
+      - name: Build container
+        run: docker build -t milcho-hub-python .
