@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-17T12:17:14+00:00",
+  "updated_at": "2026-11-17T12:18:25+00:00",
   "sources": {
     "eso_generation": {
       "ok": true,
@@ -52,7 +52,7 @@
     "GR_mw": 365.84,
     "net": -1196.95,
     "load": 4803.5,
-    "frequency": 49.97,
+    "frequency": 49.99,
     "block5": 1045.0,
     "block6": 453.0
   },
