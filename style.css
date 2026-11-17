@@ -493,5 +493,5 @@ footer b{color:#dce8ec;letter-spacing:.5px}
 @media(max-width:700px){.tpp2-frame{height:105px!important}.tpp2-frame iframe{width:238.1%!important;height:714px!important;transform:scale(.42)!important}}
 
 
-/* Global vertical compression: reduce the full dashboard height by 30% */
-body{transform:scaleY(.7);transform-origin:top left;width:100%}
+/* Responsive vertical fit: keep the complete active page inside the viewport */
+body{transform:scaleY(var(--page-y-scale,.7));transform-origin:top left;width:100%}
