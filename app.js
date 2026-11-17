@@ -408,3 +408,15 @@ async function refreshNews(){
 }
 document.getElementById("news-refresh")?.addEventListener("click",refreshNews);
 refreshNews();setInterval(refreshNews,60*60*1000);
+
+
+/* Keep document scroll height aligned with the 30% vertical page compression. */
+(function(){
+  const applyVerticalCompression=()=>{
+    document.documentElement.style.height=(document.body.scrollHeight*.7)+"px";
+  };
+  applyVerticalCompression();
+  window.addEventListener("load",applyVerticalCompression,{once:true});
+  window.addEventListener("resize",applyVerticalCompression);
+  if("ResizeObserver" in window){new ResizeObserver(applyVerticalCompression).observe(document.body);}
+})();
