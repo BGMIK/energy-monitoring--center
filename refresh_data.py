@@ -230,3 +230,4 @@ if __name__=="__main__":run()
 # Commit-triggered validation: keep this collector path eligible for workflow checks.
 
 # Scheduled refresh health-check marker. Trigger a fresh scheduled collector run after stale snapshot detection.
+# Manual validation trigger: verify the scheduled ESO collector on main.
