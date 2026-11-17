@@ -111,7 +111,7 @@ async function updateFrequency(){
     }
   }
   if(hz==null)throw Error("Няма актуално измерване на честотата");
-  $(".frequency b").textContent=fmt(hz,4)+" Hz";
+  $(".frequency b").textContent=fmt(hz,2)+" Hz";
   $(".frequency").title="Континентална Европа · Fraunhofer ISE, Freiburg · измерване: "+new Date(stamp).toLocaleTimeString("bg-BG")+" · Energy-Charts.info";
 }
 async function updateIbex(){const raw=await getJson(API.ibex);const now=Date.now()/1000;let i=(raw.unix_seconds||[]).findLastIndex(t=>Number(t)<=now);if(i<0)i=0;const price=num(raw.price?.[i]);if(price==null)throw Error("Няма цена");$(".market b").textContent=fmt(price,2)+" €/MWh";}
@@ -165,7 +165,7 @@ async function cycle(){
     const pts=(snapshot.series||[]).map(p=>({t:p.t,v:num(p.v)})).filter(p=>p.t&&p.v!=null);
     if(pts.length>=2){state.loadSeries=pts;renderChart(pts);}
     render();
-    if(v.frequency!=null)$(".frequency b").textContent=fmt(v.frequency,4)+" Hz";
+    if(v.frequency!=null)$(".frequency b").textContent=fmt(v.frequency,2)+" Hz";
     if(v.ibex!=null)$(".market b").textContent=fmt(v.ibex,2)+" €/MWh";
     const cards=document.querySelectorAll(".npp .unit");
     for(const n of [5,6]){
