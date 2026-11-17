@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-17T15:24:25+00:00",
+  "updated_at": "2026-11-17T15:25:03+00:00",
   "sources": {
     "eso_generation": {
       "ok": true,
@@ -24,7 +24,7 @@
     },
     "co2_eua": {
       "ok": false,
-      "error": "Trading Economics EU Carbon Permits quote/date not found",
+      "error": "Trading Economics quote not present in fetched HTML: \r\n \r\n \r\n   \r\n\tEU Carbon Permits - Price - Chart - Historical Data - News\r\n        \r\n \r\n \r\n   \r\n\r\n \r\n     \r\n\r\n (function () { var p = new URLSearchParams(window.location.search); if (!p.ha",
       "provider": "Trading Economics · EU Carbon Permits · дневна котировка CFD, EUR/tCO₂"
     },
     "kozloduy": {
@@ -57,7 +57,7 @@
     "GR_mw": -108.22,
     "net": -2809.54,
     "load": 5146.6,
-    "frequency": 50.0,
+    "frequency": 50.01,
     "block5": 1044.0,
     "block6": 549.0
   },
