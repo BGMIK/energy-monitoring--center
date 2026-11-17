@@ -61,11 +61,12 @@ function gaugeSvg(g,v){
     const inner=r-(i%5===0?15:8);
     ticks+=`<line x1="${cx+Math.cos(a)*inner}" y1="${cy+Math.sin(a)*inner}" x2="${cx+Math.cos(a)*r}" y2="${cy+Math.sin(a)*r}" stroke="${i%5===0?"#263b43":"#71838a"}" stroke-width="${i%5===0?2.8:1.5}"/>`;
   }
-  const labelStride=Math.max(1,Math.ceil((g.marks.length-1)/8));
-  const labels=g.marks.map((m,i)=>{
-    if(i!==0&&i!==g.marks.length-1&&i%labelStride!==0)return "";
-    const a=(150+(i/(g.marks.length-1))*240)*Math.PI/180;
-    return `<text x="${cx+Math.cos(a)*49}" y="${cy+Math.sin(a)*49+3}" text-anchor="middle" font-size="12" font-weight="800" fill="#263b43">${m}</text>`;
+  const last=g.marks.length-1;
+  const labelIndexes=[0,Math.round(last*.25),Math.round(last*.5),Math.round(last*.75),last];
+  const labels=[...new Set(labelIndexes)].map(i=>{
+    const a=(150+(i/last)*240)*Math.PI/180;
+    const isZero=i===Math.round(last/2);
+    return `<text x="${cx+Math.cos(a)*(isZero?43:49)}" y="${cy+Math.sin(a)*(isZero?43:49)+3}" text-anchor="middle" font-size="${isZero?13:12}" font-weight="900" fill="#263b43">${g.marks[i]}</text>`;
   }).join("");
   let needle="";
   if(valid){
