@@ -5,6 +5,7 @@ on:
       - python-webapp
     paths:
       - "python_app/**"
+      - "refresh_data.py"
       - "Dockerfile"
       - "render.yaml"
       - ".github/workflows/python-app-check.yml"
@@ -18,6 +19,6 @@ jobs:
         with:
           python-version: "3.12"
       - name: Compile Python modules
-        run: python -m compileall -q python_app
+        run: python -m compileall -q python_app && python -m py_compile refresh_data.py
       - name: Build container
         run: docker build -t milcho-hub-python .
