@@ -158,6 +158,24 @@ def run():
         x=find_frequency(raw)
         if x is None:raise RuntimeError("Frequency value not found in ESO response")
         result["values"]["frequency"]=x
+    def co2():
+        # Trading Economics public EU Carbon Permits page (daily CFD benchmark).
+        page=get("https://tradingeconomics.com/commodity/carbon",25)
+        txt=re.sub(r"<script\\b.*?</script>|<style\\b.*?</style>", " ", page, flags=re.I|re.S)
+        txt=re.sub(r"<[^>]+>", " ", txt)
+        txt=re.sub(r"&nbsp;|&#160;", " ", txt, flags=re.I)
+        txt=re.sub(r"\\s+", " ", txt)
+        # Prefer the dated summary sentence; do not mistake other commodity prices for EUA.
+        m=re.search(r"EU Carbon Permits\\s+(?:rose|fell|increased|decreased)\\s+to\\s+([0-9][0-9,.]*)\\s+EUR\\s+on\\s+([A-Za-z]+\\s+[0-9]{1,2},\\s+[0-9]{4}),\\s+(?:up|down)\\s+([0-9,.]+)%", txt, re.I)
+        if not m:
+            raise RuntimeError("Trading Economics EU Carbon Permits quote/date not found")
+        price=number(m.group(1))
+        change=number(m.group(3))
+        if price is None or not 1 <= price <= 1000:
+            raise RuntimeError("Trading Economics EUA price failed validation")
+        result["values"]["co2_eur_t"]=price
+        result["values"]["co2_daily_percent"]=change
+        result["values"]["co2_quote_date"]=m.group(2)
     def ibex():
         # Do not relabel Energy-Charts BG prices as official IBEX data.
         # Public redistribution terms for the BG series are restrictive;
@@ -174,13 +192,14 @@ def run():
                 if x is not None:result["values"]["block"+str(n)]=x
         if "block5" not in result["values"] and "block6" not in result["values"]:
             raise RuntimeError("Unit 5/6 output not found in official page")
-    for name,fn in [("eso_generation",generation),("eso_flows",flows),("eso_load",load),("frequency",frequency),("ibex",ibex),("kozloduy",npp)]:
+    for name,fn in [("eso_generation",generation),("eso_flows",flows),("eso_load",load),("frequency",frequency),("ibex",ibex),("co2_eua",co2),("kozloduy",npp)]:
         source(name,fn)
     result["sources"]["eso_generation"]["provider"]="ЕСО API; при недостъпност се използва резервно копие"
     result["sources"]["eso_flows"]["provider"]="ЕСО SCADA API; при недостъпност се използва резервно копие"
     result["sources"]["eso_load"]["provider"]="ESO dashboard mirror (външен проект; резервен източник)"
     result["sources"]["frequency"]["provider"]="ЕСО frequency endpoint"
     result["sources"]["ibex"]["provider"]="БНЕБ/IBEX — няма конфигуриран официален API достъп"
+    result["sources"]["co2_eua"]["provider"]="Trading Economics · EU Carbon Permits · дневна котировка CFD, EUR/tCO₂"
     result["sources"]["kozloduy"]["provider"]="Официален сайт на АЕЦ Козлодуй"
     # Publish a complete fresh snapshot only when every core ESO feed is valid.
     required_eso = ("eso_generation", "eso_flows", "eso_load", "frequency")
