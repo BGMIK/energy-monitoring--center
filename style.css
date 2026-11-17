@@ -491,3 +491,7 @@ footer b{color:#dce8ec;letter-spacing:.5px}
 .tpp2-frame{height:105px!important;overflow:hidden!important;position:relative!important}
 .tpp2-frame iframe{width:238.1%!important;height:714px!important;max-width:none!important;transform:scale(.42)!important;transform-origin:top left!important}
 @media(max-width:700px){.tpp2-frame{height:105px!important}.tpp2-frame iframe{width:238.1%!important;height:714px!important;transform:scale(.42)!important}}
+
+
+/* Global vertical compression: reduce the full dashboard height by 30% */
+body{transform:scaleY(.7);transform-origin:top left;width:100%}
