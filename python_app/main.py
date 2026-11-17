@@ -20,48 +20,70 @@ COLLECTOR_FILE = ROOT / "refresh_data.py"
 LOG = logging.getLogger("milcho_hub")
 logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
 COLLECT_LOCK = threading.Lock()
-scheduler = BackgroundScheduler(timezone="UTC")
+SCHEDULER = BackgroundScheduler(timezone="UTC")
+REFRESH_SECONDS = int(os.getenv("COLLECTOR_INTERVAL_SECONDS", "60"))
+
+BG = "#07141B"
+PANEL = "#10232D"
+BORDER = "#2A4652"
+TEXT = "#EAF4F7"
+MUTED = "#7F9AA5"
+CYAN = "#2BC7F0"
+GREEN = "#28DE8B"
+ORANGE = "#FF963D"
+BLUE = "#438DFF"
+PURPLE = "#B77CFF"
+RED = "#FF525D"
 
 
 def read_snapshot() -> dict[str, Any]:
     try:
         with DATA_FILE.open("r", encoding="utf-8") as handle:
-            data = json.load(handle)
-        if not isinstance(data, dict):
-            raise ValueError("Snapshot root must be an object")
-        return data
+            result = json.load(handle)
+        if isinstance(result, dict):
+            return result
+        raise ValueError("Snapshot root is not an object")
     except Exception as exc:
-        LOG.warning("Cannot read data snapshot: %s", exc)
-        return {
-            "updated_at": None,
-            "sources": {},
-            "values": {},
-            "series": [],
-            "error": str(exc),
-        }
+        LOG.warning("Snapshot unavailable: %s", exc)
+        return {"updated_at": None, "sources": {}, "values": {}, "series": [], "error": str(exc)}
+
+
+def number(values: dict[str, Any], *keys: str, default: float = 0.0) -> float:
+    for key in keys:
+        try:
+            value = float(str(values.get(key)).replace(",", "."))
+            if value == value and abs(value) != float("inf"):
+                return value
+        except (TypeError, ValueError):
+            continue
+    return default
+
+
+def fmt(value: Any, digits: int = 0) -> str:
+    try:
+        return f"{float(value):,.{digits}f}".replace(",", " ").replace(".", ",")
+    except (TypeError, ValueError):
+        return "—"
 
 
 def collect_once() -> None:
-    """Run the existing validated collector; retain its last-good-snapshot rules."""
     if not COLLECTOR_FILE.exists():
         LOG.error("Collector not found: %s", COLLECTOR_FILE)
         return
     if not COLLECT_LOCK.acquire(blocking=False):
-        LOG.info("Collector already running; skipping overlapping invocation")
+        LOG.info("Collector already running; skipping overlapping run")
         return
     try:
         result = subprocess.run(
             [sys.executable, str(COLLECTOR_FILE)],
-            cwd=ROOT,
-            capture_output=True,
-            text=True,
+            cwd=ROOT, capture_output=True, text=True,
             timeout=int(os.getenv("COLLECTOR_TIMEOUT_SECONDS", "90")),
             check=False,
         )
         if result.stdout:
-            LOG.info("Collector: %s", result.stdout.strip()[-3000:])
+            LOG.info("Collector: %s", result.stdout.strip()[-2500:])
         if result.returncode:
-            LOG.error("Collector failed (%s): %s", result.returncode, result.stderr[-3000:])
+            LOG.error("Collector exit %s: %s", result.returncode, result.stderr[-2500:])
     except Exception:
         LOG.exception("Collector execution failed")
     finally:
@@ -75,267 +97,360 @@ def api_data() -> JSONResponse:
 
 @app.get("/api/health")
 def api_health() -> dict[str, Any]:
-    snapshot = read_snapshot()
+    snap = read_snapshot()
     return {
         "service": "MILCHO HUB",
         "status": "ok",
-        "updated_at": snapshot.get("updated_at"),
+        "updated_at": snap.get("updated_at"),
         "collector_running": COLLECT_LOCK.locked(),
     }
 
 
-def fmt(value: Any, digits: int = 0) -> str:
-    if value is None:
-        return "—"
-    try:
-        return f"{float(value):,.{digits}f}".replace(",", " ").replace(".", ",")
-    except (TypeError, ValueError):
-        return "—"
+def gauge_options(title: str, value: float, minimum: float, maximum: float, color: str, unit: str = "MW") -> dict[str, Any]:
+    return {
+        "animationDuration": 350,
+        "series": [{
+            "type": "gauge",
+            "min": minimum,
+            "max": maximum,
+            "startAngle": 225,
+            "endAngle": -45,
+            "splitNumber": 4,
+            "radius": "88%",
+            "center": ["50%", "56%"],
+            "axisLine": {"lineStyle": {"width": 13, "color": [[1, "#DDE4E7"]]}},
+            "progress": {"show": True, "width": 5, "itemStyle": {"color": color}},
+            "pointer": {"show": True, "length": "62%", "width": 3, "itemStyle": {"color": "#D82F3B"}},
+            "anchor": {"show": True, "showAbove": True, "size": 9, "itemStyle": {"color": "#26343A", "borderColor": "#AAB4B8", "borderWidth": 2}},
+            "axisTick": {"distance": -17, "length": 4, "lineStyle": {"color": "#26343A", "width": 1}},
+            "splitLine": {"distance": -18, "length": 9, "lineStyle": {"color": "#26343A", "width": 2}},
+            "axisLabel": {"distance": 22, "color": "#26343A", "fontSize": 8},
+            "title": {"show": True, "offsetCenter": [0, "-28%"], "color": "#EAF4F7", "fontSize": 10, "fontWeight": "bold"},
+            "detail": {"valueAnimation": True, "offsetCenter": [0, "47%"], "fontSize": 17, "fontWeight": "bold", "color": "#10191D", "formatter": "{value}"},
+            "data": [{"value": round(value, 1), "name": title}],
+        }],
+    }
 
 
-def source_status(snapshot: dict[str, Any], name: str) -> str:
-    source = snapshot.get("sources", {}).get(name, {})
-    return "ONLINE" if source.get("ok") else "NO DATA"
+def gauge_card(title: str, key: str, minimum: float, maximum: float, accent: str, unit: str = "MW"):
+    with ui.card().classes("gauge-card"):
+        chart = ui.echart(gauge_options(title, 0, minimum, maximum, accent, unit)).classes("w-full")
+        chart.style("height: 188px;")
+        return chart
 
 
-def metric_card(title: str, key: str, unit: str = "MW", digits: int = 0) -> None:
-    with ui.card().classes("metric-card"):
-        ui.label(title).classes("metric-title")
-        value = ui.label("—").classes("metric-value")
-        ui.label(unit).classes("metric-unit")
-
-        def update() -> None:
-            value.text = fmt(read_snapshot().get("values", {}).get(key), digits)
-
-        ui.timer(10, update)
-        update()
+def panel(title: str):
+    card = ui.card().classes("scada-panel")
+    with card:
+        ui.label(title).classes("panel-heading")
+    return card
 
 
-def build_energy_page() -> None:
-    ui.label("ЕЛЕКТРОЕНЕРГИЙНА СИСТЕМА НА БЪЛГАРИЯ").classes("page-title")
-    ui.label("Оперативни данни · ЕСО · Енергийни пазари").classes("page-subtitle")
-    with ui.row().classes("w-full flex-wrap"):
-        metric_card("ТОВАР НА РБ", "load")
-        metric_card("ВНОС / ИЗНОС", "net")
-        metric_card("ССЕЕ + ПОМПИ", "bess")
-        metric_card("ЧЕСТОТА", "frequency", "Hz", 2)
-        metric_card("АЕЦ", "nuclear")
-        metric_card("ТЕЦ", "thermal")
-        metric_card("ВЕЦ", "hydro")
-        metric_card("ВЕИ", "renew")
+def build_energy_dashboard() -> None:
+    snap = read_snapshot()
+    v = snap.get("values", {})
 
-    with ui.row().classes("w-full items-stretch"):
-        with ui.card().classes("data-panel grow"):
-            ui.label("ПРОИЗВОДСТВО ПО ИЗТОЧНИЦИ").classes("panel-title")
-            chart = ui.echart({
-                "tooltip": {"trigger": "item"},
-                "legend": {"bottom": 0, "textStyle": {"color": "#dbe8ec"}},
-                "series": [{
-                    "type": "pie", "radius": ["38%", "68%"],
-                    "data": [], "label": {"color": "#eaf2f4"},
-                }],
-            }).classes("w-full h-80")
+    ui.label("ЕЛЕКТРОЕНЕРГИЙНА СИСТЕМА НА БЪЛГАРИЯ").classes("main-title")
+    ui.label("ОПЕРАТИВЕН МОНИТОРИНГ · РЕАЛНО ВРЕМЕ · ЕСО").classes("main-subtitle")
 
-            def update_generation() -> None:
-                v = read_snapshot().get("values", {})
-                keys = [
+    gauge_specs = [
+        ("ТОВАР НА РБ", "load", 0, 10000, CYAN),
+        ("ВНОС / ИЗНОС", "flow", -4000, 4000, GREEN),
+        ("ССЕЕ + ПОМПИ", "battery", -5000, 5000, PURPLE),
+        ("АЕЦ", "nuclear", 0, 2500, BLUE),
+        ("ТЕЦ", "thermal", 0, 6500, ORANGE),
+        ("ВЕЦ + МВЕЦ", "hydro", 0, 3500, CYAN),
+        ("ВЕИ", "renew", 0, 10000, GREEN),
+    ]
+    gauge_charts = {}
+    with ui.column().classes("w-full gap-1"):
+        with ui.row().classes("w-full no-wrap gap-1"):
+            for title, key, lo, hi, accent in gauge_specs[:4]:
+                gauge_charts[key] = gauge_card(title, key, lo, hi, accent)
+        with ui.row().classes("w-full no-wrap gap-1 justify-center"):
+            for title, key, lo, hi, accent in gauge_specs[4:]:
+                gauge_charts[key] = gauge_card(title, key, lo, hi, accent)
+
+    with ui.grid(columns=12).classes("w-full gap-2"):
+        with ui.element("div").classes("col-span-12 lg:col-span-4"):
+            production_panel = panel("ПРОИЗВОДСТВО ПО ЦЕНТРАЛИ / ИЗТОЧНИЦИ")
+            with production_panel:
+                source_rows = {}
+                source_names = [
                     ("АЕЦ", "АЕЦ"), ("Кондензационни ТЕЦ", "Кондензационни ТЕЦ"),
                     ("Топлофикационни ТЕЦ", "Топлофикационни ТЕЦ"),
                     ("Заводски ТЕЦ", "Заводски ТЕЦ"), ("ВЕЦ", "ВЕЦ"),
                     ("Малки ВЕЦ", "Малки ВЕЦ"), ("ВяЕЦ", "ВяЕЦ"),
                     ("ФЕЦ", "ФЕЦ"), ("Био ЕЦ", "Био ЕЦ"),
+                    ("ССЕЕ", "ССЕЕ"), ("Помпи ПАВЕЦ", "Помпи ПАВЕЦ"),
                 ]
-                rows = [{"name": label, "value": max(0, float(v[key]))}
-                        for key, label in keys if v.get(key) is not None]
-                chart.options["series"][0]["data"] = rows
-                chart.update()
+                for label, key in source_names:
+                    with ui.row().classes("source-row w-full items-center justify-between"):
+                        ui.label(label).classes("source-label")
+                        source_rows[key] = ui.label("— MW").classes("source-value")
 
-            ui.timer(10, update_generation)
-            update_generation()
+        with ui.element("div").classes("col-span-12 lg:col-span-4"):
+            graph_panel = panel("ТОВАР НА ЕСО · ПОСЛЕДНИТЕ 24 ЧАСА")
+            with graph_panel:
+                load_chart = ui.echart({
+                    "tooltip": {"trigger": "axis"},
+                    "grid": {"left": 52, "right": 18, "top": 18, "bottom": 32},
+                    "xAxis": {"type": "category", "data": [], "axisLabel": {"color": "#AFC2C9", "fontSize": 9}},
+                    "yAxis": {"type": "value", "name": "MW", "axisLabel": {"color": "#AFC2C9"}},
+                    "series": [{"type": "line", "name": "Товар", "smooth": True, "showSymbol": False,
+                                "lineStyle": {"width": 2, "color": CYAN},
+                                "areaStyle": {"color": "rgba(43,199,240,0.12)"}, "data": []}],
+                }).classes("w-full").style("height: 230px;")
 
-        with ui.card().classes("data-panel grow"):
-            ui.label("ТРАНСГРАНИЧНИ ПОТОЦИ · MW").classes("panel-title")
-            flow_chart = ui.echart({
-                "tooltip": {"trigger": "axis"},
-                "xAxis": {"type": "value", "axisLabel": {"color": "#c6d5da"}},
-                "yAxis": {"type": "category", "data": ["Сърбия", "Румъния", "Турция", "С. Македония", "Гърция"],
-                          "axisLabel": {"color": "#c6d5da"}},
-                "series": [{"type": "bar", "data": [], "label": {"show": True, "position": "right"}}],
-                "grid": {"left": 95, "right": 35, "top": 15, "bottom": 25},
-            }).classes("w-full h-80")
+            flows_panel = panel("ТРАНСГРАНИЧНИ ПОТОЦИ · MW")
+            with flows_panel:
+                flow_chart = ui.echart({
+                    "tooltip": {"trigger": "axis"},
+                    "grid": {"left": 105, "right": 30, "top": 10, "bottom": 20},
+                    "xAxis": {"type": "value", "axisLabel": {"color": "#AFC2C9"}},
+                    "yAxis": {"type": "category", "data": ["Сърбия", "Румъния", "Турция", "С. Македония", "Гърция"],
+                              "axisLabel": {"color": "#EAF4F7"}},
+                    "series": [{"type": "bar", "data": [], "barWidth": 13,
+                                "itemStyle": {"color": GREEN}, "label": {"show": True, "position": "right", "color": TEXT}}],
+                }).classes("w-full").style("height: 235px;")
 
-            def update_flows() -> None:
-                v = read_snapshot().get("values", {})
-                keys = [("SR_mw", "Сърбия"), ("RO_mw", "Румъния"),
-                        ("TR_mw", "Турция"), ("MK_mw", "С. Македония"),
-                        ("GR_mw", "Гърция")]
-                vals = [float(v[k]) if v.get(k) is not None else 0 for k, _ in keys]
-                flow_chart.options["series"][0]["data"] = vals
-                flow_chart.update()
+        with ui.element("div").classes("col-span-12 lg:col-span-4"):
+            npp_panel = panel("АЕЦ КОЗЛОДУЙ · БЛОК 5 / БЛОК 6")
+            with npp_panel:
+                with ui.card().classes("unit-card w-full"):
+                    ui.label("БЛОК 5").classes("unit-title")
+                    block5 = ui.label("— MW").classes("unit-value").style(f"color:{BLUE}")
+                    block5_state = ui.label("● WAITING").classes("unit-state")
+                with ui.card().classes("unit-card w-full"):
+                    ui.label("БЛОК 6").classes("unit-title")
+                    block6 = ui.label("— MW").classes("unit-value").style(f"color:{GREEN}")
+                    block6_state = ui.label("● WAITING").classes("unit-state")
+                with ui.card().classes("unit-card w-full"):
+                    ui.label("ОБЩО АЕЦ КОЗЛОДУЙ").classes("unit-title")
+                    nuclear_total = ui.label("— MW").classes("total-value")
+                ui.label("Източник: официален сайт на АЕЦ „Козлодуй“").classes("source-note")
+                ui.separator().classes("my-2")
+                ui.label("ТЕМПЕРАТУРА · СОФИЯ").classes("unit-title")
+                temp_value = ui.label("— °C").classes("temp-value")
 
-            ui.timer(10, update_flows)
-            update_flows()
+    def update_dashboard() -> None:
+        current = read_snapshot()
+        values = current.get("values", {})
+        nuclear = number(values, "nuclear", "АЕЦ")
+        thermal = number(values, "thermal")
+        if not thermal:
+            thermal = number(values, "Кондензационни ТЕЦ") + number(values, "Топлофикационни ТЕЦ") + number(values, "Заводски ТЕЦ")
+        hydro = number(values, "hydro")
+        if not hydro:
+            hydro = number(values, "ВЕЦ") + number(values, "Малки ВЕЦ")
+        renew = number(values, "renew")
+        if not renew:
+            renew = number(values, "ВяЕЦ") + number(values, "ФЕЦ") + number(values, "Био ЕЦ")
+        load = number(values, "load", "load_mw", "Товар на РБ")
+        # Sign convention follows the supplied Full HD SCADA reference:
+        # positive upper gauge = export; positive battery gauge = charging/pumping.
+        flow = -number(values, "net", "net_import_mw")
+        battery = -number(values, "bess")
+        gauge_values = {
+            "load": load, "flow": flow, "battery": battery,
+            "nuclear": nuclear, "thermal": thermal, "hydro": hydro, "renew": renew,
+        }
+        for title, key, lo, hi, accent in gauge_specs:
+            gauge_charts[key].options = gauge_options(title, gauge_values[key], lo, hi, accent)
+            gauge_charts[key].update()
 
-    with ui.card().classes("data-panel w-full"):
-        ui.label("ТОВАР НА ЕЛЕКТРОЕНЕРГИЙНАТА СИСТЕМА").classes("panel-title")
-        load_chart = ui.echart({
-            "tooltip": {"trigger": "axis"},
-            "xAxis": {"type": "category", "data": [], "axisLabel": {"color": "#c6d5da"}},
-            "yAxis": {"type": "value", "name": "MW", "axisLabel": {"color": "#c6d5da"}},
-            "series": [{"name": "Товар", "type": "line", "smooth": True, "showSymbol": False,
-                        "areaStyle": {"opacity": 0.16}, "data": []}],
-            "grid": {"left": 55, "right": 25, "top": 25, "bottom": 35},
-        }).classes("w-full h-72")
+        for label, key in source_names:
+            raw = values.get(key)
+            if raw is None and key == "Помпи ПАВЕЦ":
+                raw = values.get("pump_mw", values.get("pumps_mw"))
+            if raw is None and key == "ССЕЕ":
+                raw = values.get("bess")
+            source_rows[key].text = f"{fmt(raw)} MW"
 
-        def update_load() -> None:
-            points = read_snapshot().get("series", [])[-144:]
-            load_chart.options["xAxis"]["data"] = [
-                str(p.get("t", ""))[11:16] for p in points
-            ]
-            load_chart.options["series"][0]["data"] = [p.get("v") for p in points]
-            load_chart.update()
+        series = current.get("series", [])[-288:]
+        load_chart.options["xAxis"]["data"] = [str(p.get("t", ""))[11:16] for p in series]
+        load_chart.options["series"][0]["data"] = [p.get("v") for p in series]
+        load_chart.update()
 
-        ui.timer(30, update_load)
-        update_load()
+        flow_keys = ["SR_mw", "RO_mw", "TR_mw", "MK_mw", "GR_mw"]
+        # Per the supplied monitor, positive bars denote export.
+        flow_chart.options["series"][0]["data"] = [-number(values, key) for key in flow_keys]
+        flow_chart.update()
+
+        b5 = values.get("block5")
+        b6 = values.get("block6")
+        block5.text = f"{fmt(b5)} MW" if b5 is not None else "— MW"
+        block6.text = f"{fmt(b6)} MW" if b6 is not None else "— MW"
+        block5_state.text = "● RUN / LIVE" if b5 is not None and float(b5) > 1 else "● OFFLINE / NO DATA"
+        block6_state.text = "● RUN / LIVE" if b6 is not None and float(b6) > 1 else "● OFFLINE / NO DATA"
+        block5_state.style(f"color:{GREEN if b5 is not None and float(b5) > 1 else RED}")
+        block6_state.style(f"color:{GREEN if b6 is not None and float(b6) > 1 else RED}")
+        nuclear_total.text = f"{fmt(nuclear)} MW"
+        temp = values.get("sofia_temperature")
+        temp_value.text = f"{fmt(temp, 1)} °C" if temp is not None else "— °C"
+        update_header(current)
+
+    update_dashboard()
+    ui.timer(10, update_dashboard)
 
 
-def build_market_page() -> None:
-    ui.label("ЕНЕРГИЙНИ ПАЗАРИ").classes("page-title")
-    with ui.row().classes("w-full flex-wrap"):
-        with ui.card().classes("metric-card"):
-            ui.label("CO₂ · EU ETS / EUA").classes("metric-title")
-            price = ui.label("—").classes("metric-value")
-            ui.label("€/tCO₂").classes("metric-unit")
-            detail = ui.label("Няма потвърдена котировка").classes("text-xs text-slate-300")
+header_status = None
+header_clock = None
+header_freq = None
+header_ibex = None
 
-            def update_co2() -> None:
-                v = read_snapshot().get("values", {})
-                price.text = fmt(v.get("co2_eur_t"), 2)
-                date = v.get("co2_quote_date") or "дата няма"
-                change = v.get("co2_daily_percent")
-                detail.text = f"{date} · дневна промяна: {fmt(change, 2)}%" if change is not None else str(date)
 
+def update_header(snapshot: dict[str, Any] | None = None) -> None:
+    if snapshot is None:
+        snapshot = read_snapshot()
+    values = snapshot.get("values", {})
+    sources = snapshot.get("sources", {})
+    core = ["eso_generation", "eso_flows", "eso_load", "frequency"]
+    online = sum(1 for key in core if sources.get(key, {}).get("ok"))
+    if header_status is not None:
+        header_status.text = f"● ONLINE {online}/{len(core)}" if online == len(core) else f"● PARTIAL {online}/{len(core)}"
+        header_status.style(f"color:{GREEN if online == len(core) else ORANGE}")
+    if header_freq is not None:
+        freq = values.get("frequency")
+        header_freq.text = f"ЧЕСТОТА: {fmt(freq, 2)} Hz" if freq is not None else "ЧЕСТОТА: — Hz"
+    if header_ibex is not None:
+        price = values.get("ibex_price")
+        header_ibex.text = f"IBEX: {fmt(price, 2)} €/MWh" if price is not None else "IBEX: N/A €/MWh"
+    if header_clock is not None:
+        header_clock.text = datetime.now().astimezone().strftime("%d.%m.%Y  %H:%M:%S")
+
+
+def build_markets() -> None:
+    ui.label("ЕНЕРГИЙНИ ПАЗАРИ").classes("main-title")
+    with ui.row().classes("w-full"):
+        with ui.card().classes("unit-card"):
+            ui.label("IBEX · ДЕН НАПРЕД").classes("unit-title")
+            price = ui.label("— €/MWh").classes("unit-value")
+            ui.label("Потвърдена котировка от източника").classes("source-note")
+            def update_price():
+                val = read_snapshot().get("values", {}).get("ibex_price")
+                price.text = f"{fmt(val, 2)} €/MWh" if val is not None else "N/A €/MWh"
+            ui.timer(30, update_price)
+            update_price()
+        with ui.card().classes("unit-card"):
+            ui.label("CO₂ · EU ETS / EUA").classes("unit-title")
+            co2 = ui.label("— €/tCO₂").classes("unit-value")
+            def update_co2():
+                val = read_snapshot().get("values", {}).get("co2_eur_t")
+                co2.text = f"{fmt(val, 2)} €/tCO₂" if val is not None else "НЯМА ПОТВЪРДЕНА КОТИРОВКА"
             ui.timer(30, update_co2)
             update_co2()
-        with ui.card().classes("metric-card"):
-            ui.label("IBEX · БЪЛГАРИЯ").classes("metric-title")
-            ui.label("—").classes("metric-value")
-            ui.label("€/MWh").classes("metric-unit")
-            ui.label("Официален API достъп не е конфигуриран").classes("text-xs text-slate-300")
 
 
-def build_weather_page() -> None:
-    ui.label("WEATHER CENTER").classes("page-title")
-    ui.label("София · Джулюница · Малта").classes("page-subtitle")
-    ui.label("Метеорологичният модул ще бъде пренесен със същите локации и прогнози.").classes("text-slate-300")
-    ui.link("Open-Meteo", "https://open-meteo.com/").classes("text-cyan-300")
+def build_weather() -> None:
+    ui.label("WEATHER CENTER").classes("main-title")
+    ui.label("СОФИЯ · ДЖУЛЮНИЦА · МАЛТА").classes("main-subtitle")
+    ui.label("Тук ще бъде пренесен метеорологичният модул с текущи условия, 24-часова и 7-дневна прогноза.").classes("module-note")
 
 
-def build_news_page() -> None:
-    ui.label("NEWS CENTER").classes("page-title")
-    ui.label("Енергетика · България · Европа · Свят").classes("page-subtitle")
-    ui.label("Новинарският модул ще бъде свързан към RSS източниците в следващия етап.").classes("text-slate-300")
+def build_news() -> None:
+    ui.label("NEWS CENTER").classes("main-title")
+    ui.label("ЕНЕРГЕТИКА · БЪЛГАРИЯ · ЕВРОПА · СВЯТ").classes("main-subtitle")
+    ui.label("Новинарският модул ще използва проверени RSS източници и отделни категории.").classes("module-note")
 
 
-def build_mountain_page() -> None:
-    ui.label("ПЛАНИНСКИ КАМЕРИ").classes("page-title")
-    cameras = [
-        ("БОРОВЕЦ · МАРКУДЖИК 1", "https://weather-webcam.eu/webcam-borovec-markudjik1/"),
-        ("БОТЕВ · ЗАСЛОН", "https://www.alpinsport-bg.com/"),
-    ]
-    with ui.row().classes("w-full flex-wrap"):
-        for title, url in cameras:
-            with ui.card().classes("camera-card"):
-                ui.label(title).classes("panel-title")
-                ui.html(f'<iframe src="{url}" loading="lazy" referrerpolicy="no-referrer"></iframe>',
-                        sanitize=False).classes("w-full")
+def build_cameras() -> None:
+    ui.label("MOUNTAIN CAMERAS").classes("main-title")
+    ui.label("БОТЕВ · БОРОВЕЦ / МАРКУДЖИК · РОДОПИ · ВИТОША").classes("main-subtitle")
+    ui.label("Камерите ще се пренесат с отделни панели, fullscreen режим и независимо обновяване.").classes("module-note")
 
 
-def build_devices_page() -> None:
-    ui.label("ЛИЧНИ УСТРОЙСТВА").classes("page-title")
-    ui.label("Tuya · Zigbee · ESP32 · Камери · Сензори").classes("page-subtitle")
-    ui.label("Интеграциите ще се прехвърлят след основните енергийни и метеорологични модули.").classes("text-slate-300")
+def build_devices() -> None:
+    ui.label("PERSONAL DEVICES").classes("main-title")
+    ui.label("TUYA · ZIGBEE · ESP32 · ICSEE · СЕНЗОРИ").classes("main-subtitle")
+    ui.label("Интеграциите ще се добавят след миграцията на основните SCADA панели.").classes("module-note")
+
+
+def build_app() -> None:
+    global header_status, header_clock, header_freq, header_ibex
+    ui.add_head_html("""
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      body { background:#07141B; color:#EAF4F7; }
+      .q-header { background:#081A22 !important; border-bottom:1px solid #2A4652; }
+      .q-drawer { background:#0B2029 !important; color:#EAF4F7; }
+      .main-title {font-size:clamp(17px,1.5vw,25px);font-weight:900;letter-spacing:.04em;color:#EAF4F7}
+      .main-subtitle {font-size:11px;letter-spacing:.12em;color:#7F9AA5;margin-bottom:8px}
+      .gauge-card {background:#10232D;border:1px solid #2A4652;border-radius:5px;padding:2px;flex:1;min-width:0;box-shadow:none}
+      .scada-panel {background:#10232D;border:1px solid #2A4652;border-radius:5px;padding:10px;margin-bottom:8px;box-shadow:none}
+      .panel-heading {font-size:12px;font-weight:900;color:#EAF4F7;letter-spacing:.04em;margin-bottom:8px}
+      .source-row {background:#112A34;border:1px solid #203D48;padding:7px 9px;margin:2px 0;border-radius:2px}
+      .source-label {font-size:12px;font-weight:700;color:#EAF4F7}
+      .source-value {font-family:Consolas,monospace;font-size:12px;font-weight:800;color:#EAF4F7}
+      .unit-card {background:#112A34;border:1px solid #2A4652;border-radius:4px;padding:12px;margin:4px 0;box-shadow:none}
+      .unit-title {font-size:12px;font-weight:900;color:#AFC2C9;letter-spacing:.05em}
+      .unit-value {font-family:Consolas,monospace;font-size:27px;font-weight:900}
+      .unit-state {font-size:11px;font-weight:900;color:#7F9AA5}
+      .total-value {font-family:Consolas,monospace;font-size:24px;font-weight:900;color:#EAF4F7}
+      .temp-value {font-family:Consolas,monospace;font-size:30px;font-weight:900;color:#F2F7F9}
+      .source-note,.module-note {font-size:11px;color:#7F9AA5}
+      @media(max-width:800px) {
+        .gauge-card {min-width:46%}
+        .q-drawer {width:230px}
+      }
+    </style>
+    """)
+
+    with ui.header().classes("items-center px-3 gap-4"):
+        ui.label("MILCHO HUB").classes("text-lg font-black tracking-widest")
+        ui.label("SCADA / ENERGY CONTROL").classes("text-xs text-slate-400")
+        ui.space()
+        header_ibex = ui.label("IBEX: N/A €/MWh").classes("text-xs font-bold").style(f"color:{ORANGE}")
+        header_freq = ui.label("ЧЕСТОТА: — Hz").classes("text-xs font-bold")
+        header_status = ui.label("● STARTING").classes("text-xs font-bold")
+        header_clock = ui.label("--:--:--").classes("text-xs font-bold").style(f"color:{GREEN}")
+
+    with ui.left_drawer(value=True).classes("p-2"):
+        ui.label("КОНТРОЛНИ ЦЕНТРОВЕ").classes("text-xs font-black text-slate-400 p-2")
+        pages = [
+            ("⚡  ENERGY SCADA", build_energy_dashboard),
+            ("📊  MARKETS / CO₂", build_markets),
+            ("🌤️  WEATHER CENTER", build_weather),
+            ("📰  NEWS CENTER", build_news),
+            ("⛰️  MOUNTAIN CAMERAS", build_cameras),
+            ("📱  PERSONAL DEVICES", build_devices),
+        ]
+        host = ui.column().classes("w-full p-3 gap-2")
+        def show(builder):
+            host.clear()
+            with host:
+                builder()
+        for label, builder in pages:
+            ui.button(label, on_click=lambda b=builder: show(b)).props("flat align=left no-caps").classes("w-full text-left")
+    show(build_energy_dashboard)
+    ui.timer(1, update_header)
 
 
 @ui.page("/")
 def home() -> None:
-    ui.add_head_html("""
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-      body { background:#07171f; color:#edf4f6; }
-      .page-title {font-size:1.45rem;font-weight:800;color:#eaf4f6}
-      .page-subtitle {color:#91aab3;margin-bottom:1rem}
-      .metric-card {background:#102832;border:1px solid #294954;min-width:170px;flex:1;padding:16px}
-      .metric-title,.panel-title {font-weight:800;color:#c2d1d6;font-size:.85rem}
-      .metric-value {font-size:2rem;font-weight:900;color:#ffb34d}
-      .metric-unit {font-size:.8rem;color:#91aab3}
-      .data-panel {background:#102832;border:1px solid #294954;padding:16px}
-      .camera-card {background:#102832;border:1px solid #294954;min-width:min(100%,420px);flex:1}
-      .camera-card iframe {width:100%;height:280px;border:0;background:#07171f}
-      .q-drawer {background:#0d232c!important;color:#edf4f6}
-      .q-header {background:#0d232c!important}
-    </style>
-    """)
-
-    with ui.header().classes("items-center justify-between px-4"):
-        ui.label("MILCHO HUB").classes("text-xl font-black tracking-wider")
-        stamp = ui.label("Зареждане на данните…").classes("text-xs text-slate-300")
-
-        def update_stamp() -> None:
-            updated = read_snapshot().get("updated_at")
-            stamp.text = f"Последно обновяване: {updated or 'няма данни'}"
-
-        ui.timer(10, update_stamp)
-        update_stamp()
-
-    with ui.left_drawer(value=True).classes("p-3"):
-        ui.label("ИНФОРМАЦИОННИ ЦЕНТРОВЕ").classes("text-xs font-bold text-slate-400 mb-3")
-        pages = [
-            ("⚡  ENERGY HUB", build_energy_page),
-            ("📈  MARKETS / CO₂", build_market_page),
-            ("🌤️  WEATHER CENTER", build_weather_page),
-            ("📰  NEWS CENTER", build_news_page),
-            ("⛰️  MOUNTAIN CAMERAS", build_mountain_page),
-            ("📱  PERSONAL DEVICES", build_devices_page),
-        ]
-        content = ui.column().classes("w-full p-4 gap-3")
-        for label, builder in pages:
-            ui.button(label, on_click=lambda b=builder: show_page(b)).props("flat align=left").classes("w-full text-left")
-
-    def show_page(builder) -> None:
-        content.clear()
-        with content:
-            builder()
-
-    show_page(build_energy_page)
+    build_app()
 
 
 def start_scheduler() -> None:
-    if scheduler.running:
+    if SCHEDULER.running:
         return
-    scheduler.add_job(
-        collect_once, "interval", seconds=int(os.getenv("COLLECTOR_INTERVAL_SECONDS", "60")),
+    SCHEDULER.add_job(
+        collect_once, "interval", seconds=REFRESH_SECONDS,
         id="data-collector", max_instances=1, coalesce=True, replace_existing=True,
         next_run_time=datetime.now(timezone.utc),
     )
-    scheduler.start()
-    LOG.info("MILCHO HUB scheduler started")
+    SCHEDULER.start()
+    LOG.info("MILCHO HUB collector scheduler started: %s seconds", REFRESH_SECONDS)
 
 
 def stop_scheduler() -> None:
-    if scheduler.running:
-        scheduler.shutdown(wait=False)
+    if SCHEDULER.running:
+        SCHEDULER.shutdown(wait=False)
 
 
 app.on_startup(start_scheduler)
 app.on_shutdown(stop_scheduler)
 
 if __name__ in {"__main__", "__mp_main__"}:
-    ui.run(
-        host=os.getenv("HOST", "0.0.0.0"),
-        port=int(os.getenv("PORT", "8080")),
-        title="MILCHO HUB",
-        dark=True,
-        reload=False,
-        show=False,
-    )
+    ui.run(host=os.getenv("HOST", "0.0.0.0"), port=int(os.getenv("PORT", "8080")),
+           title="MILCHO HUB", dark=True, reload=False, show=False)
