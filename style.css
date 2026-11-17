@@ -643,3 +643,29 @@ img,svg,iframe,canvas{max-width:100%}
   .npp-gauge-slot{padding:7px}
   .npp-gauge-slot .unit{min-height:64px}
 }
+
+/* User request: reduce gauge and Kozloduy panel footprint by a further 30% */
+.gauge-card{padding:6px 4px 5px}
+.gauge-card h3{font-size:clamp(10px,.72vw,12px);margin:0 0 1px}
+.gauge-svg{width:min(100%,158px);max-width:158px;margin:0 auto}
+.gauge-value{font-size:clamp(14px,.95vw,17px);margin-top:-3px}
+.gauge-unit{font-size:8px}
+.npp-gauge-slot{padding:4px 5px}
+.npp-gauge-slot h2{font-size:clamp(9px,.62vw,10px);padding:4px 2px 5px}
+.npp-gauge-slot .unit{min-height:42px;padding:4px 6px;margin:2px 0}
+.npp-gauge-slot .unit b{font-size:9px}
+.npp-gauge-slot .unit strong{font-size:clamp(12px,.85vw,14px);margin:2px 0 1px}
+.npp-gauge-slot .unit small{font-size:8px}
+.npp-gauge-slot .total{padding:5px 4px;margin-top:2px}
+.npp-gauge-slot .total b{font-size:8px}
+.npp-gauge-slot .total strong{font-size:clamp(12px,.85vw,14px);margin-top:2px}
+.npp-gauge-slot .note{font-size:7px;line-height:1.2;margin:2px 0 0}
+@media(max-width:1150px){
+  .gauge-svg{width:min(100%,147px);max-width:147px}
+}
+@media(max-width:700px){
+  .gauge-card{padding:5px 3px 4px}
+  .gauge-svg{width:min(100%,133px);max-width:133px}
+  .npp-gauge-slot{padding:5px}
+  .npp-gauge-slot .unit{min-height:46px}
+}
