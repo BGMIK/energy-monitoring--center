@@ -21,7 +21,7 @@ LOG = logging.getLogger("milcho_hub")
 logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
 COLLECT_LOCK = threading.Lock()
 SCHEDULER = BackgroundScheduler(timezone="UTC")
-REFRESH_SECONDS = int(os.getenv("COLLECTOR_INTERVAL_SECONDS", "60"))
+REFRESH_SECONDS = int(os.getenv("COLLECTOR_INTERVAL_SECONDS", "15"))
 
 BG = "#07141B"
 PANEL = "#10232D"
@@ -232,9 +232,23 @@ def build_energy_dashboard() -> None:
                 ui.separator().classes("my-2")
                 ui.label("ТЕМПЕРАТУРА · СОФИЯ").classes("unit-title")
                 temp_value = ui.label("— °C").classes("temp-value")
+                ui.separator().classes("my-2")
+                ui.label("СТАТУС НА ИЗТОЧНИЦИТЕ").classes("unit-title")
+                source_status_rows = {}
+                source_labels = [("eso_generation", "ЕСО · производство"), ("eso_flows", "ЕСО · потоци"), ("eso_load", "ЕСО · товар"), ("frequency", "ЕСО · честота"), ("kozloduy", "АЕЦ Козлодуй"), ("co2_eua", "CO₂ · EUA"), ("ibex", "IBEX")]
+                for source_key, source_label in source_labels:
+                    with ui.row().classes("w-full items-center justify-between source-status-row"):
+                        ui.label(source_label).classes("source-label")
+                        source_status_rows[source_key] = ui.label("WAITING").classes("source-status-value")
+
+    last_revision = {"value": None}
 
     def update_dashboard() -> None:
         current = read_snapshot()
+        revision = current.get("revision", current.get("updated_at"))
+        if revision == last_revision["value"]:
+            return
+        last_revision["value"] = revision
         values = current.get("values", {})
         nuclear = number(values, "nuclear", "АЕЦ")
         thermal = number(values, "thermal")
@@ -288,10 +302,22 @@ def build_energy_dashboard() -> None:
         nuclear_total.text = f"{fmt(nuclear)} MW"
         temp = values.get("sofia_temperature")
         temp_value.text = f"{fmt(temp, 1)} °C" if temp is not None else "— °C"
+        sources = current.get("sources", {})
+        for source_key, source_label in source_labels:
+            meta = sources.get(source_key, {})
+            ok = meta.get("ok") is True
+            checked = meta.get("checked_at")
+            changed = meta.get("last_change_at")
+            checked_text = checked[11:19] if isinstance(checked, str) and len(checked) >= 19 else "—"
+            changed_text = changed[11:19] if isinstance(changed, str) and len(changed) >= 19 else "—"
+            state = "ONLINE" if ok else ("STALE" if meta.get("last_success_at") else "OFFLINE")
+            source_status_rows[source_key].text = f"{state} · check {checked_text} · change {changed_text}"
+            source_status_rows[source_key].style(f"color:{GREEN if ok else ORANGE if meta.get(\"last_success_at\") else RED}")
+            source_status_rows[source_key].tooltip(f"{meta.get(\"provider\", source_label)} | Последен успех: {meta.get(\"last_success_at\") or \"няма\"} | Последна промяна: {meta.get(\"last_change_at\") or \"няма\"} | {meta.get(\"error\", \"\")}")
         update_header(current)
 
     update_dashboard()
-    ui.timer(10, update_dashboard)
+    ui.timer(1, update_dashboard)
 
 
 header_status = None
@@ -389,6 +415,8 @@ def build_app() -> None:
       .total-value {font-family:Consolas,monospace;font-size:24px;font-weight:900;color:#EAF4F7}
       .temp-value {font-family:Consolas,monospace;font-size:30px;font-weight:900;color:#F2F7F9}
       .source-note,.module-note {font-size:11px;color:#7F9AA5}
+      .source-status-row {background:#112A34;border:1px solid #203D48;padding:6px 8px;margin:2px 0;border-radius:2px;gap:8px}
+      .source-status-value {font-family:Consolas,monospace;font-size:10px;font-weight:800;text-align:right}
       @media(max-width:800px) {
         .gauge-card {min-width:46%}
         .q-drawer {width:230px}
