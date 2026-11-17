@@ -438,22 +438,28 @@ function newsSummary(item){
  const raw=String(item.description||item.content||"").replace(/<script[\s\S]*?<\/script>/gi," ").replace(/<style[\s\S]*?<\/style>/gi," ").replace(/<[^>]+>/g," ").replace(/&nbsp;/gi," ").replace(/&amp;/gi,"&").replace(/&#39;|&apos;/gi,"'").replace(/&quot;/gi,'"').replace(/\s+/g," ").trim();
  return raw.length>230?raw.slice(0,227).trim()+"…":raw;
 }
+const NEWS_TEST_IMAGE="https://www.cez.cz/webpublic/file/edee/2026/01/01_fve-zaluzi-u-litvinova-20260129-125410.jpg";
 function renderNews(){
- const target=document.querySelector('[data-news="all"]');if(!target)return;
- const filtered=newsItems;
- if(!filtered.length){target.innerHTML='<div class="news-empty">Няма намерени публикации в тази категория за последните 24 часа.</div>';return;}
+ const target=document.querySelector('[data-news="all"]');
+ if(!target)return;
+ const filtered=newsItems.slice(0,3);
+ if(!filtered.length){
+  target.innerHTML='<div class="news-empty">Няма намерени публикации.</div>';
+  return;
+ }
  target.innerHTML=filtered.map(item=>{
-  const image=item.image?'<img class="news-image" src="'+newsEscape(item.image)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.classList.add(\'no-image\');this.remove()">':'';
+  const imageUrl=item.image||NEWS_TEST_IMAGE;
+  const image='<img class="news-image" src="'+newsEscape(imageUrl)+'" alt="Илюстративна снимка на енергийна инфраструктура" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.classList.add(\'no-image\');this.remove()">';
   const summary=item.summary?'<p class="news-summary">'+newsEscape(item.summary)+'</p>':'';
   const source=item.source||"Новинарски източник";
   const date=new Date(item.pubDate);
   const time=Number.isNaN(date.getTime())?"":date.toLocaleString("bg-BG",{timeZone:"Europe/Sofia",day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
-  return '<article class="news-card '+(item.image?"has-image":"no-image")+'">'+
+  return '<article class="news-card has-image">'+
    '<a class="news-card-link" href="'+newsEscape(item.link)+'" target="_blank" rel="noopener noreferrer">'+
-   (item.image?'<div class="news-image-wrap">'+image+'</div>':'<div class="news-image-wrap news-image-placeholder"><span>📰</span></div>')+
-   '<div class="news-card-body">'+
-   '<h3>'+newsEscape(item.title)+'</h3>'+summary+
-   '<div class="news-meta">'+newsEscape(source)+(time?' · '+newsEscape(time):'')+'</div></div></a></article>';
+   '<div class="news-image-wrap">'+image+'</div>'+
+   '<div class="news-card-body"><h3>'+newsEscape(item.title)+'</h3>'+summary+
+   '<div class="news-meta">'+newsEscape(source)+(time?' · '+newsEscape(time):'')+
+   '<span class="news-image-note"> · Илюстративна снимка</span></div></div></a></article>';
  }).join("");
 }
 async function loadNews(){
