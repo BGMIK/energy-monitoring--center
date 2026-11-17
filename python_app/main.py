@@ -316,6 +316,7 @@ def start_scheduler() -> None:
     scheduler.add_job(
         collect_once, "interval", seconds=int(os.getenv("COLLECTOR_INTERVAL_SECONDS", "60")),
         id="data-collector", max_instances=1, coalesce=True, replace_existing=True,
+        next_run_time=datetime.now(timezone.utc),
     )
     scheduler.start()
     LOG.info("MILCHO HUB scheduler started")
