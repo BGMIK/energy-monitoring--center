@@ -117,16 +117,16 @@ def browser_dump(url, wait_ms=4500):
         shutil.rmtree(profile, ignore_errors=True)
 
 def text_from_dom(dom):
-    dom = re.sub(r"<script\\b.*?</script>", " ", dom, flags=re.I | re.S)
-    dom = re.sub(r"<style\\b.*?</style>", " ", dom, flags=re.I | re.S)
+    dom = re.sub(r"<script\b.*?</script>", " ", dom, flags=re.I | re.S)
+    dom = re.sub(r"<style\b.*?</style>", " ", dom, flags=re.I | re.S)
     dom = re.sub(r"<[^>]+>", " ", dom)
-    return re.sub(r"\\s+", " ", html.unescape(dom)).strip()
+    return re.sub(r"\s+", " ", html.unescape(dom)).strip()
 
 def browser_number(text, label):
     esc = re.escape(label)
     patterns = [
-        rf"{esc}\\s+[0-9]{{1,3}}(?:[.,][0-9]+)?\\s*%\\s+([0-9][0-9\\s.,]*)",
-        rf"{esc}\\s+([0-9][0-9\\s.,]*)",
+        rf"{esc}\s+[0-9]{{1,3}}(?:[.,][0-9]+)?\s*%\s+([0-9][0-9\s.,]*)",
+        rf"{esc}\s+[0-9]{{1,3}}(?:[.,][0-9]+)?\s*%\s+([0-9][0-9\s.,]*)",
     ]
     for pattern in patterns:
         match = re.search(pattern, text, flags=re.I)
