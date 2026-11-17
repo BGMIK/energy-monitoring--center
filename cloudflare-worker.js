@@ -1,6 +1,6 @@
 /**
  * MILCHO HUB scheduler.
- * Deploy as a Cloudflare Worker and add a Cron Trigger: */5 * * * *
+ * Deploy as a Cloudflare Worker and add a Cron Trigger that runs every five minutes
  * Add secret GITHUB_TOKEN (fine-grained PAT with Actions: Read and write).
  *
  * The Worker does not collect or fabricate data. It reliably dispatches the
