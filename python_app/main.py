@@ -312,8 +312,13 @@ def build_energy_dashboard() -> None:
             changed_text = changed[11:19] if isinstance(changed, str) and len(changed) >= 19 else "—"
             state = "ONLINE" if ok else ("STALE" if meta.get("last_success_at") else "OFFLINE")
             source_status_rows[source_key].text = f"{state} · check {checked_text} · change {changed_text}"
-            source_status_rows[source_key].style(f"color:{GREEN if ok else ORANGE if meta.get(\"last_success_at\") else RED}")
-            source_status_rows[source_key].tooltip(f"{meta.get(\"provider\", source_label)} | Последен успех: {meta.get(\"last_success_at\") or \"няма\"} | Последна промяна: {meta.get(\"last_change_at\") or \"няма\"} | {meta.get(\"error\", \"\")}")
+            has_success = bool(meta.get("last_success_at"))
+            provider = meta.get("provider") or source_label
+            last_success = meta.get("last_success_at") or "няма"
+            last_change = meta.get("last_change_at") or "няма"
+            error_text = meta.get("error") or ""
+            source_status_rows[source_key].style(f"color:{GREEN if ok else ORANGE if has_success else RED}")
+            source_status_rows[source_key].tooltip(provider + " | Последен успех: " + last_success + " | Последна промяна: " + last_change + " | " + error_text)
         update_header(current)
 
     update_dashboard()
