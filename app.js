@@ -410,13 +410,32 @@ document.getElementById("news-refresh")?.addEventListener("click",refreshNews);
 refreshNews();setInterval(refreshNews,60*60*1000);
 
 
-/* Keep document scroll height aligned with the 30% vertical page compression. */
+/* Automatically fit the complete active page to the available viewport height. */
 (function(){
-  const applyVerticalCompression=()=>{
-    document.documentElement.style.height=(document.body.scrollHeight*.7)+"px";
+  let fitQueued=false;
+  const fitPageToScreen=()=>{
+    fitQueued=false;
+    const body=document.body;
+    if(!body)return;
+    body.style.setProperty("--page-y-scale","1");
+    const naturalHeight=Math.max(body.scrollHeight,document.documentElement.scrollHeight,1);
+    const availableHeight=Math.max(240,window.innerHeight-12);
+    const scale=Math.min(.7,availableHeight/naturalHeight);
+    body.style.setProperty("--page-y-scale",String(scale));
+    document.documentElement.style.height=(naturalHeight*scale)+"px";
   };
-  applyVerticalCompression();
-  window.addEventListener("load",applyVerticalCompression,{once:true});
-  window.addEventListener("resize",applyVerticalCompression);
-  if("ResizeObserver" in window){new ResizeObserver(applyVerticalCompression).observe(document.body);}
+  const scheduleFit=()=>{
+    if(fitQueued)return;
+    fitQueued=true;
+    requestAnimationFrame(fitPageToScreen);
+  };
+  window.addEventListener("load",scheduleFit);
+  window.addEventListener("resize",scheduleFit);
+  document.querySelectorAll(".module").forEach(button=>button.addEventListener("click",()=>setTimeout(scheduleFit,80)));
+  if("MutationObserver" in window){
+    const observer=new MutationObserver(scheduleFit);
+    observer.observe(document.querySelector("main")||document.body,{childList:true,subtree:true,attributes:true,characterData:true});
+  }
+  setInterval(scheduleFit,1000);
+  scheduleFit();
 })();
