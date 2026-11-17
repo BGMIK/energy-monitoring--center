@@ -137,10 +137,13 @@ async function cycle(){
     const coreErrors=coreNames.filter(name=>!src[name]||!src[name].ok);
     const auxiliaryErrors=names.filter(name=>!coreNames.includes(name)&&src[name]&&!src[name].ok);
     const ageMinutes=Number.isFinite(age)?age:Infinity;
+    const charge=num(v.batt_charge_mw),discharge=num(v.batt_discharge_mw),pumps=num(v.pump_mw??v.pumps_mw);
+    const bessHasComponents=charge!=null||discharge!=null||pumps!=null;
+    const bessNet=bessHasComponents?(discharge??0)-(charge??0)-(pumps??0):(v.bess==null?null:-num(v.bess));
     state.values={
       load:num(v.load),
       net:v.net==null?null:-num(v.net),
-      bess:v.bess==null?null:-num(v.bess),
+      bess:bessNet,
       nuclear:num(v.nuclear),
       thermal:num(v.thermal),
       hydro:num(v.hydro),
