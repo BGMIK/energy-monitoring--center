@@ -407,34 +407,3 @@ async function refreshNews(){
 }
 document.getElementById("news-refresh")?.addEventListener("click",refreshNews);
 refreshNews();setInterval(refreshNews,60*60*1000);
-
-
-/* Automatically fit the complete active page to the available viewport height. */
-(function(){
-  let fitQueued=false;
-  const fitPageToScreen=()=>{
-    fitQueued=false;
-    const body=document.body;
-    if(!body)return;
-    body.style.setProperty("--page-y-scale","1");
-    const naturalHeight=Math.max(body.scrollHeight,document.documentElement.scrollHeight,1);
-    const availableHeight=Math.max(240,window.innerHeight-12);
-    const scale=Math.min(.91,availableHeight/naturalHeight);
-    body.style.setProperty("--page-y-scale",String(scale));
-    document.documentElement.style.height=(naturalHeight*scale)+"px";
-  };
-  const scheduleFit=()=>{
-    if(fitQueued)return;
-    fitQueued=true;
-    requestAnimationFrame(fitPageToScreen);
-  };
-  window.addEventListener("load",scheduleFit);
-  window.addEventListener("resize",scheduleFit);
-  document.querySelectorAll(".module").forEach(button=>button.addEventListener("click",()=>setTimeout(scheduleFit,80)));
-  if("MutationObserver" in window){
-    const observer=new MutationObserver(scheduleFit);
-    observer.observe(document.querySelector("main")||document.body,{childList:true,subtree:true,attributes:true,characterData:true});
-  }
-  setInterval(scheduleFit,1000);
-  scheduleFit();
-})();
