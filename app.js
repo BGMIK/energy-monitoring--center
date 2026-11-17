@@ -391,40 +391,88 @@ setInterval(refreshBotevCamera,30000);
 setTimeout(()=>{try{document.getElementById("mountain-maly").contentWindow.postMessage(JSON.stringify({event:"command",func:"playVideo",args:""}),"*");}catch(e){}},2500);
 
 
-const newsQueries=[
- '(енергетика OR електроенергия OR ЕСО OR БНЕБ OR ТЕЦ OR ВЕЦ) България',
- '(АЕЦ OR ядрена енергетика OR Козлодуй OR Белене OR AP1000 OR SMR)',
- '(ВЕИ OR фотоволтаици OR соларен парк OR вятърна енергия OR батерии BESS)',
- '(Министерство на енергетиката OR КЕВР OR енергийна политика OR енергиен пазар) България'
+const newsFeeds=[
+ {category:"power",query:'(електроенергия OR ЕСО OR БНЕБ OR електроенергетика OR ТЕЦ OR ВЕЦ) България'},
+ {category:"nuclear",query:'(АЕЦ OR ядрена енергетика OR Козлодуй OR Белене OR AP1000 OR SMR)'},
+ {category:"renewables",query:'(ВЕИ OR фотоволтаици OR соларен парк OR вятърна енергия OR батерии BESS)'},
+ {category:"markets",query:'(КЕВР OR енергийна борса OR електроенергиен пазар OR енергийна политика OR цени на тока) България'},
+ {category:"gas",query:'(природен газ OR LNG OR газова централа OR газохранилище OR интерконектор) България OR Европа'}
 ];
+const newsCategoryNames={
+ all:"ВСИЧКИ",nuclear:"ЯДРЕНА ЕНЕРГЕТИКА",power:"ЕЛЕКТРОЕНЕРГЕТИКА",
+ renewables:"ВЕИ И BESS",markets:"ПАЗАРИ И РЕГУЛАЦИИ",gas:"ГАЗ И LNG"
+};
+let newsItems=[];
+let activeNewsFilter="all";
+let newsRequestInFlight=false;
 function newsEscape(value){return String(value||"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));}
-async function loadNews(){
+function newsImage(item){
+ const enclosure=item.enclosure&&typeof item.enclosure==="object"?item.enclosure.link:"";
+ const candidates=[item.thumbnail,enclosure,...(String(item.description||"").match(/<img[^>]+src=["']([^"']+)/i)||[]).slice(1)];
+ return candidates.find(url=>typeof url==="string"&&/^https?:\/\//i.test(url))||"";
+}
+function newsSummary(item){
+ const raw=String(item.description||item.content||"").replace(/<script[\s\S]*?<\/script>/gi," ").replace(/<style[\s\S]*?<\/style>/gi," ").replace(/<[^>]+>/g," ").replace(/&nbsp;/gi," ").replace(/&amp;/gi,"&").replace(/&#39;|&apos;/gi,"'").replace(/&quot;/gi,'"').replace(/\s+/g," ").trim();
+ return raw.length>230?raw.slice(0,227).trim()+"…":raw;
+}
+function renderNews(){
  const target=document.querySelector('[data-news="all"]');if(!target)return;
+ const filtered=activeNewsFilter==="all"?newsItems:newsItems.filter(item=>item.category===activeNewsFilter);
+ document.querySelectorAll("[data-news-filter]").forEach(button=>{
+  const active=button.dataset.newsFilter===activeNewsFilter;
+  button.classList.toggle("active",active);button.setAttribute("aria-pressed",String(active));
+ });
+ if(!filtered.length){target.innerHTML='<div class="news-empty">Няма намерени публикации в тази категория за последните 24 часа.</div>';return;}
+ target.innerHTML=filtered.map(item=>{
+  const image=item.image?'<img class="news-image" src="'+newsEscape(item.image)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.classList.add(\\'no-image\\');this.remove()">':'';
+  const summary=item.summary?'<p class="news-summary">'+newsEscape(item.summary)+'</p>':'';
+  const source=item.source||"Новинарски източник";
+  const date=new Date(item.pubDate);
+  const time=Number.isNaN(date.getTime())?"":date.toLocaleString("bg-BG",{timeZone:"Europe/Sofia",day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
+  return '<article class="news-card '+(item.image?"has-image":"no-image")+'">'+
+   '<a class="news-card-link" href="'+newsEscape(item.link)+'" target="_blank" rel="noopener noreferrer">'+
+   (item.image?'<div class="news-image-wrap">'+image+'</div>':'<div class="news-image-wrap news-image-placeholder"><span>📰</span></div>')+
+   '<div class="news-card-body"><span class="news-tag">'+newsEscape(newsCategoryNames[item.category]||"ЕНЕРГЕТИКА")+'</span>'+
+   '<h3>'+newsEscape(item.title)+'</h3>'+summary+
+   '<div class="news-meta">'+newsEscape(source)+(time?' · '+newsEscape(time):'')+'</div></div></a></article>';
+ }).join("");
+}
+async function loadNews(){
  const today=new Date().toLocaleDateString("en-CA",{timeZone:"Europe/Sofia"});
- const feeds=await Promise.all(newsQueries.map(async query=>{
-  const rss="https://news.google.com/rss/search?q="+encodeURIComponent(query+" when:1d")+"&hl=bg&gl=BG&ceid=BG:bg";
+ const results=await Promise.allSettled(newsFeeds.map(async feed=>{
+  const rss="https://news.google.com/rss/search?q="+encodeURIComponent(feed.query+" when:1d")+"&hl=bg&gl=BG&ceid=BG:bg";
   const url="https://api.rss2json.com/v1/api.json?rss_url="+encodeURIComponent(rss);
   const response=await fetch(url,{cache:"no-store"});if(!response.ok)throw new Error("HTTP "+response.status);
   const data=await response.json();if(data.status!=="ok")throw new Error(data.message||"RSS unavailable");
-  return data.items||[];
+  return (data.items||[]).map(item=>({...item,category:feed.category}));
  }));
+ const successful=results.filter(result=>result.status==="fulfilled").flatMap(result=>result.value);
+ if(!successful.length)throw new Error("Няма достъп до RSS източниците");
  const unique=new Map();
- feeds.flat().forEach(item=>{
-  const d=new Date(item.pubDate);
-  if(Number.isNaN(d.getTime())||d.toLocaleDateString("en-CA",{timeZone:"Europe/Sofia"})!==today)return;
-  const key=item.link||item.title;if(!unique.has(key))unique.set(key,item);
+ successful.forEach(item=>{
+  const date=new Date(item.pubDate);
+  if(Number.isNaN(date.getTime())||Date.now()-date.getTime()>24*60*60*1000)return;
+  const key=item.link||item.title;
+  if(!unique.has(key))unique.set(key,{...item,image:newsImage(item),summary:newsSummary(item),source:String(item.author||item.source||"Новинарски източник").replace(/\s+-\s+Google News$/,"").trim()});
  });
- const items=[...unique.values()].sort((x,y)=>new Date(y.pubDate)-new Date(x.pubDate)).slice(0,40);
- if(!items.length){target.innerHTML='<div class="news-empty">Няма намерени публикации от днес.</div>';return;}
- target.innerHTML=items.map(item=>{
-  const d=new Date(item.pubDate),source=(item.author||item.source||"Новинарски източник").replace(/\\s+-\\s+Google News$/,"");
-  return '<article class="news-item"><a href="'+newsEscape(item.link)+'" target="_blank" rel="noopener noreferrer">'+newsEscape(item.title)+'</a><div class="news-meta">'+newsEscape(source)+' · '+d.toLocaleTimeString("bg-BG",{hour:"2-digit",minute:"2-digit"})+'</div></article>';
- }).join("");
+ newsItems=[...unique.values()].sort((a,b)=>new Date(b.pubDate)-new Date(a.pubDate)).slice(0,60);
+ renderNews();
 }
 async function refreshNews(){
+ if(newsRequestInFlight)return;
+ newsRequestInFlight=true;
  const stamp=document.getElementById("news-updated");if(stamp)stamp.textContent="ОБНОВЯВАНЕ…";
- try{await loadNews();if(stamp)stamp.textContent="ПОСЛЕДНО ОБНОВЯВАНЕ: "+new Date().toLocaleTimeString("bg-BG",{hour:"2-digit",minute:"2-digit"});}
- catch(error){const target=document.querySelector('[data-news="all"]');if(target)target.innerHTML='<div class="news-empty">Новинарският поток временно не е достъпен. '+newsEscape(error.message)+'</div>';if(stamp)stamp.textContent="ГРЕШКА ПРИ ОБНОВЯВАНЕ";}
+ try{
+  await loadNews();
+  if(stamp)stamp.textContent="ПОСЛЕДНО ОБНОВЯВАНЕ: "+new Date().toLocaleTimeString("bg-BG",{timeZone:"Europe/Sofia",hour:"2-digit",minute:"2-digit"});
+ }catch(error){
+  const target=document.querySelector('[data-news="all"]');
+  if(target&&!newsItems.length)target.innerHTML='<div class="news-empty">Новинарският поток временно не е достъпен. Опитай отново след малко.</div>';
+  if(stamp)stamp.textContent="ГРЕШКА ПРИ ОБНОВЯВАНЕ";
+ }finally{newsRequestInFlight=false;}
 }
+document.querySelectorAll("[data-news-filter]").forEach(button=>button.addEventListener("click",()=>{
+ activeNewsFilter=button.dataset.newsFilter||"all";renderNews();
+}));
 document.getElementById("news-refresh")?.addEventListener("click",refreshNews);
-refreshNews();setInterval(refreshNews,60*60*1000);
+refreshNews();setInterval(refreshNews,10*60*1000);
