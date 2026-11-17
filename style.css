@@ -374,14 +374,15 @@ footer b{color:#dce8ec;letter-spacing:.5px}
 
 
 
-/* Botev: show only the live panorama area; crop the provider page below and its scrollbar */
+/* Botev: match the neighbouring webcam viewport height; vertically enlarge the panorama to fill the card */
 .mountain-camera-card .botev-live-view{
   position:relative!important;
   display:block!important;
+  flex:1 1 auto!important;
   width:100%!important;
   height:auto!important;
-  min-height:0!important;
-  aspect-ratio:2.56/1!important;
+  min-height:180px!important;
+  aspect-ratio:auto!important;
   overflow:hidden!important;
   background:#000!important;
 }
@@ -391,9 +392,11 @@ footer b{color:#dce8ec;letter-spacing:.5px}
   left:0!important;
   display:block!important;
   width:calc(100% + 18px)!important;
-  height:700px!important;
-  min-height:700px!important;
+  height:100%!important;
+  min-height:100%!important;
   max-height:none!important;
+  transform:scaleY(2)!important;
+  transform-origin:top left!important;
   border:0!important;
 }
 
