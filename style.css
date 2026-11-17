@@ -795,3 +795,9 @@ img,svg,iframe,canvas{max-width:100%}
 .tpp2-frame{overflow:hidden!important;}
 .tpp2-frame iframe{height:620px!important;overflow:hidden!important;}
 @media(max-width:700px){.tpp2-frame iframe{height:620px!important;}}
+
+
+/* TPP2: show only the requested live-generation section, without an inner scrollbar */
+.tpp2-frame{height:225px!important;overflow:hidden!important;}
+.tpp2-frame iframe{height:1400px!important;overflow:hidden!important;}
+@media(max-width:700px){.tpp2-frame{height:225px!important}.tpp2-frame iframe{height:1400px!important}}
