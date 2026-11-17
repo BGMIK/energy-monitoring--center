@@ -9,7 +9,6 @@ WORKDIR /app
 # Chromium is used by the ESO collector to hard-refresh the JavaScript-rendered
 # operational page, matching the proven desktop SCADA data acquisition method.
 RUN apt-get update && apt-get install -y --no-install-recommends chromium ca-certificates && rm -rf /var/lib/apt/lists/*
-    && rm -rf /var/lib/apt/lists/*
 ENV CHROME_BIN=/usr/bin/chromium
 
 COPY python_app/requirements.txt ./requirements.txt
