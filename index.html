@@ -66,8 +66,16 @@
 <section class="page news-page" id="news">
   <div class="module-heading"><span>📰</span><div><h1>NEWS CENTER</h1><p>Българска и европейска енергетика · Новини от днес</p></div></div>
   <div class="news-toolbar"><span id="news-updated">ЗАРЕЖДАНЕ НА ЕНЕРГИЙНИ НОВИНИ…</span><button type="button" id="news-refresh">↻ ОБНОВИ</button></div>
-  <section class="news-category news-single"><h2>⚡ ЕНЕРГЕТИКА</h2><div class="news-list" data-news="all"><div class="news-loading">Зареждане…</div></div></section>
-  <div class="news-source-note">Новините се подбират по тематични заявки към Google News RSS. Показват се публикации от днешната дата; оригиналният материал остава в сайта на издателя.</div>
+  <div class="news-filters" role="group" aria-label="Филтър на новините">
+    <button type="button" class="news-filter active" data-news-filter="all">ВСИЧКИ</button>
+    <button type="button" class="news-filter" data-news-filter="nuclear">☢️ ЯДРЕНА ЕНЕРГЕТИКА</button>
+    <button type="button" class="news-filter" data-news-filter="power">⚡ ЕЛЕКТРОЕНЕРГЕТИКА</button>
+    <button type="button" class="news-filter" data-news-filter="renewables">🌱 ВЕИ И BESS</button>
+    <button type="button" class="news-filter" data-news-filter="markets">📈 ПАЗАРИ И РЕГУЛАЦИИ</button>
+    <button type="button" class="news-filter" data-news-filter="gas">🔥 ГАЗ И LNG</button>
+  </div>
+  <section class="news-category news-single"><div class="news-list" data-news="all"><div class="news-loading">Зареждане…</div></div></section>
+  <div class="news-source-note">Автоматично събиране от Google News RSS · проверка на източниците на всеки 10 минути · всяка публикация води към оригиналния издател.</div>
 </section>
 
 <section class="page placeholder" id="weather">
