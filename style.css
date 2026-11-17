@@ -789,3 +789,9 @@ img,svg,iframe,canvas{max-width:100%}
  .tpp2-unit>span{font-size:7px}
  .tpp2-snapshot-total strong{font-size:19px}
 }
+
+
+/* TPP2: enlarge the embedded viewport so its own vertical scrollbar stays outside the visible panel */
+.tpp2-frame{overflow:hidden!important;}
+.tpp2-frame iframe{height:620px!important;overflow:hidden!important;}
+@media(max-width:700px){.tpp2-frame iframe{height:620px!important;}}
