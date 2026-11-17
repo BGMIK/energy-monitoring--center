@@ -494,4 +494,31 @@ footer b{color:#dce8ec;letter-spacing:.5px}
 
 
 /* Responsive vertical fit: keep the complete active page inside the viewport */
-body{transform:scaleY(var(--page-y-scale,.91));transform-origin:top left;width:100%}
+
+/* Responsive layout: preserve natural page height and allow vertical scrolling */
+html{height:auto!important;overflow-x:hidden}
+body{width:100%;min-height:100vh;transform:none!important;overflow-x:hidden}
+main,.topbar,.module-nav,footer{width:100%;min-width:0}
+.dashboard,.gauges,.mountain-camera-grid,.weather-cards{min-width:0}
+.dashboard>*{min-width:0}
+img,svg,iframe,canvas{max-width:100%}
+@media(max-width:700px){
+  body{padding:0 5px 10px}
+  .topbar{white-space:normal;align-items:center}
+  .system-title{white-space:normal;line-height:1.25}
+  .module-nav{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .dashboard{display:flex;flex-direction:column;gap:9px}
+  .dashboard>.left-stack,.dashboard>.middle,.dashboard>.right{width:100%;min-width:0}
+  .left-stack,.middle,.right{width:100%;min-width:0}
+  .gauges{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .panel,.gauge-card,.weather-card,.news-category{max-width:100%;min-width:0}
+  .chart-wrap{overflow-x:auto}
+  .tpp2-table-wrap{max-width:100%;overflow-x:auto}
+  .tpp2-frame{max-width:100%}
+  footer{align-items:flex-start}
+}
+@media(max-width:380px){
+  .gauges{grid-template-columns:1fr}
+  .module{font-size:8px;letter-spacing:0;padding:7px 3px}
+  .market,.frequency{font-size:10px}
+}
