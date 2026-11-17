@@ -1,0 +1,6 @@
+name = "milcho-hub-scheduler"
+main = "cloudflare-worker.js"
+compatibility_date = "2026-11-17"
+
+[triggers]
+crons = ["*/5 * * * *"]
