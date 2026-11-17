@@ -571,3 +571,7 @@ img,svg,iframe,canvas{max-width:100%}
 .news-card .news-meta{margin-top:auto;padding-top:9px;border-top:1px solid #203e47;color:#829fa8;font-size:10px;line-height:1.4}
 .news-empty{grid-column:1/-1;padding:20px;background:#0b2028;border:1px solid #294954}
 @media(max-width:760px){.news-list[data-news="all"]{grid-template-columns:1fr}.news-image-wrap{height:190px}.news-card h3{font-size:16px}}
+
+/* News Center: category filters removed; single continuous news stream */
+.news-filters{display:none!important}
+.news-card .news-tag{display:none!important}
