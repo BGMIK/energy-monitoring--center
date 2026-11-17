@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Server-side public-data collector for MILCHO HUB. No credentials are stored here."""
-import json, math, re, time, os, copy
+import json, math, re, time, os, copy, html, subprocess, tempfile, shutil
 from datetime import datetime, timezone
 from urllib.request import Request, urlopen
 
@@ -78,6 +78,106 @@ def fresh_mirror():
         raise RuntimeError("ESO mirror snapshot is older than 20 minutes")
     return mirror
 
+def browser_dump(url, wait_ms=4500):
+    """Fresh headless Chromium session: hard-refresh the JavaScript-rendered ESO page."""
+    candidates = [
+        os.getenv("CHROME_BIN"),
+        shutil.which("chromium"),
+        shutil.which("chromium-browser"),
+        shutil.which("google-chrome"),
+        shutil.which("google-chrome-stable"),
+        shutil.which("chrome"),
+    ]
+    chrome = next((p for p in candidates if p and os.path.isfile(p)), None)
+    if not chrome:
+        raise RuntimeError("Chromium/Chrome executable not found on server")
+    token = str(time.time_ns())
+    fresh_url = url + ("&" if "?" in url else "?") + "_scada_refresh=" + token
+    profile = tempfile.mkdtemp(prefix="eso_scada_browser_")
+    try:
+        cmd = [
+            chrome, "--headless=new", "--disable-gpu", "--disable-cache",
+            "--disk-cache-size=1", "--media-cache-size=1", "--incognito",
+            "--no-first-run", "--no-default-browser-check",
+            "--disable-background-networking", "--disable-extensions",
+            "--no-sandbox", "--disable-dev-shm-usage",
+            "--user-data-dir=" + profile,
+            "--virtual-time-budget=" + str(wait_ms), "--dump-dom", fresh_url,
+        ]
+        cp = subprocess.run(
+            cmd, capture_output=True, text=True, encoding="utf-8",
+            errors="ignore", timeout=max(20, int(wait_ms / 1000) + 15),
+        )
+        if cp.returncode != 0 and not cp.stdout:
+            raise RuntimeError((cp.stderr or "Chromium failed")[-600:])
+        if not cp.stdout.strip():
+            raise RuntimeError("Chromium returned an empty DOM")
+        return cp.stdout
+    finally:
+        shutil.rmtree(profile, ignore_errors=True)
+
+def text_from_dom(dom):
+    dom = re.sub(r"<script\\b.*?</script>", " ", dom, flags=re.I | re.S)
+    dom = re.sub(r"<style\\b.*?</style>", " ", dom, flags=re.I | re.S)
+    dom = re.sub(r"<[^>]+>", " ", dom)
+    return re.sub(r"\\s+", " ", html.unescape(dom)).strip()
+
+def browser_number(text, label):
+    esc = re.escape(label)
+    patterns = [
+        rf"{esc}\\s+[0-9]{{1,3}}(?:[.,][0-9]+)?\\s*%\\s+([0-9][0-9\\s.,]*)",
+        rf"{esc}\\s+([0-9][0-9\\s.,]*)",
+    ]
+    for pattern in patterns:
+        match = re.search(pattern, text, flags=re.I)
+        if match:
+            val = number(match.group(1))
+            if val is not None:
+                return val
+    return None
+
+def read_eso_browser_generation():
+    dom = browser_dump("https://www.eso.bg/doc/?460", wait_ms=4500)
+    text = text_from_dom(dom)
+    labels = {
+        "АЕЦ": "АЕЦ",
+        "Кондензационни ТЕЦ": "Кондензационни ТЕЦ",
+        "Топлофикационни ТЕЦ": "Топлофикационни ТЕЦ",
+        "Заводски ТЕЦ": "Заводски ТЕЦ",
+        "ВЕЦ": "ВЕЦ",
+        "Малки ВЕЦ": "Малки ВЕЦ",
+        "ВяЕЦ": "ВяЕЦ",
+        "ФЕЦ": "ФЕЦ",
+        "Био ЕЦ": "Био ЕЦ",
+        "batt_discharge_mw": "ССЕЕ - разреждане",
+        "batt_charge_mw": "ССЕЕ - зареждане",
+        "batt_discharge_sseb_mw": "ССЕБ - разреждане",
+        "batt_charge_sseb_mw": "ССЕБ - зареждане",
+        "pump_mw": "Помпи",
+        "load_mw": "Товар на РБ",
+    }
+    data = {}
+    for key, label in labels.items():
+        val = browser_number(text, label)
+        if val is not None:
+            data[key] = val
+    if "batt_charge_sseb_mw" in data and "batt_charge_mw" not in data:
+        data["batt_charge_mw"] = data["batt_charge_sseb_mw"]
+    if "batt_discharge_sseb_mw" in data and "batt_discharge_mw" not in data:
+        data["batt_discharge_mw"] = data["batt_discharge_sseb_mw"]
+    for key, label in {
+        "SR_mw": "Сърбия", "RO_mw": "Румъния", "TR_mw": "Турция",
+        "MK_mw": "Северна Македония", "GR_mw": "Гърция",
+    }.items():
+        val = browser_number(text, label)
+        if val is not None:
+            data[key] = val
+    if not any(k in data for k in ("АЕЦ", "Кондензационни ТЕЦ", "Топлофикационни ТЕЦ", "Заводски ТЕЦ", "ВЕЦ", "Малки ВЕЦ", "ВяЕЦ", "ФЕЦ", "Био ЕЦ")):
+        raise RuntimeError("Fresh ESO browser DOM contained no recognized generation values")
+    data["_live_source"] = "ESO BROWSER HARD REFRESH"
+    data["_received_at"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    return data
+
 def run():
     try:
         with open("data.json", "r", encoding="utf-8") as old_file:
@@ -115,49 +215,38 @@ def run():
                 "changed": False, "error": str(exc)[:240],
             }
     def generation():
-        try:
-            raw=json.loads(get(URLS["generation"]))
-        except Exception:
-            raw=fresh_mirror().get("raw_gen_api",[])
-        f=flatten(raw); v=result["values"]
-        keys=["АЕЦ","Кондензационни ТЕЦ","Топлофикационни ТЕЦ","Заводски ТЕЦ","ВЕЦ","Малки ВЕЦ","ВяЕЦ","ФЕЦ","Био ЕЦ"]
-        for k in keys:
-            x=pick(f,k)
-            if x is not None:v[k]=x
-        charge=pick(f,"ССЕБ - зареждане","ССЕЕ - зареждане")
-        discharge=pick(f,"ССЕБ - разреждане","ССЕЕ - разреждане")
-        pumps=pick(f,"Помпи")
-        if charge is not None:v["batt_charge_mw"]=charge
-        if discharge is not None:v["batt_discharge_mw"]=discharge
-        if pumps is not None:v["pump_mw"]=pumps
-        v["nuclear"]=v.get("АЕЦ")
-        thermal_keys=["Кондензационни ТЕЦ","Топлофикационни ТЕЦ","Заводски ТЕЦ"]
-        if any(k in v for k in thermal_keys):v["thermal"]=sum(v.get(k,0) for k in thermal_keys)
-        hydro_keys=["ВЕЦ","Малки ВЕЦ"]
-        if any(k in v for k in hydro_keys):v["hydro"]=sum(v.get(k,0) for k in hydro_keys)
-        renewable_keys=["ВяЕЦ","ФЕЦ","Био ЕЦ"]
-        if any(k in v for k in renewable_keys):v["renew"]=sum(v.get(k,0) for k in renewable_keys)
-        if charge is not None or discharge is not None or pumps is not None:
-            v["bess"]=(pumps or 0)+(charge or 0)-(discharge or 0)
-        if not any(k in v for k in keys):
-            mirror=fresh_mirror()
-            for k in keys:
-                x=number(mirror.get(k))
-                if x is not None:v[k]=x
-            for key in ("batt_charge_mw","batt_discharge_mw","pumps_mw","pump_mw","load_mw","Товар на РБ"):
-                x=number(mirror.get(key))
-                if x is not None:v[key]=x
-            v["nuclear"]=v.get("АЕЦ")
-            if any(k in v for k in ("Кондензационни ТЕЦ","Топлофикационни ТЕЦ","Заводски ТЕЦ")):v["thermal"]=sum(v.get(k,0) for k in ("Кондензационни ТЕЦ","Топлофикационни ТЕЦ","Заводски ТЕЦ"))
-            if any(k in v for k in ("ВЕЦ","Малки ВЕЦ")):v["hydro"]=sum(v.get(k,0) for k in ("ВЕЦ","Малки ВЕЦ"))
-            if any(k in v for k in ("ВяЕЦ","ФЕЦ","Био ЕЦ")):v["renew"]=sum(v.get(k,0) for k in ("ВяЕЦ","ФЕЦ","Био ЕЦ"))
-            if any(k in v for k in ("batt_charge_mw","batt_discharge_mw","pump_mw","pumps_mw")):v["bess"]=(v.get("pump_mw",v.get("pumps_mw",0)) or 0)+(v.get("batt_charge_mw",0) or 0)-(v.get("batt_discharge_mw",0) or 0)
-        if not any(k in v for k in keys):raise RuntimeError("ESO generation endpoint returned no recognized generation rows")
+        # This replaces the former direct-JSON/mirror-first ESO generation path.
+        # The official operational page is opened in a fresh browser context with cache disabled.
+        data = read_eso_browser_generation()
+        v = result["values"]
+        for key in ("АЕЦ", "Кондензационни ТЕЦ", "Топлофикационни ТЕЦ", "Заводски ТЕЦ",
+                    "ВЕЦ", "Малки ВЕЦ", "ВяЕЦ", "ФЕЦ", "Био ЕЦ",
+                    "batt_charge_mw", "batt_discharge_mw", "pump_mw", "load_mw",
+                    "SR_mw", "RO_mw", "TR_mw", "MK_mw", "GR_mw"):
+            if key in data:
+                v[key] = data[key]
+        v["nuclear"] = v.get("АЕЦ", 0)
+        thermal_keys = ("Кондензационни ТЕЦ", "Топлофикационни ТЕЦ", "Заводски ТЕЦ")
+        v["thermal"] = sum(v.get(k, 0) for k in thermal_keys)
+        v["hydro"] = v.get("ВЕЦ", 0) + v.get("Малки ВЕЦ", 0)
+        v["renew"] = v.get("ВяЕЦ", 0) + v.get("ФЕЦ", 0) + v.get("Био ЕЦ", 0)
+        if any(k in v for k in ("batt_charge_mw", "batt_discharge_mw", "pump_mw")):
+            v["bess"] = v.get("pump_mw", 0) + v.get("batt_charge_mw", 0) - v.get("batt_discharge_mw", 0)
     def flows():
         try:
             raw=json.loads(get(URLS["flows"]))
-        except Exception:
-            raw=fresh_mirror()
+        except Exception as direct_error:
+            # Same fresh-browser fallback as the supplied desktop monitor.
+            try:
+                dom = browser_dump(URLS["flows"], wait_ms=1800)
+                rendered = text_from_dom(dom)
+                match = re.search(r"(\\{.*\\}|\\[.*\\])", rendered, flags=re.S)
+                if not match:
+                    raise RuntimeError("ESO flow page returned no JSON after browser refresh")
+                raw = json.loads(match.group(1))
+            except Exception:
+                # Keep the last-resort mirror, but the primary route is the ESO endpoint/browser.
+                raw=fresh_mirror()
         f=flatten(raw); v=result["values"]
         aliases={"SR_mw":("SR_mw","SR","Сърбия","Serbia"),"RO_mw":("RO_mw","RO","Румъния","Romania"),"TR_mw":("TR_mw","TR","Турция","Turkey"),"MK_mw":("MK_mw","MK","Македония","Северна Македония","North Macedonia"),"GR_mw":("GR_mw","GR","Гърция","Greece")}
         for k,a in aliases.items():
@@ -235,8 +324,8 @@ def run():
             raise RuntimeError("Unit 5/6 output not found in official page")
     for name,fn in [("eso_generation",generation),("eso_flows",flows),("eso_load",load),("frequency",frequency),("ibex",ibex),("co2_eua",co2),("kozloduy",npp)]:
         source(name,fn)
-    result["sources"]["eso_generation"]["provider"]="ЕСО API; при недостъпност се използва резервно копие"
-    result["sources"]["eso_flows"]["provider"]="ЕСО SCADA API; при недостъпност се използва резервно копие"
+    result["sources"]["eso_generation"]["provider"]="ЕСО оперативна страница · Chromium hard refresh · JavaScript DOM"
+    result["sources"]["eso_flows"]["provider"]="ЕСО SCADA JSON API · Chromium refresh fallback · mirror резерв"
     result["sources"]["eso_load"]["provider"]="ESO dashboard mirror (външен проект; резервен източник)"
     result["sources"]["frequency"]["provider"]="ЕСО frequency endpoint"
     result["sources"]["ibex"]["provider"]="БНЕБ/IBEX — няма конфигуриран официален API достъп"
