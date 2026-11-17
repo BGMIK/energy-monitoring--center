@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: milcho-hub
+    runtime: docker
+    plan: starter
+    healthCheckPath: /api/health
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: COLLECTOR_INTERVAL_SECONDS
+        value: "60"
+      - key: COLLECTOR_TIMEOUT_SECONDS
+        value: "90"
