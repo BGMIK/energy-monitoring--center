@@ -456,6 +456,40 @@ function renderNews(){
    '<div class="news-meta">'+newsEscape(source)+(time?' · '+newsEscape(time):'')+'</div></div></a></article>';
  }).join("");
 }
+function normalizeNewsTitle(value){
+ return String(value||"").toLocaleLowerCase("bg-BG")
+  .replace(/https?:\\/\\/\\S+/g," ")
+  .replace(/[^\\p{L}\\p{N}]+/gu," ").trim();
+}
+async function loadGdeltImages(items){
+ try{
+  const query='(енергетика OR електроенергия OR АЕЦ OR Козлодуй OR Белене OR фотоволтаици OR ВЕИ OR природен газ OR LNG OR BESS) sourcelang:Bulgarian';
+  const url="https://api.gdeltproject.org/api/v2/doc/doc?query="+encodeURIComponent(query)+"&mode=ArtList&format=json&timespan=1d&maxrecords=150&sort=DateDesc";
+  const response=await fetch(url,{cache:"no-store"});
+  if(!response.ok)throw new Error("GDELT HTTP "+response.status);
+  const data=await response.json();
+  const articles=Array.isArray(data.articles)?data.articles:[];
+  const byTitle=new Map(articles.filter(x=>x.socialimage).map(x=>[normalizeNewsTitle(x.title),x.socialimage]));
+  const tokens=s=>new Set(normalizeNewsTitle(s).split(" ").filter(t=>t.length>2));
+  return items.map(item=>{
+   if(item.image)return item;
+   const exact=byTitle.get(normalizeNewsTitle(item.title));
+   if(exact)return {...item,image:exact};
+   const target=tokens(item.title);let best="",score=0;
+   for(const article of articles){
+    if(!article.socialimage)continue;
+    const candidate=tokens(article.title);
+    let overlap=0;for(const token of target)if(candidate.has(token))overlap++;
+    const similarity=overlap/Math.max(1,Math.min(target.size,candidate.size));
+    if(similarity>score){score=similarity;best=article.socialimage;}
+   }
+   return score>=0.72?{...item,image:best}:item;
+  });
+ }catch(error){
+  console.warn("GDELT image enrichment unavailable:",error);
+  return items;
+ }
+}
 async function loadNews(){
  const today=new Date().toLocaleDateString("en-CA",{timeZone:"Europe/Sofia"});
  const results=await Promise.allSettled(newsFeeds.map(async feed=>{
@@ -475,6 +509,7 @@ async function loadNews(){
   if(!unique.has(key))unique.set(key,{...item,image:newsImage(item),summary:newsSummary(item),source:String(item.author||item.source||"Новинарски източник").replace(/\s+-\s+Google News$/,"").trim()});
  });
  newsItems=[...unique.values()].sort((a,b)=>new Date(b.pubDate)-new Date(a.pubDate)).slice(0,60);
+ newsItems=await loadGdeltImages(newsItems);
  renderNews();
 }
 async function refreshNews(){
