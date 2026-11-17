@@ -424,7 +424,7 @@ function renderNews(){
  });
  if(!filtered.length){target.innerHTML='<div class="news-empty">Няма намерени публикации в тази категория за последните 24 часа.</div>';return;}
  target.innerHTML=filtered.map(item=>{
-  const image=item.image?'<img class="news-image" src="'+newsEscape(item.image)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.classList.add(\\'no-image\\');this.remove()">':'';
+  const image=item.image?'<img class="news-image" src="'+newsEscape(item.image)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.classList.add(\'no-image\');this.remove()">':'';
   const summary=item.summary?'<p class="news-summary">'+newsEscape(item.summary)+'</p>':'';
   const source=item.source||"Новинарски източник";
   const date=new Date(item.pubDate);
