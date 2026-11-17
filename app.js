@@ -410,25 +410,29 @@ function newsImage(item){
    if(typeof value.link==="string")candidates.push(value.link);
   }
  };
- add(item.thumbnail);add(item.enclosure);add(item.image);
- add(item["media:thumbnail"]);add(item["media:content"]);
- const htmlParts=[item.description,item.content,item["content:encoded"],item.summary].filter(Boolean);
- for(const raw of htmlParts){
-  const source=String(raw)
-   .replace(/&lt;/gi,"<").replace(/&gt;/gi,">")
-   .replace(/&quot;/gi,'"').replace(/&#39;|&apos;/gi,"'")
-   .replace(/&amp;/gi,"&");
+ add(item.thumbnail);
+ add(item.enclosure);
+ add(item.image);
+ add(item["media:thumbnail"]);
+ add(item["media:content"]);
+ const parts=[item.description,item.content,item["content:encoded"],item.summary].filter(Boolean);
+ for(const part of parts){
+  const source=String(part)
+   .replaceAll("&lt;","<").replaceAll("&gt;",">")
+   .replaceAll("&quot;",'"').replaceAll("&#39;","'")
+   .replaceAll("&amp;","&");
   const doc=new DOMParser().parseFromString(source,"text/html");
-  doc.querySelectorAll("img,source").forEach(node=>{
-   add(node.getAttribute("src"));add(node.getAttribute("data-src"));
-   add(node.getAttribute("data-original"));add(node.getAttribute("srcset")?.split(",")[0]?.trim().split(/\\s+/)[0]);
-  });
-  doc.querySelectorAll("meta[property='og:image'],meta[name='twitter:image']").forEach(node=>add(node.content));
-  const regexes=[/(?:src|url)\\s*=\\s*["']([^"']+)["']/gi,/(https?:\\/\\/[^\\s"'<>]+\\.(?:jpg|jpeg|png|webp)(?:\\?[^\\s"'<>]*)?)/gi];
-  for(const regex of regexes){let match;while((match=regex.exec(source)))add(match[1]);}
+  for(const node of doc.querySelectorAll("img,source")){
+   add(node.getAttribute("src"));
+   add(node.getAttribute("data-src"));
+   add(node.getAttribute("data-original"));
+   const srcset=node.getAttribute("srcset");
+   if(srcset)add(srcset.split(",")[0].trim().split(" ")[0]);
+  }
+  for(const node of doc.querySelectorAll("meta[property='og:image'],meta[name='twitter:image']"))add(node.content);
  }
- return candidates.map(url=>String(url||"").trim().replace(/&amp;/g,"&"))
-  .find(url=>/^https?:\\/\\//i.test(url)&&!/^data:/i.test(url))||"";
+ return candidates.map(value=>String(value||"").trim().replaceAll("&amp;","&"))
+  .find(value=>value.startsWith("https://")||value.startsWith("http://"))||"";
 }
 function newsSummary(item){
  const raw=String(item.description||item.content||"").replace(/<script[\s\S]*?<\/script>/gi," ").replace(/<style[\s\S]*?<\/style>/gi," ").replace(/<[^>]+>/g," ").replace(/&nbsp;/gi," ").replace(/&amp;/gi,"&").replace(/&#39;|&apos;/gi,"'").replace(/&quot;/gi,'"').replace(/\s+/g," ").trim();
