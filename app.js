@@ -419,7 +419,7 @@ refreshNews();setInterval(refreshNews,60*60*1000);
     body.style.setProperty("--page-y-scale","1");
     const naturalHeight=Math.max(body.scrollHeight,document.documentElement.scrollHeight,1);
     const availableHeight=Math.max(240,window.innerHeight-12);
-    const scale=Math.min(.7,availableHeight/naturalHeight);
+    const scale=Math.min(.91,availableHeight/naturalHeight);
     body.style.setProperty("--page-y-scale",String(scale));
     document.documentElement.style.height=(naturalHeight*scale)+"px";
   };
