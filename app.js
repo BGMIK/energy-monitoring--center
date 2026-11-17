@@ -312,9 +312,11 @@ async function loadWeather(place){
     card.querySelector(".weather-wind").textContent=Math.round(cur.wind_speed_10m)+" km/h";
     card.querySelector(".weather-updated").textContent=(currentLanguage==="en"?"UPDATED ":"ОБНОВЕНО ")+weatherTime(cur.time,{hour:"2-digit",minute:"2-digit"},place.timezone);
     const now=new Date(cur.time).getTime();
-    const hours=data.hourly.time.map((t,i)=>({t,v:data.hourly.temperature_2m[i],p:data.hourly.precipitation_probability[i],w:data.hourly.weather_code[i]})).filter(x=>new Date(x.t).getTime()>=now).slice(0,12);
-    card.querySelector(".weather-hourly").innerHTML='<h4>'+(currentLanguage==="en"?"HOURLY — NEXT 12 HOURS":"ПОЧАСОВО — СЛЕДВАЩИТЕ 12 ЧАСА")+'</h4><div class="weather-hour-row">'+hours.map(x=>{const wi=weatherDescription(x.w);const wd=currentLanguage==="en"?(translations[wi[1]]||wi[1]):wi[1];return '<div><span>'+weatherTime(x.t,{hour:"2-digit",minute:"2-digit"},place.timezone)+'</span><b>'+wi[0]+' '+Math.round(x.v)+'°</b><small>'+Math.round(x.p||0)+'% '+(currentLanguage==="en"?"rain":"дъжд")+'</small></div>';}).join("")+'</div>';
-    card.querySelector(".weather-daily").innerHTML='<h4>'+(currentLanguage==="en"?"7-DAY FORECAST":"ПРОГНОЗА — 7 ДНИ")+'</h4><div class="weather-day-list">'+data.daily.time.map((t,i)=>{const wi=weatherDescription(data.daily.weather_code[i]);const wd=currentLanguage==="en"?(translations[wi[1]]||wi[1]):wi[1];return '<div><span>'+weatherTime(t+"T12:00",{weekday:"short",day:"2-digit",month:"2-digit"},place.timezone)+'</span><b>'+wi[0]+' '+Math.round(data.daily.temperature_2m_max[i])+'° / '+Math.round(data.daily.temperature_2m_min[i])+'°</b><small>'+Math.round(data.daily.precipitation_probability_max[i]||0)+'% '+(currentLanguage==="en"?"rain":"дъжд")+'</small></div>';}).join("")+'</div>';
+    const hours=data.hourly.time.map((t,i)=>({t,v:data.hourly.temperature_2m[i],p:data.hourly.precipitation_probability[i],w:data.hourly.weather_code[i]})).filter(x=>new Date(x.t).getTime()>=now).slice(0,24);
+    const hourlyOpen=card.querySelector(".weather-hourly .forecast-toggle")?.getAttribute("aria-expanded")==="true";
+    const dailyOpen=card.querySelector(".weather-daily .forecast-toggle")?.getAttribute("aria-expanded")==="true";
+    card.querySelector(".weather-hourly").innerHTML='<button type="button" class="forecast-toggle" aria-expanded="'+hourlyOpen+'"><span>'+(currentLanguage==="en"?"24-HOUR FORECAST":"ПОЧАСОВА ПРОГНОЗА — 24 ЧАСА")+'</span><span class="forecast-chevron">▾</span></button><div class="forecast-content" '+(hourlyOpen?'':'hidden')+'><div class="weather-hour-row">'+hours.map(x=>{const wi=weatherDescription(x.w);return '<div><span>'+weatherTime(x.t,{hour:"2-digit",minute:"2-digit"},place.timezone)+'</span><b>'+wi[0]+' '+Math.round(x.v)+'°</b><small>'+Math.round(x.p||0)+'% '+(currentLanguage==="en"?"rain":"дъжд")+'</small></div>';}).join("")+'</div></div>';
+    card.querySelector(".weather-daily").innerHTML='<button type="button" class="forecast-toggle" aria-expanded="'+dailyOpen+'"><span>'+(currentLanguage==="en"?"7-DAY FORECAST":"ПРОГНОЗА ЗА 7 ДНИ")+'</span><span class="forecast-chevron">▾</span></button><div class="forecast-content" '+(dailyOpen?'':'hidden')+'><div class="weather-day-list">'+data.daily.time.map((t,i)=>{const wi=weatherDescription(data.daily.weather_code[i]);return '<div><span>'+weatherTime(t+"T12:00",{weekday:"short",day:"2-digit",month:"2-digit"},place.timezone)+'</span><b>'+wi[0]+' '+Math.round(data.daily.temperature_2m_max[i])+'° / '+Math.round(data.daily.temperature_2m_min[i])+'°</b><small>'+Math.round(data.daily.precipitation_probability_max[i]||0)+'% '+(currentLanguage==="en"?"rain":"дъжд")+'</small></div>';}).join("")+'</div></div>';
   }catch(error){
     card.querySelector(".weather-updated").textContent=currentLanguage==="en"?"NO CONNECTION":"НЯМА ВРЪЗКА";
     card.querySelector(".weather-description").textContent=currentLanguage==="en"?"Forecast could not be loaded.":"Прогнозата не може да бъде заредена.";
@@ -324,6 +326,16 @@ async function loadWeather(place){
 function refreshWeather(){weatherPlaces.forEach(loadWeather);}
 refreshWeather();
 setInterval(refreshWeather,15*60*1000);
+
+/* Expand/collapse forecast panels on click */
+document.addEventListener("click",event=>{
+  const button=event.target.closest(".forecast-toggle");
+  if(!button)return;
+  const expanded=button.getAttribute("aria-expanded")==="true";
+  button.setAttribute("aria-expanded",String(!expanded));
+  const content=button.nextElementSibling;
+  if(content)content.hidden=expanded;
+});
 
 /* Mountain cameras integrated into Weather Center */
 function refreshMountainCamera(id,url,statusId,intervalMode="snapshot"){
