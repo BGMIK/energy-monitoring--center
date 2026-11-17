@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Server-side public-data collector for MILCHO HUB. No credentials are stored here."""
-import json, math, re, time
+import json, math, re, time, os, copy
 from datetime import datetime, timezone
 from urllib.request import Request, urlopen
 
@@ -79,13 +79,34 @@ def fresh_mirror():
     return mirror
 
 def run():
-    result={"updated_at":datetime.now(timezone.utc).isoformat(timespec="seconds"),"sources":{},"values":{},"series":[]}
+    try:
+        with open("data.json", "r", encoding="utf-8") as old_file:
+            previous = json.load(old_file)
+    except Exception:
+        previous = {}
+    result = {"updated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"), "revision": int(previous.get("revision", 0)) + 1, "sources": copy.deepcopy(previous.get("sources", {})), "values": copy.deepcopy(previous.get("values", {})), "series": copy.deepcopy(previous.get("series", []))}
     def source(name, fn):
+        before_values = copy.deepcopy(result["values"])
+        before_series = copy.deepcopy(result["series"])
+        old_meta = result["sources"].get(name, {})
+        checked_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
         try:
             fn()
-            result["sources"][name]={"ok":True}
-        except Exception as e:
-            result["sources"][name]={"ok":False,"error":str(e)[:240]}
+            changed_keys = [key for key, value in result["values"].items() if before_values.get(key) != value]
+            changed = bool(changed_keys or before_series != result["series"])
+            result["sources"][name] = {
+                **old_meta, "ok": True, "checked_at": checked_at,
+                "last_success_at": checked_at,
+                "last_change_at": checked_at if changed or not old_meta.get("last_change_at") else old_meta["last_change_at"],
+                "changed": changed, "changed_fields": changed_keys,
+            }
+        except Exception as exc:
+            result["sources"][name] = {
+                **old_meta, "ok": False, "checked_at": checked_at,
+                "last_success_at": old_meta.get("last_success_at"),
+                "last_change_at": old_meta.get("last_change_at"),
+                "changed": False, "error": str(exc)[:240],
+            }
     def generation():
         try:
             raw=json.loads(get(URLS["generation"]))
@@ -214,16 +235,14 @@ def run():
     result["sources"]["ibex"]["provider"]="БНЕБ/IBEX — няма конфигуриран официален API достъп"
     result["sources"]["co2_eua"]["provider"]="Trading Economics · EU Carbon Permits · дневна котировка CFD, EUR/tCO₂"
     result["sources"]["kozloduy"]["provider"]="Официален сайт на АЕЦ Козлодуй"
-    # Publish a complete fresh snapshot only when every core ESO feed is valid.
-    required_eso = ("eso_generation", "eso_flows", "eso_load", "frequency")
-    failed = [name for name in required_eso if not result["sources"].get(name, {}).get("ok")]
-    if failed:
-        details = {name: result["sources"].get(name, {}) for name in failed}
-        raise RuntimeError("Fresh ESO snapshot rejected; previous data.json preserved: " +
-                           json.dumps(details, ensure_ascii=False))
+    # Publish every cycle. Healthy feeds update independently; failed feeds retain last-known-good values.
     result["updated_at"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
-    with open("data.json","w",encoding="utf-8") as f:json.dump(result,f,ensure_ascii=False,indent=2)
-    print(json.dumps(result["sources"],ensure_ascii=False))
+    result["collector_interval_seconds"] = int(os.getenv("COLLECTOR_INTERVAL_SECONDS", "15"))
+    with open("data.json", "w", encoding="utf-8") as f:
+        json.dump(result, f, ensure_ascii=False, indent=2)
+    core = ("eso_generation", "eso_flows", "eso_load", "frequency")
+    healthy = sum(1 for key in core if result["sources"].get(key, {}).get("ok"))
+    print(json.dumps({"revision": result["revision"], "core_healthy": str(healthy) + "/4", "sources": result["sources"]}, ensure_ascii=False))
 if __name__=="__main__":run()
 
 # Manual trigger: verify that the live data collector is still running.
