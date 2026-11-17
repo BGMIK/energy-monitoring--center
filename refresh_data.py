@@ -90,6 +90,11 @@ def run():
         before_series = copy.deepcopy(result["series"])
         old_meta = result["sources"].get(name, {})
         checked_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
+        owned = {"eso_generation": ("АЕЦ", "Кондензационни ТЕЦ", "Топлофикационни ТЕЦ", "Заводски ТЕЦ", "ВЕЦ", "Малки ВЕЦ", "ВяЕЦ", "ФЕЦ", "Био ЕЦ", "nuclear", "thermal", "hydro", "renew", "batt_charge_mw", "batt_discharge_mw", "pump_mw", "pumps_mw", "bess"), "eso_flows": ("SR_mw", "RO_mw", "TR_mw", "MK_mw", "GR_mw", "net"), "eso_load": ("load",), "frequency": ("frequency",), "ibex": ("ibex_price",), "co2_eua": ("co2_eur_t", "co2_daily_percent", "co2_quote_date"), "kozloduy": ("block5", "block6")}.get(name, ())
+        for field in owned:
+            result["values"].pop(field, None)
+        if name == "eso_load":
+            result["series"] = []
         try:
             fn()
             changed_keys = [key for key, value in result["values"].items() if before_values.get(key) != value]
@@ -101,6 +106,8 @@ def run():
                 "changed": changed, "changed_fields": changed_keys,
             }
         except Exception as exc:
+            result["values"].update({key: value for key, value in before_values.items() if key in owned})
+            result["series"] = before_series
             result["sources"][name] = {
                 **old_meta, "ok": False, "checked_at": checked_at,
                 "last_success_at": old_meta.get("last_success_at"),
