@@ -126,7 +126,7 @@ def browser_number(text, label):
     esc = re.escape(label)
     patterns = [
         rf"{esc}\s+[0-9]{{1,3}}(?:[.,][0-9]+)?\s*%\s+([0-9][0-9\s.,]*)",
-        rf"{esc}\s+[0-9]{{1,3}}(?:[.,][0-9]+)?\s*%\s+([0-9][0-9\s.,]*)",
+        rf"{esc}\s+([0-9][0-9\s.,]*)",
     ]
     for pattern in patterns:
         match = re.search(pattern, text, flags=re.I)
@@ -240,7 +240,7 @@ def run():
             try:
                 dom = browser_dump(URLS["flows"], wait_ms=1800)
                 rendered = text_from_dom(dom)
-                match = re.search(r"(\\{.*\\}|\\[.*\\])", rendered, flags=re.S)
+                match = re.search(r"(\{.*\}|\[.*\])", rendered, flags=re.S)
                 if not match:
                     raise RuntimeError("ESO flow page returned no JSON after browser refresh")
                 raw = json.loads(match.group(1))
