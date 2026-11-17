@@ -168,14 +168,27 @@ def run():
         # Prefer the dated summary sentence; do not mistake other commodity prices for EUA.
         m=re.search(r"EU Carbon Permits\\s+(?:rose|fell|increased|decreased)\\s+to\\s+([0-9][0-9,.]*)\\s+EUR\\s+on\\s+([A-Za-z]+\\s+[0-9]{1,2},\\s+[0-9]{4}),\\s+(?:up|down)\\s+([0-9,.]+)%", txt, re.I)
         if not m:
-            raise RuntimeError("Trading Economics EU Carbon Permits quote/date not found")
-        price=number(m.group(1))
-        change=number(m.group(3))
+            # The page also exposes the headline quote as Actual / Daily Change.
+            m=re.search(r"Actual\\s+([0-9][0-9,.]*)\\s+Daily Change\\s+([+-]?[0-9,.]+)%", txt, re.I)
+            if m:
+                # Keep date tied to the page's explicit update stamp when available.
+                d=re.search(r"last updated on\\s+([A-Za-z]+\\s+[0-9]{1,2}\\s+of\\s+[0-9]{4})", txt, re.I)
+                quote_date=d.group(1) if d else datetime.now(timezone.utc).strftime("%Y-%m-%d")
+                price=number(m.group(1))
+                change=number(m.group(2))
+            else:
+                pos=txt.lower().find("eu carbon permits")
+                excerpt=txt[max(0,pos-80):pos+500] if pos>=0 else txt[:500]
+                raise RuntimeError("Trading Economics quote not present in fetched HTML: "+excerpt[:400])
+        else:
+            price=number(m.group(1))
+            change=number(m.group(3))
+            quote_date=m.group(2)
         if price is None or not 1 <= price <= 1000:
             raise RuntimeError("Trading Economics EUA price failed validation")
         result["values"]["co2_eur_t"]=price
         result["values"]["co2_daily_percent"]=change
-        result["values"]["co2_quote_date"]=m.group(2)
+        result["values"]["co2_quote_date"]=quote_date
     def ibex():
         # Do not relabel Energy-Charts BG prices as official IBEX data.
         # Public redistribution terms for the BG series are restrictive;
