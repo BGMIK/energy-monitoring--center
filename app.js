@@ -438,7 +438,11 @@ function newsSummary(item){
  const raw=String(item.description||item.content||"").replace(/<script[\s\S]*?<\/script>/gi," ").replace(/<style[\s\S]*?<\/style>/gi," ").replace(/<[^>]+>/g," ").replace(/&nbsp;/gi," ").replace(/&amp;/gi,"&").replace(/&#39;|&apos;/gi,"'").replace(/&quot;/gi,'"').replace(/\s+/g," ").trim();
  return raw.length>230?raw.slice(0,227).trim()+"…":raw;
 }
-const NEWS_TEST_IMAGE="https://www.cez.cz/webpublic/file/edee/2026/01/01_fve-zaluzi-u-litvinova-20260129-125410.jpg";
+const NEWS_FALLBACK_IMAGES=[
+ "https://frognews.bg/images2/Alexander/1770805106_698c5772017e0.webp",
+ "https://bnrnews.bg/api/media/a5aa06cb-404c-465e-b7e9-5fec20019320?Size=large",
+ "https://upload.wikimedia.org/wikipedia/commons/f/f4/Kozloduy_Nuclear_Power_Plant_023.jpg"
+];
 function renderNews(){
  const target=document.querySelector('[data-news="all"]');
  if(!target)return;
@@ -448,7 +452,7 @@ function renderNews(){
   return;
  }
  target.innerHTML=filtered.map(item=>{
-  const imageUrl=item.image||NEWS_TEST_IMAGE;
+  const imageUrl=item.image||NEWS_FALLBACK_IMAGES[newsItems.indexOf(item)%NEWS_FALLBACK_IMAGES.length];
   const image='<img class="news-image" src="'+newsEscape(imageUrl)+'" alt="Илюстративна снимка на енергийна инфраструктура" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.classList.add(\'no-image\');this.remove()">';
   const summary=item.summary?'<p class="news-summary">'+newsEscape(item.summary)+'</p>':'';
   const source=item.source||"Новинарски източник";
