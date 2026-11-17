@@ -494,4 +494,4 @@ footer b{color:#dce8ec;letter-spacing:.5px}
 
 
 /* Responsive vertical fit: keep the complete active page inside the viewport */
-body{transform:scaleY(var(--page-y-scale,.7));transform-origin:top left;width:100%}
+body{transform:scaleY(var(--page-y-scale,.91));transform-origin:top left;width:100%}
