@@ -456,33 +456,6 @@ function renderNews(){
    '<div class="news-meta">'+newsEscape(source)+(time?' · '+newsEscape(time):'')+'</div></div></a></article>';
  }).join("");
 }
-function newsTitleTokens(value){
- return new Set(String(value||"").toLocaleLowerCase("bg-BG").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").replace(/[^\\p{L}\\p{N}]+/gu," ").split(" ").filter(x=>x.length>2));
-}
-async function enrichNewsImages(items){
- const controller=new AbortController();
- const timeout=setTimeout(()=>controller.abort(),4000);
- try{
-  const query='(енергетика OR електроенергия OR АЕЦ OR Козлодуй OR Белене OR фотоволтаици OR ВЕИ OR природен газ OR LNG OR BESS) sourcelang:Bulgarian';
-  const url="https://api.gdeltproject.org/api/v2/doc/doc?query="+encodeURIComponent(query)+"&mode=ArtList&format=json&timespan=1d&maxrecords=100&sort=DateDesc";
-  const response=await fetch(url,{signal:controller.signal,cache:"no-store"});
-  if(!response.ok)throw new Error("image service unavailable");
-  const data=await response.json();
-  const articles=(data.articles||[]).filter(x=>x.socialimage&&/^https?:\\/\\//i.test(x.socialimage));
-  return items.map(item=>{
-   if(item.image)return item;
-   const tokens=newsTitleTokens(item.title);let best="",score=0;
-   for(const article of articles){
-    const other=newsTitleTokens(article.title);let common=0;
-    tokens.forEach(token=>{if(other.has(token))common++;});
-    const match=common/Math.max(1,Math.min(tokens.size,other.size));
-    if(match>score){score=match;best=article.socialimage;}
-   }
-   return score>=0.55?{...item,image:best}:item;
-  });
- }catch(error){console.warn("News image lookup skipped",error);return items;}
- finally{clearTimeout(timeout);}
-}
 async function loadNews(){
  const today=new Date().toLocaleDateString("en-CA",{timeZone:"Europe/Sofia"});
  const results=await Promise.allSettled(newsFeeds.map(async feed=>{
@@ -503,8 +476,6 @@ async function loadNews(){
  });
  newsItems=[...unique.values()].sort((a,b)=>new Date(b.pubDate)-new Date(a.pubDate)).slice(0,60);
  renderNews();
- const snapshot=newsItems;
- enrichNewsImages(snapshot).then(enriched=>{if(newsItems!==snapshot)return;newsItems=enriched;renderNews();});
 }
 async function refreshNews(){
  if(newsRequestInFlight)return;
