@@ -488,9 +488,12 @@ footer b{color:#dce8ec;letter-spacing:.5px}
 
 
 /* TPP2: show only the eight live production columns; crop charts and gauges below */
-.tpp2-frame{height:105px!important;overflow:hidden!important;position:relative!important}
+.tpp2-frame{height:180px!important;overflow:hidden!important;position:relative!important;background:#fff!important}
 .tpp2-frame iframe{width:238.1%!important;height:714px!important;max-width:none!important;transform:scale(.42)!important;transform-origin:top left!important}
-@media(max-width:700px){.tpp2-frame{height:105px!important}.tpp2-frame iframe{width:238.1%!important;height:714px!important;transform:scale(.42)!important}}
+@media(max-width:700px){.tpp2-frame{height:180px!important}.tpp2-frame iframe{width:238.1%!important;height:714px!important;transform:scale(.42)!important}}
+.tpp2-live .tpp2-source-note{margin-bottom:5px}
+.tpp2-live .tpp2-official-meta{font-size:9px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.tpp2-live .tpp2-frame-note{font-size:9px;margin:5px 8px;color:#91aab3}
 
 
 /* Responsive vertical fit: keep the complete active page inside the viewport */
