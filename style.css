@@ -522,3 +522,27 @@ img,svg,iframe,canvas{max-width:100%}
   .module{font-size:8px;letter-spacing:0;padding:7px 3px}
   .market,.frequency{font-size:10px}
 }
+
+
+/* Collapsible weather forecast controls */
+.weather-hourly,.weather-daily{margin-top:10px}
+.forecast-toggle{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  width:100%;padding:10px 12px;color:#dcebf0;background:#102b35;
+  border:1px solid #31515c;border-radius:4px;text-align:left;
+  font:700 11px Consolas,monospace;letter-spacing:.04em;cursor:pointer;
+}
+.forecast-toggle:hover{background:#173b47;border-color:#4c7783}
+.forecast-chevron{color:#21e38a;font-size:15px;transition:transform .18s ease}
+.forecast-toggle[aria-expanded="true"] .forecast-chevron{transform:rotate(180deg)}
+.forecast-content{padding-top:9px}
+.forecast-content[hidden]{display:none!important}
+.forecast-content .weather-hour-row{grid-template-columns:repeat(6,minmax(0,1fr))}
+.forecast-content .weather-day-list{display:grid;gap:5px}
+@media(max-width:850px){
+  .forecast-content .weather-hour-row{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media(max-width:500px){
+  .forecast-toggle{padding:11px 10px;font-size:10px}
+  .forecast-content .weather-hour-row{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
