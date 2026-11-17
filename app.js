@@ -407,9 +407,33 @@ let activeNewsFilter="all";
 let newsRequestInFlight=false;
 function newsEscape(value){return String(value||"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));}
 function newsImage(item){
- const enclosure=item.enclosure&&typeof item.enclosure==="object"?item.enclosure.link:"";
- const candidates=[item.thumbnail,enclosure,...(String(item.description||"").match(/<img[^>]+src=["']([^"']+)/i)||[]).slice(1)];
- return candidates.find(url=>typeof url==="string"&&/^https?:\/\//i.test(url))||"";
+ const candidates=[];
+ const add=value=>{
+  if(typeof value==="string")candidates.push(value);
+  else if(value&&typeof value==="object"){
+   if(typeof value.url==="string")candidates.push(value.url);
+   if(typeof value.link==="string")candidates.push(value.link);
+  }
+ };
+ add(item.thumbnail);add(item.enclosure);add(item.image);
+ add(item["media:thumbnail"]);add(item["media:content"]);
+ const htmlParts=[item.description,item.content,item["content:encoded"],item.summary].filter(Boolean);
+ for(const raw of htmlParts){
+  const source=String(raw)
+   .replace(/&lt;/gi,"<").replace(/&gt;/gi,">")
+   .replace(/&quot;/gi,'"').replace(/&#39;|&apos;/gi,"'")
+   .replace(/&amp;/gi,"&");
+  const doc=new DOMParser().parseFromString(source,"text/html");
+  doc.querySelectorAll("img,source").forEach(node=>{
+   add(node.getAttribute("src"));add(node.getAttribute("data-src"));
+   add(node.getAttribute("data-original"));add(node.getAttribute("srcset")?.split(",")[0]?.trim().split(/\\s+/)[0]);
+  });
+  doc.querySelectorAll("meta[property='og:image'],meta[name='twitter:image']").forEach(node=>add(node.content));
+  const regexes=[/(?:src|url)\\s*=\\s*["']([^"']+)["']/gi,/(https?:\\/\\/[^\\s"'<>]+\\.(?:jpg|jpeg|png|webp)(?:\\?[^\\s"'<>]*)?)/gi];
+  for(const regex of regexes){let match;while((match=regex.exec(source)))add(match[1]);}
+ }
+ return candidates.map(url=>String(url||"").trim().replace(/&amp;/g,"&"))
+  .find(url=>/^https?:\\/\\//i.test(url)&&!/^data:/i.test(url))||"";
 }
 function newsSummary(item){
  const raw=String(item.description||item.content||"").replace(/<script[\s\S]*?<\/script>/gi," ").replace(/<style[\s\S]*?<\/style>/gi," ").replace(/<[^>]+>/g," ").replace(/&nbsp;/gi," ").replace(/&amp;/gi,"&").replace(/&#39;|&apos;/gi,"'").replace(/&quot;/gi,'"').replace(/\s+/g," ").trim();
