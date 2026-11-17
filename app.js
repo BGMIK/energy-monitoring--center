@@ -398,12 +398,7 @@ const newsFeeds=[
  {category:"markets",query:'(КЕВР OR енергийна борса OR електроенергиен пазар OR енергийна политика OR цени на тока) България'},
  {category:"gas",query:'(природен газ OR LNG OR газова централа OR газохранилище OR интерконектор) България OR Европа'}
 ];
-const newsCategoryNames={
- all:"ВСИЧКИ",nuclear:"ЯДРЕНА ЕНЕРГЕТИКА",power:"ЕЛЕКТРОЕНЕРГЕТИКА",
- renewables:"ВЕИ И BESS",markets:"ПАЗАРИ И РЕГУЛАЦИИ",gas:"ГАЗ И LNG"
-};
 let newsItems=[];
-let activeNewsFilter="all";
 let newsRequestInFlight=false;
 function newsEscape(value){return String(value||"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));}
 function newsImage(item){
@@ -441,11 +436,7 @@ function newsSummary(item){
 }
 function renderNews(){
  const target=document.querySelector('[data-news="all"]');if(!target)return;
- const filtered=activeNewsFilter==="all"?newsItems:newsItems.filter(item=>item.category===activeNewsFilter);
- document.querySelectorAll("[data-news-filter]").forEach(button=>{
-  const active=button.dataset.newsFilter===activeNewsFilter;
-  button.classList.toggle("active",active);button.setAttribute("aria-pressed",String(active));
- });
+ const filtered=newsItems;
  if(!filtered.length){target.innerHTML='<div class="news-empty">Няма намерени публикации в тази категория за последните 24 часа.</div>';return;}
  target.innerHTML=filtered.map(item=>{
   const image=item.image?'<img class="news-image" src="'+newsEscape(item.image)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.classList.add(\'no-image\');this.remove()">':'';
@@ -456,7 +447,7 @@ function renderNews(){
   return '<article class="news-card '+(item.image?"has-image":"no-image")+'">'+
    '<a class="news-card-link" href="'+newsEscape(item.link)+'" target="_blank" rel="noopener noreferrer">'+
    (item.image?'<div class="news-image-wrap">'+image+'</div>':'<div class="news-image-wrap news-image-placeholder"><span>📰</span></div>')+
-   '<div class="news-card-body"><span class="news-tag">'+newsEscape(newsCategoryNames[item.category]||"ЕНЕРГЕТИКА")+'</span>'+
+   '<div class="news-card-body">'+
    '<h3>'+newsEscape(item.title)+'</h3>'+summary+
    '<div class="news-meta">'+newsEscape(source)+(time?' · '+newsEscape(time):'')+'</div></div></a></article>';
  }).join("");
@@ -495,8 +486,5 @@ async function refreshNews(){
   if(stamp)stamp.textContent="ГРЕШКА ПРИ ОБНОВЯВАНЕ";
  }finally{newsRequestInFlight=false;}
 }
-document.querySelectorAll("[data-news-filter]").forEach(button=>button.addEventListener("click",()=>{
- activeNewsFilter=button.dataset.newsFilter||"all";renderNews();
-}));
 document.getElementById("news-refresh")?.addEventListener("click",refreshNews);
 refreshNews();setInterval(refreshNews,10*60*1000);
