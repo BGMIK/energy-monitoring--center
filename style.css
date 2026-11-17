@@ -808,7 +808,7 @@ img,svg,iframe,canvas{max-width:100%}
 @media(max-width:700px){.tpp2-frame{height:225px!important}.tpp2-frame iframe{width:238.1%!important;height:535px!important;transform:scale(.42)!important}}
 
 
-/* TPP2 expanded official table: show all unit columns and parameter rows */
-.tpp2-frame{height:620px!important;overflow:hidden!important;background:#fff!important;}
-.tpp2-frame iframe{display:block;width:238.1%!important;height:1477px!important;max-width:none!important;transform:scale(.42)!important;transform-origin:top left!important;overflow:hidden!important;}
-@media(max-width:700px){.tpp2-frame{height:620px!important}.tpp2-frame iframe{width:238.1%!important;height:1477px!important;transform:scale(.42)!important}}
+/* TPP2: compact fit based on full live-module screenshot — remove blank iframe area */
+.tpp2-frame{height:315px!important;overflow:hidden!important;background:#fff!important;}
+.tpp2-frame iframe{display:block;width:238.1%!important;height:750px!important;max-width:none!important;transform:scale(.42)!important;transform-origin:top left!important;overflow:hidden!important;}
+@media(max-width:700px){.tpp2-frame{height:315px!important}.tpp2-frame iframe{width:238.1%!important;height:750px!important;transform:scale(.42)!important}}
