@@ -96,16 +96,16 @@ def browser_generation():
         cp = subprocess.run(cmd, capture_output=True, text=True, timeout=25)
         if not cp.stdout:
             raise RuntimeError("ESO browser render failed: " + cp.stderr[-200:])
-    page = re.sub(r"<script\\b.*?</script>|<style\\b.*?</style>", " ", cp.stdout, flags=re.I | re.S)
+    page = re.sub(r"<script\b.*?</script>|<style\b.*?</style>", " ", cp.stdout, flags=re.I | re.S)
     page = html.unescape(re.sub(r"<[^>]+>", " ", page))
-    page = re.sub(r"\\s+", " ", page)
+    page = re.sub(r"\s+", " ", page)
     out = {}
     labels = ["АЕЦ", "Кондензационни ТЕЦ", "Топлофикационни ТЕЦ",
               "Заводски ТЕЦ", "ВЕЦ", "Малки ВЕЦ", "ВяЕЦ", "ФЕЦ", "Био ЕЦ",
               "ССЕЕ - зареждане", "ССЕЕ - разреждане",
               "ССЕБ - зареждане", "ССЕБ - разреждане", "Помпи", "Товар на РБ"]
     for label in labels:
-        pat = re.escape(label) + r"\\s+(?:[0-9]{1,3}(?:[.,][0-9]+)?\\s*%\\s+)?([0-9][0-9\\s.,]*)"
+        pat = re.escape(label) + r"\s+(?:[0-9]{1,3}(?:[.,][0-9]+)?\s*%\s+)?([0-9][0-9\s.,]*)"
         m = re.search(pat, page, re.I)
         if m:
             value = number(m.group(1))
