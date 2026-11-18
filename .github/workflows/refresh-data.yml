@@ -32,6 +32,16 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install Chromium for live ESO page refresh
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+          install-dependencies: true
+
+      - name: Verify Chromium
+        run: |
+          google-chrome --version
+
       - name: Run live data collector
         run: python refresh_data.py
 
