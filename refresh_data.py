@@ -115,6 +115,25 @@ def browser_generation():
         raise RuntimeError("Rendered ESO page contains no valid generation measurements")
     return out
 
+def browser_dump(url, wait_ms=1800):
+    """Render an ESO endpoint in a clean headless Chromium session."""
+    chrome = next((p for p in (shutil.which("chromium"), shutil.which("chromium-browser"),
+                               shutil.which("google-chrome"), shutil.which("google-chrome-stable"))
+                   if p), None)
+    if not chrome:
+        raise RuntimeError("Chromium unavailable on collector runner")
+    fresh_url = url + ("&" if "?" in url else "?") + "_hub_browser=" + str(time.time_ns())
+    with tempfile.TemporaryDirectory(prefix="eso_hub_") as profile:
+        cmd = [chrome, "--headless=new", "--no-sandbox", "--disable-gpu",
+               "--disable-dev-shm-usage", "--disable-cache", "--disk-cache-size=1",
+               "--incognito", "--no-first-run", "--disable-background-networking",
+               "--disable-extensions", "--user-data-dir=" + profile,
+               "--virtual-time-budget=" + str(wait_ms), "--dump-dom", fresh_url]
+        cp = subprocess.run(cmd, capture_output=True, text=True, timeout=max(20, wait_ms // 1000 + 15))
+        if not cp.stdout:
+            raise RuntimeError("ESO browser render failed: " + cp.stderr[-300:])
+        return cp.stdout
+
 def official_current_load():
     """Extract the latest valid system load from the official ESO endpoint."""
     raw = json.loads(get(URLS["official_load"]))
@@ -188,22 +207,76 @@ def run():
             if any(k in v for k in ("batt_charge_mw","batt_discharge_mw","pump_mw","pumps_mw")):v["bess"]=(v.get("pump_mw",v.get("pumps_mw",0)) or 0)+(v.get("batt_charge_mw",0) or 0)-(v.get("batt_discharge_mw",0) or 0)
         if not any(k in v for k in keys):raise RuntimeError("ESO generation endpoint returned no recognized generation rows")
     def flows():
+        v=result["values"]
+        aliases={"SR_mw":("SR_mw","SR","Сърбия","Serbia"),
+                 "RO_mw":("RO_mw","RO","Румъния","Romania"),
+                 "TR_mw":("TR_mw","TR","Турция","Turkey"),
+                 "MK_mw":("MK_mw","MK","Македония","Северна Македония","North Macedonia"),
+                 "GR_mw":("GR_mw","GR","Гърция","Greece")}
+        raw=None
+        errors=[]
+        # First choice: official live SCADA JSON with hard-refresh headers.
         try:
             raw=json.loads(get(URLS["flows"]))
-        except Exception:
-            raw=fresh_mirror()
-        f=flatten(raw); v=result["values"]
-        aliases={"SR_mw":("SR_mw","SR","Сърбия","Serbia"),"RO_mw":("RO_mw","RO","Румъния","Romania"),"TR_mw":("TR_mw","TR","Турция","Turkey"),"MK_mw":("MK_mw","MK","Македония","Северна Македония","North Macedonia"),"GR_mw":("GR_mw","GR","Гърция","Greece")}
-        for k,a in aliases.items():
-            x=pick(f,*a)
-            if x is not None:v[k]=x
-        if not any(k in v for k in aliases):
-            mirror=fresh_mirror()
-            for k in aliases:
-                x=number(mirror.get(k))
+        except Exception as exc:
+            errors.append("direct ESO SCADA JSON: "+str(exc)[:160])
+        # Second choice: ask Chromium to render the official endpoint, as in
+        # the working desktop SCADA. This handles browser-dependent responses.
+        if raw is None:
+            try:
+                dom=browser_dump(URLS["flows"], wait_ms=1800)
+                page=re.sub(r"<script\\b.*?</script>|<style\\b.*?</style>", " ", dom, flags=re.I|re.S)
+                page=html.unescape(re.sub(r"<[^>]+>", " ", page))
+                match=re.search(r"(\\{.*\\}|\\[.*\\])", page, flags=re.S)
+                if not match:
+                    raise RuntimeError("Rendered ESO flow page contains no JSON")
+                raw=json.loads(match.group(1))
+            except Exception as exc:
+                errors.append("Chromium ESO SCADA fallback: "+str(exc)[:160])
+        if raw is not None:
+            f=flatten(raw)
+            for k,names in aliases.items():
+                x=pick(f,*names)
                 if x is not None:v[k]=x
-        if not any(k in v for k in aliases):raise RuntimeError("ESO flow endpoint returned no country values")
-        v["net"]=sum(v[k] for k in aliases if k in v)
+            # Recover country/value objects when flattening loses the pair.
+            country_names={"SR_mw":("сърбия","serbia","sr"),
+                           "RO_mw":("румъния","romania","ro"),
+                           "TR_mw":("турция","turkey","tr"),
+                           "MK_mw":("македония","северна македония","north macedonia","mk"),
+                           "GR_mw":("гърция","greece","gr")}
+            def recover(obj):
+                if isinstance(obj,dict):
+                    keys={str(k).strip().lower():val for k,val in obj.items()}
+                    label=next((keys[k].strip().lower() for k in
+                                ("country","name","label","country_name","zone")
+                                if isinstance(keys.get(k),str)),None)
+                    if label:
+                        for dest,names in country_names.items():
+                            if label in names:
+                                for key in ("value","flow","mw","power","exchange","value_mw"):
+                                    x=number(keys.get(key))
+                                    if x is not None:
+                                        v[dest]=x
+                                        break
+                    for child in obj.values():recover(child)
+                elif isinstance(obj,list):
+                    for child in obj:recover(child)
+            recover(raw)
+        if not any(k in v for k in aliases):
+            # Last-resort mirror fallback, never replace valid live values.
+            try:
+                mirror=fresh_mirror()
+                for k in aliases:
+                    x=number(mirror.get(k))
+                    if x is not None:v[k]=x
+                if "net_import_mw" in mirror and not any(k in v for k in aliases):
+                    v["net"]=number(mirror["net_import_mw"])
+            except Exception as exc:
+                errors.append("validated mirror: "+str(exc)[:160])
+        if not any(k in v for k in aliases) and "net" not in v:
+            raise RuntimeError("ESO flow endpoint returned no country values; "+"; ".join(errors))
+        if any(k in v for k in aliases):
+            v["net"]=sum(v[k] for k in aliases if k in v)
     def load():
         rows=[json.loads(line) for line in get(URLS["load"],25).splitlines() if line.strip()]
         pts=[]
@@ -273,7 +346,7 @@ def run():
     for name,fn in [("eso_generation",generation),("eso_flows",flows),("eso_load",load),("frequency",frequency),("ibex",ibex),("co2_eua",co2),("kozloduy",npp)]:
         source(name,fn)
     result["sources"]["eso_generation"]["provider"]="ЕСО оперативна страница Chromium; резервен ЕСО API / валидирано огледало"
-    result["sources"]["eso_flows"]["provider"]="ЕСО SCADA API; при недостъпност се използва резервно копие"
+    result["sources"]["eso_flows"]["provider"]="ЕСО SCADA API; Chromium hard-refresh fallback; валидирано огледало"
     result["sources"]["eso_load"]["provider"]="ЕСО last24load за текущ товар (при достъпност); външно огледало за 24h серия и резервен товар"
     result["sources"]["frequency"]["provider"]="ЕСО frequency endpoint"
     result["sources"]["ibex"]["provider"]="БНЕБ/IBEX — няма конфигуриран официален API достъп"
