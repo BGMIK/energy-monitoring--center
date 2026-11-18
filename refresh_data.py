@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Server-side public-data collector for MILCHO HUB. No credentials are stored here."""
-import json, math, re, time
+import json, math, re, time, os, shutil, subprocess, tempfile, html
 from datetime import datetime, timezone
 from urllib.request import Request, urlopen
 
@@ -10,6 +10,7 @@ URLS = {
     "flows": "https://www.eso.bg/api/scada_live_json_pure.php",
     "frequency": "https://www.eso.bg/api/freq.json.php",
     "load": BASE + "today.jsonl",
+    "official_load": "https://www.eso.bg/api/last24load.json.php",
     "ibex": "https://api.energy-charts.info/price?bzn=BG",
     "npp": "https://www.kznpp.org/bg/proizvodstvo/danni-za-elektroproizvodstvoto",
 }
@@ -78,6 +79,64 @@ def fresh_mirror():
         raise RuntimeError("ESO mirror snapshot is older than 20 minutes")
     return mirror
 
+def browser_generation():
+    """Render the official ESO operational page with a fresh Chromium profile."""
+    chrome = next((p for p in (shutil.which("chromium"), shutil.which("chromium-browser"),
+                               shutil.which("google-chrome"), shutil.which("google-chrome-stable"))
+                   if p), None)
+    if not chrome:
+        raise RuntimeError("Chromium unavailable on collector runner")
+    with tempfile.TemporaryDirectory(prefix="eso_hub_") as profile:
+        url = "https://www.eso.bg/doc/?460&_scada_refresh=" + str(time.time_ns())
+        cmd = [chrome, "--headless=new", "--no-sandbox", "--disable-gpu",
+               "--disable-dev-shm-usage", "--disable-cache", "--incognito",
+               "--no-first-run", "--disable-background-networking",
+               "--disable-extensions", "--user-data-dir=" + profile,
+               "--virtual-time-budget=4500", "--dump-dom", url]
+        cp = subprocess.run(cmd, capture_output=True, text=True, timeout=25)
+        if not cp.stdout:
+            raise RuntimeError("ESO browser render failed: " + cp.stderr[-200:])
+    page = re.sub(r"<script\\b.*?</script>|<style\\b.*?</style>", " ", cp.stdout, flags=re.I | re.S)
+    page = html.unescape(re.sub(r"<[^>]+>", " ", page))
+    page = re.sub(r"\\s+", " ", page)
+    out = {}
+    labels = ["АЕЦ", "Кондензационни ТЕЦ", "Топлофикационни ТЕЦ",
+              "Заводски ТЕЦ", "ВЕЦ", "Малки ВЕЦ", "ВяЕЦ", "ФЕЦ", "Био ЕЦ",
+              "ССЕЕ - зареждане", "ССЕЕ - разреждане",
+              "ССЕБ - зареждане", "ССЕБ - разреждане", "Помпи", "Товар на РБ"]
+    for label in labels:
+        pat = re.escape(label) + r"\\s+(?:[0-9]{1,3}(?:[.,][0-9]+)?\\s*%\\s+)?([0-9][0-9\\s.,]*)"
+        m = re.search(pat, page, re.I)
+        if m:
+            value = number(m.group(1))
+            if value is not None:
+                out[label] = value
+    if not any(k in out for k in ("АЕЦ", "ФЕЦ", "ВЕЦ")):
+        raise RuntimeError("Rendered ESO page contains no valid generation measurements")
+    return out
+
+def official_current_load():
+    """Extract the latest valid system load from the official ESO endpoint."""
+    raw = json.loads(get(URLS["official_load"]))
+    f = flatten(raw)
+    value = pick(f, "load_mw", "Товар на РБ", "Товар")
+    if value is None:
+        found = []
+        def walk(x):
+            if isinstance(x, dict):
+                for k, v in x.items():
+                    if str(k).strip().lower() in ("load_mw", "товар на рб", "товар", "load"):
+                        n = number(v)
+                        if n is not None and n > 0: found.append(n)
+                    if isinstance(v, (dict, list)): walk(v)
+            elif isinstance(x, list):
+                for item in x: walk(item)
+        walk(raw)
+        value = found[-1] if found else None
+    if value is None or value <= 0:
+        raise RuntimeError("Official ESO load endpoint returned no valid value")
+    return value
+
 def run():
     result={"updated_at":datetime.now(timezone.utc).isoformat(timespec="seconds"),"sources":{},"values":{},"series":[]}
     def source(name, fn):
@@ -88,9 +147,12 @@ def run():
             result["sources"][name]={"ok":False,"error":str(e)[:240]}
     def generation():
         try:
-            raw=json.loads(get(URLS["generation"]))
+            raw=browser_generation()
         except Exception:
-            raw=fresh_mirror().get("raw_gen_api",[])
+            try:
+                raw=json.loads(get(URLS["generation"]))
+            except Exception:
+                raw=fresh_mirror().get("raw_gen_api",[])
         f=flatten(raw); v=result["values"]
         keys=["АЕЦ","Кондензационни ТЕЦ","Топлофикационни ТЕЦ","Заводски ТЕЦ","ВЕЦ","Малки ВЕЦ","ВяЕЦ","ФЕЦ","Био ЕЦ"]
         for k in keys:
@@ -152,7 +214,10 @@ def run():
         pts=pts[-288:]
         if len(pts)<2:raise RuntimeError("ESO load feed has fewer than two valid points")
         result["series"]=pts
-        result["values"]["load"]=pts[-1]["v"]
+        try:
+            result["values"]["load"]=official_current_load()
+        except Exception:
+            result["values"]["load"]=pts[-1]["v"]
     def frequency():
         raw=json.loads(get(URLS["frequency"]))
         x=find_frequency(raw)
@@ -207,9 +272,9 @@ def run():
             raise RuntimeError("Unit 5/6 output not found in official page")
     for name,fn in [("eso_generation",generation),("eso_flows",flows),("eso_load",load),("frequency",frequency),("ibex",ibex),("co2_eua",co2),("kozloduy",npp)]:
         source(name,fn)
-    result["sources"]["eso_generation"]["provider"]="ЕСО API; при недостъпност се използва резервно копие"
+    result["sources"]["eso_generation"]["provider"]="ЕСО оперативна страница Chromium; резервен ЕСО API / валидирано огледало"
     result["sources"]["eso_flows"]["provider"]="ЕСО SCADA API; при недостъпност се използва резервно копие"
-    result["sources"]["eso_load"]["provider"]="ESO dashboard mirror (външен проект; резервен източник)"
+    result["sources"]["eso_load"]["provider"]="ЕСО last24load за текущ товар (при достъпност); външно огледало за 24h серия и резервен товар"
     result["sources"]["frequency"]["provider"]="ЕСО frequency endpoint"
     result["sources"]["ibex"]["provider"]="БНЕБ/IBEX — няма конфигуриран официален API достъп"
     result["sources"]["co2_eua"]["provider"]="Trading Economics · EU Carbon Permits · дневна котировка CFD, EUR/tCO₂"
