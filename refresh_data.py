@@ -225,9 +225,9 @@ def run():
         if raw is None:
             try:
                 dom=browser_dump(URLS["flows"], wait_ms=1800)
-                page=re.sub(r"<script\\b.*?</script>|<style\\b.*?</style>", " ", dom, flags=re.I|re.S)
+                page=re.sub(r"<script\b.*?</script>|<style\b.*?</style>", " ", dom, flags=re.I|re.S)
                 page=html.unescape(re.sub(r"<[^>]+>", " ", page))
-                match=re.search(r"(\\{.*\\}|\\[.*\\])", page, flags=re.S)
+                match=re.search(r"(\{.*\}|\[.*\])", page, flags=re.S)
                 if not match:
                     raise RuntimeError("Rendered ESO flow page contains no JSON")
                 raw=json.loads(match.group(1))
