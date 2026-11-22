@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-22T17:53:01+00:00",
+  "updated_at": "2026-11-22T17:56:42+00:00",
   "sources": {
     "eso_generation": {
       "ok": true,
@@ -23,8 +23,7 @@
       "provider": "БНЕБ/IBEX — няма конфигуриран официален API достъп"
     },
     "co2_eua": {
-      "ok": false,
-      "error": "Trading Economics quote not present in fetched HTML: \r\n \r\n \r\n   \r\n\tEU Carbon Permits - Price - Chart - Historical Data - News\r\n        \r\n \r\n \r\n   \r\n\r\n \r\n     \r\n\r\n (function () { var p = new URLSearchParams(window.location.search); if (!p.ha",
+      "ok": true,
       "provider": "Trading Economics · EU Carbon Permits · дневна котировка CFD, EUR/tCO₂"
     },
     "kozloduy": {
@@ -34,32 +33,35 @@
   },
   "values": {
     "АЕЦ": 2033.75,
-    "Кондензационни ТЕЦ": 1968.55,
-    "Топлофикационни ТЕЦ": 403.71,
-    "Заводски ТЕЦ": 101.34,
-    "ВЕЦ": 974.75,
-    "Малки ВЕЦ": 138.94,
-    "ВяЕЦ": 298.74,
+    "Кондензационни ТЕЦ": 1963.04,
+    "Топлофикационни ТЕЦ": 404.5,
+    "Заводски ТЕЦ": 100.53,
+    "ВЕЦ": 975.57,
+    "Малки ВЕЦ": 139.49,
+    "ВяЕЦ": 298.23,
     "ФЕЦ": 0.0,
-    "Био ЕЦ": 10.65,
-    "batt_charge_mw": 4.87,
-    "batt_discharge_mw": 2089.92,
+    "Био ЕЦ": 10.64,
+    "batt_charge_mw": 4.86,
+    "batt_discharge_mw": 2091.5,
     "pump_mw": 0.0,
     "nuclear": 2033.75,
-    "thermal": 2473.6,
-    "hydro": 1113.69,
-    "renew": 309.39,
-    "bess": -2085.05,
-    "SR_mw": -623.6899999999999,
-    "RO_mw": -1927.8600000000001,
-    "TR_mw": 144.14999999999998,
-    "MK_mw": -460.28000000000003,
-    "GR_mw": -263.11,
-    "net": -3130.79,
-    "load": 4908.6,
-    "frequency": 50.0,
-    "block5": 1050.0,
-    "block6": 989.0
+    "thermal": 2468.07,
+    "hydro": 1115.06,
+    "renew": 308.87,
+    "bess": -2086.64,
+    "SR_mw": -635.41,
+    "RO_mw": -1842.5500000000002,
+    "TR_mw": 110.55000000000001,
+    "MK_mw": -476.95000000000005,
+    "GR_mw": -291.13,
+    "net": -3135.4900000000002,
+    "load": 4876.9,
+    "frequency": 50.02,
+    "co2_eur_t": 81.26,
+    "co2_daily_percent": -0.88,
+    "co2_quote_date": "November 20, 2026",
+    "block5": 1051.0,
+    "block6": 990.0
   },
   "series": [
     {
@@ -1017,6 +1019,10 @@
     {
       "t": "2026-11-22T17:50:03Z",
       "v": 4908.6
+    },
+    {
+      "t": "2026-11-22T17:55:02Z",
+      "v": 4876.9
     }
   ]
 }
