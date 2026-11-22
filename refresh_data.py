@@ -105,7 +105,7 @@ def browser_generation():
               "ССЕЕ - зареждане", "ССЕЕ - разреждане",
               "ССЕБ - зареждане", "ССЕБ - разреждане", "Помпи", "Товар на РБ"]
     for label in labels:
-        pat = re.escape(label) + r"\s+(?:[0-9]{1,3}(?:[.,][0-9]+)?\s*%\s+)?([0-9][0-9\s.,]*)"
+        pat = re.escape(label) + r"\s+(?:[0-9]{1,3}(?:[.,][0-9]+)?\s*%\s+)?([0-9][0-9\s.,]*)\s*(?:MW|МВт)\b"
         m = re.search(pat, page, re.I)
         if m:
             value = number(m.group(1))
