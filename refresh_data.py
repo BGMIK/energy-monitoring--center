@@ -297,31 +297,32 @@ def run():
         if x is None:raise RuntimeError("Frequency value not found in ESO response")
         result["values"]["frequency"]=x
     def co2():
-        # Trading Economics public EU Carbon Permits page (daily CFD benchmark).
+        # Trading Economics EU Carbon Permits daily CFD benchmark.
         page=get("https://tradingeconomics.com/commodity/carbon",25)
-        txt=re.sub(r"<script\\b.*?</script>|<style\\b.*?</style>", " ", page, flags=re.I|re.S)
+        txt=re.sub(r"<script\b.*?</script>|<style\b.*?</style>", " ", page, flags=re.I|re.S)
         txt=re.sub(r"<[^>]+>", " ", txt)
         txt=re.sub(r"&nbsp;|&#160;", " ", txt, flags=re.I)
-        txt=re.sub(r"\\s+", " ", txt)
-        # Prefer the dated summary sentence; do not mistake other commodity prices for EUA.
-        m=re.search(r"EU Carbon Permits\\s+(?:rose|fell|increased|decreased)\\s+to\\s+([0-9][0-9,.]*)\\s+EUR\\s+on\\s+([A-Za-z]+\\s+[0-9]{1,2},\\s+[0-9]{4}),\\s+(?:up|down)\\s+([0-9,.]+)%", txt, re.I)
-        if not m:
-            # The page also exposes the headline quote as Actual / Daily Change.
-            m=re.search(r"Actual\\s+([0-9][0-9,.]*)\\s+Daily Change\\s+([+-]?[0-9,.]+)%", txt, re.I)
-            if m:
-                # Keep date tied to the page's explicit update stamp when available.
-                d=re.search(r"last updated on\\s+([A-Za-z]+\\s+[0-9]{1,2}\\s+of\\s+[0-9]{4})", txt, re.I)
-                quote_date=d.group(1) if d else datetime.now(timezone.utc).strftime("%Y-%m-%d")
-                price=number(m.group(1))
-                change=number(m.group(2))
-            else:
-                pos=txt.lower().find("eu carbon permits")
-                excerpt=txt[max(0,pos-80):pos+500] if pos>=0 else txt[:500]
-                raise RuntimeError("Trading Economics quote not present in fetched HTML: "+excerpt[:400])
-        else:
+        txt=re.sub(r"\s+", " ", txt)
+        # Use the dated EU Carbon Permits sentence, never a generic commodity quote.
+        m=re.search(
+            r"EU Carbon Permits\s+(?:rose|fell|increased|decreased)\s+to\s+([0-9][0-9,.]*)\s+EUR\s+on\s+([A-Za-z]+\s+[0-9]{1,2},\s+[0-9]{4}),\s+(?:up|down)\s+([0-9,.]+)%",
+            txt, re.I
+        )
+        if m:
             price=number(m.group(1))
-            change=number(m.group(3))
             quote_date=m.group(2)
+            change=number(m.group(3))
+            if "down" in txt[m.start():m.end()].lower():
+                change=-abs(change or 0)
+        else:
+            # Fallback to the page's explicit Actual / Daily Change block.
+            m=re.search(r"EU Carbon Permits.{0,120}?Actual\s+([0-9][0-9,.]*)\s+Daily Change\s+([+-]?[0-9,.]+)%", txt, re.I)
+            if not m:
+                raise RuntimeError("Trading Economics EU Carbon Permits quote not found in fetched HTML")
+            price=number(m.group(1))
+            change=number(m.group(2))
+            d=re.search(r"last updated on\s+([A-Za-z]+\s+[0-9]{1,2}\s+of\s+[0-9]{4})", txt, re.I)
+            quote_date=d.group(1) if d else datetime.now(timezone.utc).strftime("%Y-%m-%d")
         if price is None or not 1 <= price <= 1000:
             raise RuntimeError("Trading Economics EUA price failed validation")
         result["values"]["co2_eur_t"]=price
