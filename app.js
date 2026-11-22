@@ -131,6 +131,7 @@ async function cycle(){
     if(pts.length>=2){state.loadSeries=pts;renderChart(pts);}
     render();
     if(v.frequency!=null)$(".frequency b").textContent=fmt(v.frequency,2)+" Hz";
+    $(".frequency").title=(src.frequency?.provider||"ЕСО frequency endpoint")+" · snapshot: "+(snapshot.updated_at||"—");
     if(v.ibex!=null)$(".market b").textContent=fmt(v.ibex,2)+" €/MWh";
     const co2Price=num(v.co2_eur_t),co2Change=num(v.co2_daily_percent);
     const co2El=$("#co2-price"),co2Meta=$("#co2-meta");
