@@ -352,6 +352,21 @@ def run():
     result["sources"]["ibex"]["provider"]="БНЕБ/IBEX — няма конфигуриран официален API достъп"
     result["sources"]["co2_eua"]["provider"]="Trading Economics · EU Carbon Permits · дневна котировка CFD, EUR/tCO₂"
     result["sources"]["kozloduy"]["provider"]="Официален сайт на АЕЦ Козлодуй"
+    # Engineering sanity gate: the browser table may expose both percentage and MW
+    # columns. Never publish percentage figures as MW when the aggregate is implausibly
+    # small relative to the independently measured system load.
+    generation_keys = ("АЕЦ", "Кондензационни ТЕЦ", "Топлофикационни ТЕЦ",
+                       "Заводски ТЕЦ", "ВЕЦ", "Малки ВЕЦ", "ВяЕЦ", "ФЕЦ", "Био ЕЦ")
+    generation_total = sum(number(result["values"].get(k)) or 0 for k in generation_keys)
+    system_load = number(result["values"].get("load"))
+    if system_load is not None and system_load > 1000 and generation_total < system_load * 0.20:
+        result["sources"]["eso_generation"] = {
+            "ok": False,
+            "provider": "ЕСО оперативна страница Chromium",
+            "error": ("Отхвърлени стойности: сумата на производството е "
+                      f"{generation_total:.1f} MW при товар {system_load:.1f} MW. "
+                      "Вероятно е извлечена процентната колона вместо MW.")
+        }
     # Publish a complete fresh snapshot only when every core ESO feed is valid.
     required_eso = ("eso_generation", "eso_flows", "eso_load", "frequency")
     failed = [name for name in required_eso if not result["sources"].get(name, {}).get("ok")]
