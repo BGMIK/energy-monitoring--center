@@ -1137,3 +1137,281 @@ footer b{letter-spacing:1px}
   .placeholder{padding:14px}
   footer{font-size:8px;gap:8px}
 }
+
+
+/* MILCHO HUB — cohesive control-room redesign */
+:root{
+  --bg:#07131b;
+  --panel:#0d222c;
+  --panel2:#112d38;
+  --line:#294653;
+  --cyan:#45d4ec;
+  --green:#35dda7;
+  --gold:#ffbd62;
+  --muted:#91aab5;
+}
+html,body{background:var(--bg);color:#eaf3f6}
+body{
+  max-width:1900px;
+  padding:0 14px 18px;
+  background:
+    linear-gradient(180deg,rgba(18,65,79,.16),transparent 260px),
+    radial-gradient(ellipse at 50% 0,rgba(39,125,145,.10),transparent 55%),
+    var(--bg);
+}
+.topbar{
+  min-height:58px;
+  padding:8px 14px;
+  gap:10px 14px;
+  border:1px solid #244451;
+  border-top:0;
+  border-radius:0 0 10px 10px;
+  background:linear-gradient(100deg,#0d2631 0%,#0a1c25 60%,#102b35 100%);
+  box-shadow:0 8px 24px #0003;
+}
+.topbar .system-title{
+  color:#f1f8fa;
+  font-size:clamp(14px,1.1vw,19px);
+  letter-spacing:.7px;
+}
+.topbar .meta{
+  color:#8faab4;
+  font-size:9px;
+  letter-spacing:1px;
+}
+.topbar .market,.topbar .frequency,#clock{
+  padding:6px 9px;
+  border:1px solid #294b58;
+  border-radius:6px;
+  background:#081b24;
+  font-variant-numeric:tabular-nums;
+}
+.topbar .market{font-size:11px}
+.topbar .market b{font-size:13px}
+.topbar .frequency{font-size:11px}
+.topbar .frequency b{font-size:15px}
+.topbar #fullscreenBtn,.topbar #languageBtn{
+  min-height:31px;
+  border-radius:6px;
+  background:#143744;
+  border-color:#326171;
+}
+.module-nav{
+  position:relative;
+  display:flex;
+  gap:8px;
+  padding:10px 0 11px;
+  border-bottom:1px solid #203d48;
+}
+.module{
+  flex:1 1 0;
+  min-height:44px;
+  justify-content:center;
+  border:1px solid #274753;
+  border-radius:7px;
+  background:#0c2029;
+  color:#a9c0c8;
+  letter-spacing:.8px;
+}
+.module.active{
+  background:linear-gradient(180deg,#174958,#10323d);
+  border-color:#39c5df;
+  box-shadow:inset 0 -2px #45d4ec,0 4px 14px #0002;
+}
+main{padding-top:12px}
+.gauges{
+  gap:10px;
+  margin-bottom:12px;
+}
+.gauge-card{
+  min-height:126px;
+  border:1px solid #2a4c58;
+  border-radius:9px;
+  background:linear-gradient(150deg,#12313c,#0b2029 76%);
+  box-shadow:0 6px 18px #0002;
+}
+.gauge-card h3{
+  color:#a9c5ce;
+  font-size:11px;
+  letter-spacing:.75px;
+}
+.gauge-value{
+  color:#f4fbfd;
+  font-variant-numeric:tabular-nums;
+}
+.dashboard{
+  grid-template-columns:minmax(0,1.02fr) minmax(0,1.08fr) minmax(0,.9fr);
+  gap:11px;
+  align-items:stretch;
+}
+.left-stack,.middle,.right{gap:11px}
+.panel{
+  border:1px solid #294a56;
+  border-radius:9px;
+  background:linear-gradient(155deg,#102a35,#0b1e27 80%);
+  box-shadow:0 6px 18px #0002;
+}
+.panel h2{
+  padding:12px 12px 10px;
+  color:#dcecf1;
+  font-size:12px;
+  letter-spacing:.7px;
+}
+.production{overflow:hidden}
+.production h2{font-size:13px}
+.production-row{
+  margin:2px 4px;
+  padding:9px 10px;
+  border:1px solid rgba(65,112,126,.18);
+  border-radius:5px;
+  background:rgba(20,52,63,.68);
+}
+.production-row strong{font-variant-numeric:tabular-nums}
+.chart-panel,.flows,.tpp2-live,.ibex-live,.co2-live{border-radius:9px}
+.chart-title{border-radius:5px}
+.chart-wrap{border-radius:0 0 5px 5px}
+.flow-row{border-bottom:1px solid rgba(76,116,128,.13)}
+.flow-row:last-child{border-bottom:0}
+.tpp2-live{border-top:2px solid var(--cyan)}
+.tpp2-panel-head{border-bottom-color:#294752}
+.tpp2-frame{border-radius:6px!important}
+.ibex-live,.co2-live{
+  border:1px solid #294a56;
+  background:linear-gradient(110deg,#102c36,#0b2029);
+}
+.ibex-live .market{font-size:16px}
+.ibex-live .market b{font-size:22px}
+.co2-heading{color:#a9c0c8;letter-spacing:.6px}
+.co2-price{font-size:28px}
+.placeholder{
+  min-height:0;
+  padding:22px;
+  border:1px solid #294a56;
+  border-radius:10px;
+  background:linear-gradient(150deg,#102a35,#091b24);
+  box-shadow:0 8px 24px #0002;
+}
+.module-heading{
+  align-items:center;
+  gap:14px;
+  padding:0 2px 16px;
+  margin-bottom:14px;
+  border-bottom:1px solid #294752;
+}
+.module-heading>span{
+  width:48px;height:48px;flex:0 0 48px;
+  border:1px solid #2b5c6b;
+  border-radius:9px;
+  background:#123744;
+  font-size:25px;
+}
+.module-heading h1{font-size:24px;letter-spacing:.8px}
+.module-heading p{font-size:12px;color:#9bb4bd}
+.news-toolbar{
+  padding:10px 12px;
+  border:1px solid #294a56;
+  border-radius:7px;
+  background:#0b2029;
+}
+.news-list[data-news="all"]{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+}
+.news-card{
+  border:1px solid #294a56;
+  border-radius:9px;
+  background:#0c222c;
+}
+.news-image-wrap{height:172px}
+.news-card-body{padding:13px}
+.news-card h3{font-size:14px;line-height:1.45}
+.news-summary{font-size:11px;line-height:1.6}
+.weather-section{
+  padding:16px;
+  border:1px solid #294a56;
+  border-radius:9px;
+  background:linear-gradient(150deg,#102a35,#0b2029);
+}
+.weather-section h2{
+  padding-bottom:10px;
+  color:#e7f4f7;
+  font-size:12px;
+  letter-spacing:.7px;
+}
+.weather-cards{grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
+.weather-card{
+  padding:14px;
+  border:1px solid #294a56;
+  border-radius:8px;
+  background:#091d26;
+}
+.weather-card-head h3{font-size:12px;letter-spacing:.6px}
+.weather-temp{font-size:clamp(42px,4vw,58px)}
+.weather-details,.weather-details b{font-size:11px}
+.weather-hour-row span,.weather-hour-row small{font-size:9px}
+.weather-hour-row b{font-size:10px}
+.weather-day-list>div,.weather-day-list b{font-size:10px}
+.weather-day-list small{font-size:9px}
+.camera-category-tabs{gap:9px}
+.camera-tab{
+  border-radius:7px;
+  background:#0b222c;
+  border-color:#2a4c58;
+}
+.camera-tab.active{
+  background:linear-gradient(180deg,#185263,#103642);
+}
+.mountain-camera-grid{gap:11px}
+.mountain-camera-card{
+  border:1px solid #294a56;
+  border-radius:8px;
+  background:#091d26;
+}
+.mountain-camera-view{border-radius:5px}
+footer{
+  margin-top:14px;
+  padding:12px 5px;
+  border-top:1px solid #203d48;
+  color:#7896a1;
+}
+footer b{color:#d5e7ec;letter-spacing:1px}
+@media(min-width:1151px){
+  .dashboard{min-height:560px}
+  .production{height:auto;min-height:560px}
+  .chart-panel{height:220px}
+  .flows{min-height:328px}
+  .right>.tpp2-live{flex:1 0 390px;min-height:390px}
+}
+@media(max-width:1150px){
+  body{padding:0 9px 12px}
+  .dashboard{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .weather-cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .news-list[data-news="all"]{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:700px){
+  body{padding:0 6px 10px}
+  .topbar{padding:9px;gap:7px}
+  .topbar .system-title{font-size:13px}
+  .topbar .meta{display:none}
+  .topbar .market,.topbar .frequency,#clock{padding:4px 6px;font-size:9px}
+  .topbar .market b,.topbar .frequency b{font-size:10px}
+  .module-nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  .module{min-height:42px;font-size:9px}
+  .gauges{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+  .gauge-card{min-height:112px}
+  .dashboard{display:flex;flex-direction:column;gap:9px}
+  .dashboard>.left-stack,.dashboard>.middle,.dashboard>.right{width:100%}
+  .production{height:auto;min-height:0}
+  .weather-cards,.news-list[data-news="all"]{grid-template-columns:1fr}
+  .weather-temp{font-size:52px}
+  .weather-details,.weather-details b{font-size:11px}
+  .weather-hour-row span,.weather-hour-row small{font-size:9px}
+  .weather-hour-row b{font-size:10px}
+  .weather-day-list>div,.weather-day-list b{font-size:10px}
+  .weather-day-list small{font-size:9px}
+  .news-image-wrap{height:190px}
+  .placeholder{padding:13px}
+  .module-heading h1{font-size:19px}
+  .module-heading>span{width:42px;height:42px;flex-basis:42px}
+  footer{font-size:8px;gap:8px}
+}
