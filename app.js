@@ -133,11 +133,12 @@ async function cycle(){
     render();
     if(v.frequency!=null)$(".frequency b").textContent=fmt(v.frequency,2)+" Hz";
     $(".frequency").title=(src.frequency?.provider||"ЕСО frequency endpoint")+" · snapshot: "+(snapshot.updated_at||"—");
-    if(v.ibex!=null)$(".market b").textContent=fmt(v.ibex,2)+" €/MWh";
+    if(v.ibex!=null){document.querySelectorAll(".market b").forEach(el=>el.textContent=fmt(v.ibex,2)+" €/MWh");}
     const co2Price=num(v.co2_eur_t),co2Change=num(v.co2_daily_percent);
     const co2El=$("#co2-price"),co2Meta=$("#co2-meta");
     if(co2El)co2El.innerHTML=(co2Price==null?"—":fmt(co2Price,2))+" <span>€/tCO₂</span>";
     if(co2Meta)co2Meta.textContent=co2Price==null?"НЯМА ПОТВЪРДЕНА КОТИРОВКА ОТ TRADING ECONOMICS":("Дневна котировка: "+(v.co2_quote_date||"дата не е посочена")+(co2Change==null?"":" · "+(co2Change>0?"+":"")+fmt(co2Change,2)+"%"));
+    document.querySelectorAll(".top-co2 b").forEach(el=>el.textContent=co2Price==null?"— €/t":fmt(co2Price,2)+" €/t");
 
     const cards=document.querySelectorAll(".npp .unit");
     for(const n of [5,6]){
@@ -306,6 +307,47 @@ document.addEventListener("click",event=>{
   const content=button.nextElementSibling;
   if(content)content.hidden=expanded;
 });
+
+
+/* Python V52-style fullscreen and city/sea camera categories. */
+document.getElementById("fullscreenBtn")?.addEventListener("click",()=>{
+ if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();
+ else document.exitFullscreen?.();
+});
+const extraCameraCatalog={
+ city:[
+  {name:"СОФИЯ · ЛЮЛИН 7",url:"https://weather-webcam.eu/cams/sofia-lulin.html"},
+  {name:"МОМКОВО · АМ МАРИЦА",url:"https://www.weather-webcam.eu/cams/ujna-momkovo.html"},
+  {name:"ЛОВЕЧ",url:"https://weather-webcam.eu/cams/severna-balgaria-lovech-1.html"},
+  {name:"ВИДИН",url:"https://weather-webcam.eu/cams/radio-vidin.html"},
+  {name:"ВЕЛИКО ТЪРНОВО",url:"https://www.youtube.com/embed/live_stream?autoplay=1&mute=1&channel=UC0MrPkKoR10dziKUa6JUwIg"},
+  {name:"СИЛИСТРА",url:"https://weather-webcam.eu/cams/SI-silistra.html"}
+ ],
+ sea:[
+  {name:"ШАБЛА · КАРИЯ",url:"https://g0.ipcamlive.com/player/player.php?alias=655a01037b514&autoplay=1&skin=white"},
+  {name:"ВАРНА · АКЧЕЛАР",url:"https://weather-webcam.eu/cams/varna-akchelar-static.html"},
+  {name:"БУРГАС · МОСТИК",url:"https://www.weather-webcam.eu/cams/burgas-smart3.html"},
+  {name:"КИТЕН",url:"https://ipcamlive.com/player/player.php?alias=59404c38c8c0c&autoplay=1&skin=white"}
+ ]
+};
+function buildExtraCameraWalls(){
+ for(const [group,cameras] of Object.entries(extraCameraCatalog)){
+  const wall=document.querySelector('[data-camera-wall="'+group+'"]');
+  if(!wall||wall.dataset.built==="1")continue;
+  wall.innerHTML=cameras.map((cam,i)=>'<article class="mountain-camera-card"><div class="mountain-camera-region">'+(group==="city"?"CITY MONITORING":"BLACK SEA MONITORING")+'</div><h3>'+cam.name+'</h3><div class="mountain-camera-view" ondblclick="mountainFullscreen(\'frame\',\'extra-'+group+'-'+i+'\')"><iframe id="extra-'+group+'-'+i+'" src="'+cam.url+'" title="'+cam.name+'" loading="lazy" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div><div class="mountain-camera-status">● PUBLIC CAMERA</div><small>PUBLIC LIVE CAMERA SOURCE</small></article>').join("");
+  wall.dataset.built="1";
+ }
+}
+buildExtraCameraWalls();
+document.querySelectorAll("[data-camera-tab]").forEach(button=>button.addEventListener("click",()=>{
+ const group=button.dataset.cameraTab;
+ document.querySelectorAll("[data-camera-tab]").forEach(b=>b.classList.toggle("active",b===button));
+ document.querySelectorAll("[data-camera-wall]").forEach(w=>{
+  const active=w.dataset.cameraWall===group;
+  w.hidden=!active;
+  w.classList.toggle("active",active);
+ });
+}));
 
 /* Mountain cameras integrated into Weather Center */
 function refreshMountainCamera(id,url,statusId,intervalMode="snapshot"){
