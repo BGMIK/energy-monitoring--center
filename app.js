@@ -399,32 +399,24 @@ function newsSummary(item){
  const raw=String(item.description||item.content||"").replace(/<script[\s\S]*?<\/script>/gi," ").replace(/<style[\s\S]*?<\/style>/gi," ").replace(/<[^>]+>/g," ").replace(/&nbsp;/gi," ").replace(/&amp;/gi,"&").replace(/&#39;|&apos;/gi,"'").replace(/&quot;/gi,'"').replace(/\s+/g," ").trim();
  return raw.length>230?raw.slice(0,227).trim()+"…":raw;
 }
-const NEWS_FALLBACK_IMAGES=[
- "https://frognews.bg/images2/Alexander/1770805106_698c5772017e0.webp",
- "https://bnrnews.bg/api/media/a5aa06cb-404c-465e-b7e9-5fec20019320?Size=large",
- "https://upload.wikimedia.org/wikipedia/commons/f/f4/Kozloduy_Nuclear_Power_Plant_023.jpg"
-];
 function renderNews(){
  const target=document.querySelector('[data-news="all"]');
  if(!target)return;
- const filtered=newsItems.slice(0,3);
- if(!filtered.length){
-  target.innerHTML='<div class="news-empty">Няма намерени публикации.</div>';
+ if(!newsItems.length){
+  target.innerHTML='<div class="news-empty">Няма намерени публикации в момента. Натисни „ОБНОВИ“, за да опиташ отново.</div>';
   return;
  }
- target.innerHTML=filtered.map(item=>{
-  const imageUrl=item.image||NEWS_FALLBACK_IMAGES[newsItems.indexOf(item)%NEWS_FALLBACK_IMAGES.length];
-  const image='<img class="news-image" src="'+newsEscape(imageUrl)+'" alt="Илюстративна снимка на енергийна инфраструктура" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.classList.add(\'no-image\');this.remove()">';
+ target.innerHTML=newsItems.map(item=>{
+  const image=item.image?'<img class="news-image" src="'+newsEscape(item.image)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.classList.add(\'no-image\');this.remove()">':'';
   const summary=item.summary?'<p class="news-summary">'+newsEscape(item.summary)+'</p>':'';
   const source=item.source||"Новинарски източник";
   const date=new Date(item.pubDate);
   const time=Number.isNaN(date.getTime())?"":date.toLocaleString("bg-BG",{timeZone:"Europe/Sofia",day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
-  return '<article class="news-card has-image">'+
+  return '<article class="news-card '+(item.image?"has-image":"no-image")+'">'+
    '<a class="news-card-link" href="'+newsEscape(item.link)+'" target="_blank" rel="noopener noreferrer">'+
-   '<div class="news-image-wrap">'+image+'</div>'+
+   (item.image?'<div class="news-image-wrap">'+image+'</div>':'<div class="news-image-wrap news-image-placeholder"><span>📰</span></div>')+
    '<div class="news-card-body"><h3>'+newsEscape(item.title)+'</h3>'+summary+
-   '<div class="news-meta">'+newsEscape(source)+(time?' · '+newsEscape(time):'')+
-   '<span class="news-image-note"> · Илюстративна снимка</span></div></div></a></article>';
+   '<div class="news-meta">'+newsEscape(source)+(time?' · '+newsEscape(time):'')+'</div></div></a></article>';
  }).join("");
 }
 async function loadNews(){
