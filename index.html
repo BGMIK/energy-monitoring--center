@@ -12,7 +12,10 @@
 <header class="topbar">
   <div class="system-title">ЕЛЕКТРОЕНЕРГИЙНА СИСТЕМА НА БЪЛГАРИЯ</div>
   <div class="meta">ЗАРЕЖДАНЕ НА ОПЕРАТИВНИ ДАННИ</div>
+  <div class="market top-market">IBEX: <b>— €/MWh</b></div>
+  <div class="market top-co2">CO₂ EUA: <b>— €/t</b></div>
   <div class="frequency">ЧЕСТОТА: <b>— Hz</b></div>
+  <button id="fullscreenBtn" type="button" aria-label="Цял екран" title="Цял екран">⛶</button>
   <div class="spacer"></div>
   <button id="languageBtn" type="button" aria-label="Смяна на езика">ENGLISH</button>
   <div class="online"><i></i> CONNECTING</div>
@@ -95,8 +98,13 @@
   </section>
   <section class="weather-section mountain-cameras">
     <h2>⛰️ ПЛАНИНСКИ КАМЕРИ</h2>
-    <p>Четири камери в планинския мониторинг. Двоен клик върху изображение отваря изглед на цял екран; ESC или двоен клик затваря.</p>
-    <div class="mountain-camera-grid">
+    <p>Планински, градски и морски камери. Избери категория; двоен клик върху камера отваря изглед на цял екран; ESC затваря.</p>
+    <div class="camera-category-tabs" role="tablist" aria-label="Категории камери">
+      <button class="camera-tab active" type="button" data-camera-tab="mountain">🏔 ПЛАНИНСКИ</button>
+      <button class="camera-tab" type="button" data-camera-tab="city">🏙 ГРАДСКИ</button>
+      <button class="camera-tab" type="button" data-camera-tab="sea">🌊 МОРСКИ</button>
+    </div>
+    <div class="mountain-camera-grid camera-wall active" id="camera-wall-mountain" data-camera-wall="mountain">
       <article class="mountain-camera-card">
         <div class="mountain-camera-region">РИЛА · БОРОВЕЦ</div><h3>Маркуджик 1 · 2345 m</h3>
         <div class="mountain-camera-view" ondblclick="mountainFullscreen('image','mountain-borovets-markudjik')"><img id="mountain-borovets-markudjik" alt="Камера Боровец – Маркуджик 1"></div>
@@ -120,6 +128,8 @@
         <div class="mountain-camera-status" id="mountain-aleko-status">● CONNECTING</div><small>LIVE SNAPSHOT · ОБНОВЯВАНЕ 3 СЕК.</small>
       </article>
     </div>
+    <div class="mountain-camera-grid camera-wall" id="camera-wall-city" data-camera-wall="city" hidden></div>
+    <div class="mountain-camera-grid camera-wall" id="camera-wall-sea" data-camera-wall="sea" hidden></div>
     <div class="mountain-camera-fullscreen" id="mountain-camera-fullscreen" ondblclick="closeMountainFullscreen()">
       <button type="button" onclick="closeMountainFullscreen()">ESC / ЗАТВОРИ ✕</button>
       <img id="mountain-fs-image" alt="Планинска камера" hidden>
