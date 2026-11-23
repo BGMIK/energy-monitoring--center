@@ -22,7 +22,7 @@ jobs:
   refresh:
     name: Collect ESO and market data
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -45,9 +45,9 @@ jobs:
           google-chrome --version
 
       - name: Run live data collector
-        run: python refresh_data.py
+        run: python -u refresh_data.py
 
-      - name: Validate generated snapshot
+      - name: Validate generated snapshot freshness and core feeds
         run: |
           python - <<'PY'
           import json
@@ -60,6 +60,11 @@ jobs:
           failed = [name for name in required if not data.get("sources", {}).get(name, {}).get("ok")]
           if failed:
               raise SystemExit("Core source checks failed: " + ", ".join(failed))
+          from datetime import datetime, timezone
+          stamp = datetime.fromisoformat(data["updated_at"].replace("Z", "+00:00"))
+          age = (datetime.now(timezone.utc) - stamp).total_seconds()
+          if age > 600:
+              raise SystemExit(f"Snapshot is stale: {age/60:.1f} minutes old")
           print("Snapshot timestamp:", data.get("updated_at"))
           print("Core ESO sources: OK")
           print("IBEX source:", data.get("sources", {}).get("ibex", {}))
