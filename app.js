@@ -368,7 +368,15 @@ function refreshBotevCamera(){
 function refreshMountainCameras(){
   refreshMountainCamera("mountain-borovets-markudjik","https://media.borovets-bg.com/cams/channel?channel=81","mountain-borovets-status");
   refreshMountainCamera("mountain-pamporovo","https://webcams.pamporovo.me/memfs/54d2de25-1031-438f-9088-ea70df4702a1.jpg","mountain-pamporovo-status");
-  refreshMountainCamera("mountain-aleko","https://www.weather-webcam.eu/cams/aleko26.php","mountain-aleko-status");
+}
+/* Aleko is served as a dedicated camera page; reload that page rather than
+   repeatedly assigning the PHP snapshot to an IMG element. */
+function refreshAlekoCamera(){
+  const frame=document.getElementById("mountain-aleko");
+  const status=document.getElementById("mountain-aleko-status");
+  if(!frame)return;
+  frame.onload=()=>{if(status){status.textContent="● SOURCE RELOADED";status.style.color="#21e38a";}};
+  frame.src="https://weather-webcam.eu/cams/aleko26.html?refresh="+Date.now();
 }
 function mountainFullscreen(type,id){
   const box=document.getElementById("mountain-camera-fullscreen");
@@ -389,6 +397,8 @@ function closeMountainFullscreen(){
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeMountainFullscreen();});
 refreshMountainCameras();
 setInterval(refreshMountainCameras,15000);
+refreshAlekoCamera();
+setInterval(refreshAlekoCamera,60000);
 refreshBotevCamera();
 setInterval(refreshBotevCamera,30000);
 setTimeout(()=>{try{document.getElementById("mountain-maly").contentWindow.postMessage(JSON.stringify({event:"command",func:"playVideo",args:""}),"*");}catch(e){}},2500);
