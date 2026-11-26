@@ -385,3 +385,5 @@ if __name__=="__main__":run()
 
 # Scheduled refresh health-check marker. Trigger a fresh scheduled collector run after stale snapshot detection.
 # Manual validation trigger: verify the scheduled ESO collector on main.
+
+# 2026-11-26: retrigger scheduled live-data collector and verify fresh ESO snapshot.
