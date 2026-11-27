@@ -1,0 +1,21 @@
+{
+  "id": "./",
+  "name": "MILCHO ENERGY HUB",
+  "short_name": "MILCHO HUB",
+  "description": "Енергиен мониторинг, новини, метеорология и камери.",
+  "lang": "bg",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#07131b",
+  "theme_color": "#07131b",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
